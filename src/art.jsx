@@ -92,6 +92,32 @@ const SHAPES = {
       <path d="M20 5.5c0-.8-.7-1.5-1.5-1.5H13v16h5.5a1.5 1.5 0 001.5-1.5v-13Z" />
     </g>
   ),
+  stove: (
+    <g>
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <circle cx="8.5" cy="9.5" r="2" />
+      <circle cx="15.5" cy="9.5" r="2" />
+      <path d="M6 16h12" />
+    </g>
+  ),
+  shower: (
+    <g>
+      <path d="M6 9a6 6 0 0 1 12 0" />
+      <path d="M4 9h16" />
+      <path d="M8 13v1M12 13v1M16 13v1M8 17v1M12 17v1M16 17v1" />
+    </g>
+  ),
+  shirt: (
+    <path d="M8 4 4 7l2 3 2-1.3V20h8V8.7L18 10l2-3-4-3-2 2h-4L8 4Z" />
+  ),
+  toy: (
+    <g>
+      <circle cx="8" cy="16" r="3" />
+      <circle cx="16" cy="16" r="3" />
+      <path d="M8 13V9a4 4 0 0 1 8 0v4" />
+      <path d="M10 7.5 8.5 5M14 7.5 15.5 5" />
+    </g>
+  ),
 };
 
 export function Glyph({ name, size = 26, color = c.ink, strokeWidth = 2 }) {
@@ -117,6 +143,93 @@ export function IconChip({ children, bg = c.sage, size = 56, radius }) {
       }}
     >
       {children}
+    </div>
+  );
+}
+
+/* ============================================================
+   خلفياتُ بيئاتِ القِصَصِ — مَشْهَدٌ صَغِيرٌ يُلَمِّحُ إِلَى المَكَانِ
+   بَدَلَ لَوْنٍ مُصْمَتٍ خَلْفَ الأَيْقُونَةِ
+   ============================================================ */
+const BIOME_OF = {
+  falaj: "mountain", ibex: "mountain", frankincense: "mountain",
+  turtle: "nightSea", oilspill: "sea", bay: "sea",
+  mangrove: "mangrove", falcon: "island", airquality: "hazySky",
+};
+
+function BiomeBackdrop({ biome }) {
+  switch (biome) {
+    case "mountain":
+      return (
+        <g>
+          <rect width="64" height="64" fill="#CDE7E0" />
+          <path d="M0 44 14 26 24 38 36 20 50 40 64 30V64H0Z" fill="#8FBF9C" />
+          <path d="M22 44 30 32 40 46Z" fill="#6FA37E" opacity=".85" />
+        </g>
+      );
+    case "nightSea":
+      return (
+        <g>
+          <rect width="64" height="64" fill="#16234A" />
+          <circle cx="49" cy="15" r="7" fill="#F3E6B8" opacity=".9" />
+          <path d="M0 46c8-5 12 5 20 0s12 5 20 0 12 5 24 0V64H0Z" fill="#0E3352" />
+        </g>
+      );
+    case "sea":
+      return (
+        <g>
+          <rect width="64" height="64" fill="#BEE3EC" />
+          <path d="M0 40c8-6 12 6 20 0s12 6 20 0 12 6 24 0V64H0Z" fill="#3E86A8" />
+          <path d="M0 50c8-4 12 4 20 0s12 4 20 0 12 4 24 0V64H0Z" fill="#2C6484" />
+        </g>
+      );
+    case "mangrove":
+      return (
+        <g>
+          <rect width="64" height="64" fill="#D7E7C8" />
+          <path d="M0 46h64V64H0Z" fill="#4E6E9C" opacity=".55" />
+          <path d="M14 46V30M14 46 8 36M14 40 20 32" stroke="#5E7A45" strokeWidth="3" fill="none" strokeLinecap="round" />
+          <path d="M36 46V26M36 46 30 34M36 38 44 28" stroke="#4A6338" strokeWidth="3" fill="none" strokeLinecap="round" />
+          <circle cx="14" cy="24" r="9" fill="#6E9460" /><circle cx="36" cy="18" r="10" fill="#5E8352" />
+        </g>
+      );
+    case "island":
+      return (
+        <g>
+          <rect width="64" height="64" fill="#A9D6E8" />
+          <path d="M0 44c10-4 14 4 22 0s14 4 22 0 12 4 20 0V64H0Z" fill="#2E7DAF" />
+          <ellipse cx="32" cy="44" rx="14" ry="7" fill="#D8CBA3" />
+        </g>
+      );
+    case "hazySky":
+      return (
+        <g>
+          <rect width="64" height="64" fill="#D9D6C6" />
+          <rect x="8" y="34" width="8" height="20" fill="#8B96A0" />
+          <rect x="20" y="24" width="8" height="30" fill="#7C8790" />
+          <rect x="34" y="30" width="8" height="24" fill="#8B96A0" />
+          <path d="M0 54h64V64H0Z" fill="#6E7A82" />
+          <circle cx="24" cy="16" r="3" fill="#C7C2B0" opacity=".8" /><circle cx="34" cy="12" r="4" fill="#C7C2B0" opacity=".7" />
+        </g>
+      );
+    default:
+      return <rect width="64" height="64" fill="#E4EEDC" />;
+  }
+}
+
+export function StoryBadge({ storyId, icon, color, size = 56 }) {
+  const biome = BIOME_OF[storyId] || "mountain";
+  return (
+    <div style={{ width: size, height: size, borderRadius: size * 0.32, overflow: "hidden", flexShrink: 0, position: "relative" }}>
+      <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden="true" style={{ display: "block" }}>
+        <BiomeBackdrop biome={biome} />
+      </svg>
+      <div style={{
+        position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
+        background: "rgba(20,28,18,.16)",
+      }}>
+        <Glyph name={icon} size={size * 0.46} color="#FFF" strokeWidth={2.1} />
+      </div>
     </div>
   );
 }
@@ -367,6 +480,7 @@ export const keyframes = `
   @keyframes heatWave { 0%,100% { transform: translateY(0) scaleY(1); opacity:.5; } 50% { transform: translateY(-7px) scaleY(1.2); opacity:.85; } }
   @keyframes blow { 0% { transform: translateY(0) scaleX(.6); opacity:0; } 35% { opacity:.95; } 100% { transform: translateY(16px) scaleX(1.5); opacity:0; } }
   @keyframes tvPlay { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+  @keyframes spinFan { to { transform: rotate(360deg); } }
 
   .bob { animation: bob 3.2s ease-in-out infinite; display:inline-block; }
   .star { animation: twinkle 2.4s ease-in-out infinite; }

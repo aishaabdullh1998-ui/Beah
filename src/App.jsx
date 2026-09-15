@@ -11,7 +11,7 @@ import {
   COPYRIGHT_YEAR, sections, salim as salimText, encouragements,
   stories, quizSets, dictionaryTerms, doDontCards, labels, games, mission, footerText,
 } from "./content.js";
-import { Glyph, IconChip, Salim, SalimSays, OmanMap, Medal, keyframes } from "./art.jsx";
+import { Glyph, IconChip, Salim, SalimSays, OmanMap, StoryBadge, keyframes } from "./art.jsx";
 import { WORD_SCENES, ActBtn, Hint } from "./scenes.jsx";
 import { GAMES } from "./games.jsx";
 
@@ -323,10 +323,6 @@ function HomePanel({ profile, go, compact }) {
         title={sections.words} sub={sections.wordsSub} icon="book"
         bg={c.dusty} fg="#233038" onClick={() => go("words")}
       />
-      <BigButton
-        title={sections.medals} sub={pick(profile, sections.medalsSub, sections.medalsSubF)} icon="medal"
-        bg={c.sageInk} fg={c.onDark} onClick={() => go("medals")}
-      />
     </div>
   );
 }
@@ -384,9 +380,7 @@ function StoriesScreen({ profile, onOpenStory, onBack }) {
                 onMouseUp={(e) => { e.currentTarget.style.transform = "none"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.transform = "none"; }}
               >
-                <IconChip bg={`${col}1F`} size={46} radius={16}>
-                  <Glyph name={s.icon} size={22} color={col} />
-                </IconChip>
+                <StoryBadge storyId={s.id} icon={s.icon} color={col} size={52} />
                 <span style={{ flex: 1, minWidth: 0 }}>
                   <span style={{ display: "block", fontFamily: font.display, fontSize: 18.5, fontWeight: 700, color: c.ink, lineHeight: 1.45 }}>
                     {s.title}
@@ -408,9 +402,7 @@ function StoriesScreen({ profile, onOpenStory, onBack }) {
           {story ? (
             <Card pad={16} style={{ borderInlineStart: `4px solid ${envColor[story.id]}` }}>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <IconChip bg={`${envColor[story.id]}22`} size={46} radius={16}>
-                  <Glyph name={story.icon} size={22} color={envColor[story.id]} />
-                </IconChip>
+                <StoryBadge storyId={story.id} icon={story.icon} color={envColor[story.id]} size={52} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <h3 style={{ margin: 0, fontFamily: font.display, fontSize: 19, fontWeight: 700, color: c.ink, lineHeight: 1.4 }}>{story.title}</h3>
                   <p style={{ margin: "2px 0 0", fontSize: 12, color: c.inkFaint, fontFamily: font.body }}>{story.env}</p>
@@ -567,9 +559,11 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded }) {
           <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
             <div className="pop" style={{ background: "rgba(255,255,255,.95)", borderRadius: 18, padding: "16px 16px 18px", width: "100%", textAlign: "center", boxShadow: shadow.lg }}>
               <div style={{ display: "flex", justifyContent: "center" }}>
-                <Medal storyId={story.id} icon={story.icon} earned size={62} />
+                <IconChip bg={`${accent}22`} size={62} radius={22}>
+                  <Glyph name="check" size={30} color={accent} strokeWidth={2.6} />
+                </IconChip>
               </div>
-              <p style={{ margin: "2px 0 0", fontFamily: font.display, color: accent, fontWeight: 700, fontSize: 19 }}>{scene.badge}</p>
+              <p style={{ margin: "8px 0 0", fontFamily: font.display, color: accent, fontWeight: 700, fontSize: 19 }}>{scene.badge}</p>
               <p style={{ margin: "8px 0 0", color: "#33301F", fontSize: 13, lineHeight: 1.95, fontFamily: font.body }}>
                 {pick(profile, scene.tip.m, scene.tip.f)}
               </p>
@@ -707,72 +701,6 @@ function DoDont({ onBack }) {
         {feedback === "no" && <Hint tone="bad">{labels.thinkAgain}</Hint>}
       </div>
       <BackButton onClick={onBack} text={labels.backToWords} />
-    </div>
-  );
-}
-
-/* ============================================================
-   خزانة الأوسمة
-   ============================================================ */
-function Medals({ profile, onBack }) {
-  const done = profile.completed || [];
-  const gdone = profile.gamesDone || [];
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-      <ScreenHead
-        title={sections.medals} onBack={onBack} backText={labels.backToMap}
-        extra={<ProgressPill done={done.length + gdone.length} total={stories.length + games.length} />}
-      />
-
-      {done.length + gdone.length === 0 && (
-        <SalimSays mood="ask" text={pick(profile, salimText.emptyMedals, salimText.emptyMedalsF)} size={58} />
-      )}
-
-      <h3 style={{ margin: "4px 0 0", fontFamily: font.display, fontSize: 17, fontWeight: 700, color: c.inkSoft }}>أَوْسِمَةُ القِصَصِ</h3>
-      <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fill, minmax(132px, 1fr))" }}>
-        {stories.map((s) => {
-          const earned = done.includes(s.id);
-          const ending = Object.values(s.scenes).find((sc) => sc.isEnding);
-          return (
-            <Card key={s.id} pad={12} style={{
-              textAlign: "center",
-              background: earned ? c.paper : "transparent",
-              boxShadow: earned ? shadow.sm : "none",
-              border: earned ? "none" : `1px dashed ${c.line}`,
-            }}>
-              <div style={{ display: "flex", justifyContent: "center" }}>
-                <Medal storyId={s.id} icon={s.icon} earned={earned} size={58} />
-              </div>
-              <p style={{ margin: "6px 0 0", fontFamily: font.display, fontSize: 14, fontWeight: 700, lineHeight: 1.55, color: earned ? c.ink : c.inkFaint }}>
-                {earned ? ending.badge : "لَمْ يُفْتَحْ بَعْدُ"}
-              </p>
-              <p style={{ margin: "2px 0 0", fontSize: 11, color: c.inkFaint, fontFamily: font.body }}>{s.env}</p>
-            </Card>
-          );
-        })}
-      </div>
-
-      <h3 style={{ margin: "8px 0 0", fontFamily: font.display, fontSize: 17, fontWeight: 700, color: c.inkSoft }}>أَوْسِمَةُ الأَلْعَابِ</h3>
-      <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fill, minmax(132px, 1fr))" }}>
-        {games.map((g) => {
-          const earned = gdone.includes(g.id);
-          return (
-            <Card key={g.id} pad={12} style={{
-              textAlign: "center",
-              background: earned ? c.paper : "transparent",
-              boxShadow: earned ? shadow.sm : "none",
-              border: earned ? "none" : `1px dashed ${c.line}`,
-            }}>
-              <div style={{ display: "flex", justifyContent: "center" }}>
-                <Medal storyId="falaj" icon={g.icon} earned={earned} size={58} />
-              </div>
-              <p style={{ margin: "6px 0 0", fontFamily: font.display, fontSize: 14, fontWeight: 700, lineHeight: 1.55, color: earned ? c.ink : c.inkFaint }}>
-                {earned ? g.title : "لَمْ يُفْتَحْ بَعْدُ"}
-              </p>
-            </Card>
-          );
-        })}
-      </div>
     </div>
   );
 }
@@ -985,7 +913,6 @@ export default function App() {
         </div>
       );
     }
-    if (view === "medals") return <Medals profile={profile} onBack={() => setView("home")} />;
 
     return <HomePanel profile={profile} go={setView} compact={false} />;
   };
@@ -1045,8 +972,8 @@ export default function App() {
                 <SalimSays mood="smile" text={pick(profile, salimText.welcome, salimText.welcomeF)} size={74} />
                 <p style={{ margin: "16px 0 0", fontSize: 14, lineHeight: 2, color: c.inkSoft, fontFamily: font.body }}>
                   {isF(profile)
-                    ? "اخْتَارِي قِسْمًا مِنَ الجَانِبِ: قِصَصٌ تَقُودِينَهَا، وَأَلْعَابٌ تُجَرِّبِينَ فِيهَا قَرَارَاتِكِ، وَكَلِمَاتٌ تَتَحَرَّكُ بَيْنَ يَدَيْكِ."
-                    : "اخْتَرْ قِسْمًا مِنَ الجَانِبِ: قِصَصٌ تَقُودُهَا، وَأَلْعَابٌ تُجَرِّبُ فِيهَا قَرَارَاتِكَ، وَكَلِمَاتٌ تَتَحَرَّكُ بَيْنَ يَدَيْكَ."}
+                    ? "اخْتَارِي قِسْمًا مِنَ الجَانِبِ: قِصَصٌ تَقُودِينَهَا، وَأَلْعَابٌ تُجَرِّبِينَ فِيهَا قَرَارَاتِكِ، وَمُعْجَمًا بَصَرِيًّا تَسْتَكْشِفِينَهُ بِيَدَيْكِ."
+                    : "اخْتَرْ قِسْمًا مِنَ الجَانِبِ: قِصَصٌ تَقُودُهَا، وَأَلْعَابٌ تُجَرِّبُ فِيهَا قَرَارَاتِكَ، وَمُعْجَمًا بَصَرِيًّا تَسْتَكْشِفُهُ بِيَدَيْكَ."}
                 </p>
               </Card>
             ) : content()}

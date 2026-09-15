@@ -10,11 +10,11 @@
    ============================================================ */
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { c, shadow, font, ease } from "./theme.js";
-import { Salim, SalimSays } from "./art.jsx";
+import { Salim, SalimSays, Glyph, IconChip } from "./art.jsx";
 import {
   wasteBins, wasteItems, wasteTexts,
-  homeDevices, homeRounds, homeTexts,
-  marketNeeds, marketTexts, labels,
+  homeRooms, homeTexts,
+  marketSets, marketTexts, labels,
 } from "./content.js";
 
 const isF = (p) => !!p && p.gender === "f";
@@ -494,91 +494,266 @@ function Device({ dev, on, onToggle }) {
     );
   }
 
-  /* سخّان الماء على الجدار الجانبي */
+  if (dev.id === "heater") {
+    return (
+      <Obj x={-150} y={-74} z={-58} onClick={() => onToggle(dev.id)} label={`${dev.name}: ${label}`} pressed={on} zIndex={4}>
+        <Box3D w={44} h={58} dep={16} radius={20}
+          face="linear-gradient(180deg,#EFF1EC 0%,#D3D8D0 100%)"
+          top="#FAFBF8" side="#BCC2B9"
+          glow={on ? "rgba(240,150,90,.6)" : null}>
+          <div style={{ position: "absolute", left: 9, right: 9, top: 14, height: 3, borderRadius: 3, background: "#AEB5AC" }} />
+          <div style={{ position: "absolute", left: 9, right: 9, top: 24, height: 3, borderRadius: 3, background: "#AEB5AC" }} />
+          <div style={{ position: "absolute", left: "50%", marginLeft: -4, bottom: 8, width: 8, height: 8, borderRadius: "50%", background: on ? "#E8894F" : "#C2C8C1", boxShadow: on ? "0 0 9px #E8894F" : "none" }} />
+        </Box3D>
+      </Obj>
+    );
+  }
+
+  /* المَوْقِدُ — يَشْغَلُ نَفْسَ مَوْضِعِ المُكَيِّفِ فِي غُرَفٍ لَا مُكَيِّفَ فِيهَا */
+  if (dev.id === "stove") {
+    return (
+      <Obj x={44} y={-62} z={-R.d / 2 + 4} onClick={() => onToggle(dev.id)} label={`${dev.name}: ${label}`} pressed={on} zIndex={2}>
+        <Box3D w={82} h={30} dep={16} radius={6}
+          face="linear-gradient(180deg,#3A3F42 0%,#25292B 100%)"
+          top="#4A5054" side="#1A1D1E"
+          glow={on ? "rgba(232,116,68,.75)" : null}>
+          <div style={{ position: "absolute", top: 6, left: 10, width: 16, height: 16, borderRadius: "50%", background: on ? "#E8744C" : "#5A6165", boxShadow: on ? "0 0 12px #E8744C" : "none", transition: `all .3s ${ease}` }} />
+          <div style={{ position: "absolute", top: 6, right: 10, width: 16, height: 16, borderRadius: "50%", background: on ? "#F0A15C" : "#5A6165", boxShadow: on ? "0 0 12px #F0A15C" : "none", transition: `all .3s ${ease}` }} />
+        </Box3D>
+      </Obj>
+    );
+  }
+
+  /* الشَّفَّاطُ — يَشْغَلُ مَوْضِعَ التِّلْفَازِ فِي غُرَفٍ لَا تِلْفَازَ فِيهَا */
+  if (dev.id === "fan") {
+    return (
+      <Obj x={-62} y={-30} z={-R.d / 2 + 4} onClick={() => onToggle(dev.id)} label={`${dev.name}: ${label}`} pressed={on} zIndex={2}>
+        <Box3D w={52} h={52} dep={10} radius={26}
+          face="linear-gradient(180deg,#E7EAE6 0%,#C9CEC5 100%)"
+          top="#F2F4F0" side="#B2B8AD"
+          glow={on ? "rgba(140,210,235,.55)" : null}>
+          <div style={{
+            position: "absolute", inset: 10, borderRadius: "50%", border: "2px solid #8C948C",
+            animation: on ? "spinFan 1.1s linear infinite" : "none",
+          }}>
+            {[0, 90, 180, 270].map((deg) => (
+              <span key={deg} style={{
+                position: "absolute", left: "50%", top: "50%", width: 3, height: 13,
+                background: "#8C948C", transformOrigin: "top", marginLeft: -1.5,
+                transform: `rotate(${deg}deg) translateY(0)`,
+              }} />
+            ))}
+          </div>
+        </Box3D>
+      </Obj>
+    );
+  }
+
+  /* الدُّشُّ — يَشْغَلُ مَوْضِعَ المُكَيِّفِ فِي غُرَفٍ لَا مُكَيِّفَ فِيهَا */
+  if (dev.id === "shower") {
+    return (
+      <Obj x={44} y={-62} z={-R.d / 2 + 4} onClick={() => onToggle(dev.id)} label={`${dev.name}: ${label}`} pressed={on} zIndex={2}>
+        <div style={{ position: "relative" }}>
+          <Box3D w={40} h={16} dep={10} radius={8}
+            face="linear-gradient(180deg,#DCE6E8 0%,#B9C6CE 100%)"
+            top="#EDF2F3" side="#9FAEB6"
+            glow={on ? "rgba(140,210,235,.7)" : null} />
+          {on && [0, 1, 2, 3].map((k) => (
+            <span key={k} style={{
+              position: "absolute", left: 6 + k * 9, top: 16, width: 2.4, height: 30, borderRadius: 3,
+              background: "rgba(140,200,225,.75)", animation: `dripFall 1s linear ${k * 0.18}s infinite`,
+            }} />
+          ))}
+        </div>
+      </Obj>
+    );
+  }
+
+  /* جِهَازُ العَرْضِ — يَشْغَلُ مَوْضِعَ التِّلْفَازِ فِي غُرَفٍ لَا تِلْفَازَ فِيهَا */
   return (
-    <Obj x={-150} y={-74} z={-58} onClick={() => onToggle(dev.id)} label={`${dev.name}: ${label}`} pressed={on} zIndex={4}>
-      <Box3D w={44} h={58} dep={16} radius={20}
-        face="linear-gradient(180deg,#EFF1EC 0%,#D3D8D0 100%)"
-        top="#FAFBF8" side="#BCC2B9"
-        glow={on ? "rgba(240,150,90,.6)" : null}>
-        <div style={{ position: "absolute", left: 9, right: 9, top: 14, height: 3, borderRadius: 3, background: "#AEB5AC" }} />
-        <div style={{ position: "absolute", left: 9, right: 9, top: 24, height: 3, borderRadius: 3, background: "#AEB5AC" }} />
-        <div style={{ position: "absolute", left: "50%", marginLeft: -4, bottom: 8, width: 8, height: 8, borderRadius: "50%", background: on ? "#E8894F" : "#C2C8C1", boxShadow: on ? "0 0 9px #E8894F" : "none" }} />
-      </Box3D>
+    <Obj x={-62} y={-30} z={-R.d / 2 + 4} onClick={() => onToggle(dev.id)} label={`${dev.name}: ${label}`} pressed={on} zIndex={2}>
+      <div style={{ position: "relative" }}>
+        <Box3D w={70} h={26} dep={10} radius={5}
+          face="linear-gradient(180deg,#EDEFEA 0%,#CFD5C9 100%)"
+          top="#F7F8F4" side="#B6BDAE"
+          glow={on ? "rgba(120,200,235,.55)" : null}>
+          <div style={{ position: "absolute", left: 8, top: "50%", marginTop: -5, width: 10, height: 10, borderRadius: "50%", background: on ? "#4487AE" : "#9CA69C", boxShadow: on ? "0 0 10px #4487AE" : "none" }} />
+        </Box3D>
+        {on && (
+          <div style={{
+            position: "absolute", left: 4, top: 12, width: 0, height: 0,
+            borderTop: "22px solid transparent", borderBottom: "22px solid transparent",
+            borderRight: "58px solid rgba(150,205,230,.28)",
+          }} />
+        )}
+      </div>
     </Obj>
   );
 }
 
+const ROOM_THEME = {
+  living: {
+    lit:  { wall: "linear-gradient(180deg,#7E8FA1 0%,#63758A 100%)", side: "linear-gradient(180deg,#68798D 0%,#526379 100%)", floor: "linear-gradient(180deg,#A8977C 0%,#8A7962 100%)", sky: "linear-gradient(180deg,#1E2B44 0%,#2B3C55 100%)" },
+    dim:  { wall: "linear-gradient(180deg,#44536A 0%,#33415A 100%)", side: "linear-gradient(180deg,#38465C 0%,#2A374D 100%)", floor: "linear-gradient(180deg,#6A5E4C 0%,#584E3F 100%)", sky: "linear-gradient(180deg,#10182A 0%,#1A2438 100%)" },
+    alwaysLit: false,
+  },
+  kitchen: {
+    lit: { wall: "linear-gradient(180deg,#F2E2C8 0%,#E4CCA2 100%)", side: "linear-gradient(180deg,#E6D2AC 0%,#D3B989 100%)", floor: "linear-gradient(180deg,#D8C7A0 0%,#C0AA7E 100%)", sky: "linear-gradient(180deg,#3A2E1E 0%,#4A3B26 100%)" },
+    dim: { wall: "linear-gradient(180deg,#8A7A5E 0%,#6E6148 100%)", side: "linear-gradient(180deg,#7C6D53 0%,#5E5340 100%)", floor: "linear-gradient(180deg,#6A5D45 0%,#544936 100%)", sky: "linear-gradient(180deg,#241C12 0%,#332818 100%)" },
+    alwaysLit: true,
+  },
+  bathroom: {
+    lit: { wall: "linear-gradient(180deg,#CFE6EA 0%,#AFD1D8 100%)", side: "linear-gradient(180deg,#BEDBE0 0%,#9DC3CB 100%)", floor: "linear-gradient(180deg,#B5D0D5 0%,#95B4BA 100%)", sky: "linear-gradient(180deg,#123240 0%,#1A4756 100%)" },
+    dim: { wall: "linear-gradient(180deg,#4A6067 0%,#374A50 100%)", side: "linear-gradient(180deg,#3E5257 0%,#2C3C40 100%)", floor: "linear-gradient(180deg,#354649 0%,#273336 100%)", sky: "linear-gradient(180deg,#0B1F26 0%,#122C33 100%)" },
+    alwaysLit: false,
+  },
+  school: {
+    lit: { wall: "linear-gradient(180deg,#DCE7D6 0%,#C3D6BB 100%)", side: "linear-gradient(180deg,#CEDCC6 0%,#B2C7A8 100%)", floor: "linear-gradient(180deg,#C9B78E 0%,#AF9C74 100%)", sky: "linear-gradient(180deg,#1E3420 0%,#2A4A2C 100%)" },
+    dim: { wall: "linear-gradient(180deg,#586B54 0%,#455641 100%)", side: "linear-gradient(180deg,#4C5E48 0%,#3A4A37 100%)", floor: "linear-gradient(180deg,#4C4331 0%,#3A3326 100%)", sky: "linear-gradient(180deg,#101F12 0%,#172B18 100%)" },
+    alwaysLit: false,
+  },
+};
+
+function RoomTile({ room, done, onClick }) {
+  return (
+    <button
+      type="button" onClick={onClick}
+      style={{
+        display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
+        background: c.paper, border: `1px solid ${c.line}`, borderRadius: 16, padding: "16px 10px",
+        cursor: "pointer", minHeight: 44, boxShadow: shadow.sm, position: "relative",
+      }}
+    >
+      {done && (
+        <span style={{
+          position: "absolute", top: 8, insetInlineEnd: 8, width: 20, height: 20, borderRadius: "50%",
+          background: c.goodSoft, display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          <Glyph name="check" size={12} color={c.good} strokeWidth={3} />
+        </span>
+      )}
+      <IconChip bg={c.sage} size={46} radius={16}>
+        <Glyph name={room.icon} size={22} color={c.sageDeep} />
+      </IconChip>
+      <span style={{ fontFamily: font.display, fontSize: 15, fontWeight: 700, color: c.ink, textAlign: "center", lineHeight: 1.4 }}>
+        {room.name}
+      </span>
+    </button>
+  );
+}
+
 function SmartHomeGame({ profile, onExit, onWin }) {
+  const [roomId, setRoomId] = useState(null);
+  const [roomsDone, setRoomsDone] = useState(() => new Set());
   const [round, setRound] = useState(0);
-  const [on, setOn] = useState(() => new Set(homeRounds[0].on));
-  const [hint, setHint] = useState(homeTexts.salimStart);
+  const [on, setOn] = useState(() => new Set());
+  const [hint, setHint] = useState("");
   const [mood, setMood] = useState("ask");
   const [locked, setLocked] = useState(false);
   const [finished, setFinished] = useState(false);
   const t = useRef(null);
   useEffect(() => () => clearTimeout(t.current), []);
 
-  const r = homeRounds[round];
+  const room = homeRooms.find((rm) => rm.id === roomId);
+
+  const openRoom = (id) => {
+    const rm = homeRooms.find((x) => x.id === id);
+    setRoomId(id);
+    setRound(0);
+    setOn(new Set(rm.rounds[0].on));
+    setHint("");
+    setMood("ask");
+    setLocked(false);
+    setFinished(false);
+  };
+
+  const r = room ? room.rounds[round] : null;
+  const theme = room ? ROOM_THEME[room.id] : null;
+  const roomMaxWatts = room ? room.devices.reduce((sum, d) => sum + d.watts, 0) + 400 : 0;
 
   const usage = useMemo(() => {
+    if (!room) return 0;
     let w = 0;
-    homeDevices.forEach((d) => { if (on.has(d.id) && !d.isWindow) w += d.watts; });
+    room.devices.forEach((d) => { if (on.has(d.id) && !d.isWindow) w += d.watts; });
     if (on.has("window") && on.has("ac")) w += 400;
     return w;
-  }, [on]);
+  }, [on, room]);
 
   const toggle = (id) => {
     if (locked || finished) return;
     setOn((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n; });
   };
 
-  const endDay = () => {
+  const endRound = () => {
     const missing = r.needed.filter((id) => !on.has(id));
     if (missing.length) {
       setMood("warn");
-      setHint(`${pick(profile, homeTexts.missing, homeTexts.missingF)} ${homeDevices.find((d) => d.id === missing[0]).name} لَازِمَةٌ الآنَ.`);
+      setHint(`${pick(profile, homeTexts.missing, homeTexts.missingF)} ${room.devices.find((d) => d.id === missing[0]).name} لَازِمَةٌ الآنَ.`);
       return;
     }
     if (on.has("window") && on.has("ac")) { setMood("warn"); setHint(homeTexts.windowOpen); return; }
     if (usage > r.limit) { setMood("warn"); setHint(pick(profile, homeTexts.overLimit, homeTexts.overLimitF)); return; }
 
-    if (round + 1 < homeRounds.length) {
+    if (round + 1 < room.rounds.length) {
       setLocked(true);
       setMood("agree");
-      setHint(isF(profile) ? "أَحْسَنْتِ. نَنْتَقِلُ إِلَى الوَقْتِ التَّالِي." : "أَحْسَنْتَ. نَنْتَقِلُ إِلَى الوَقْتِ التَّالِي.");
+      setHint(isF(profile) ? "أَحْسَنْتِ. نَنْتَقِلُ إِلَى التَّحَدِّي التَّالِي." : "أَحْسَنْتَ. نَنْتَقِلُ إِلَى التَّحَدِّي التَّالِي.");
       t.current = setTimeout(() => {
         const next = round + 1;
         setRound(next);
-        setOn(new Set(homeRounds[next].on));
+        setOn(new Set(room.rounds[next].on));
         setLocked(false);
         setMood("ask");
         setHint("");
       }, 1100);
     } else {
-      setFinished(true); setMood("smile"); setHint(homeTexts.win);
+      setRoomsDone((prev) => new Set(prev).add(room.id));
+      setFinished(true); setMood("smile");
+      setHint(pick(profile, homeTexts.roomWin, homeTexts.roomWinF));
     }
   };
 
+  const backToRooms = () => { setRoomId(null); setFinished(false); };
+  const allRoomsDone = roomsDone.size >= homeRooms.length;
+
+  /* شاشة اختيار المكان */
+  if (!room) {
+    return (
+      <GameFrame
+        title="البَيْتُ الذَّكِيُّ"
+        goal={pick(profile, homeTexts.chooseRoom, homeTexts.chooseRoomF)}
+        score={`${ar(roomsDone.size)}/${ar(homeRooms.length)}`}
+        hint={allRoomsDone ? pick(profile, homeTexts.win, homeTexts.winF) : homeTexts.salimStart}
+        hintMood={allRoomsDone ? "smile" : "ask"}
+        onExit={onExit}
+      >
+        <div style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))" }}>
+          {homeRooms.map((rm) => (
+            <RoomTile key={rm.id} room={rm} done={roomsDone.has(rm.id)} onClick={() => openRoom(rm.id)} />
+          ))}
+        </div>
+        {allRoomsDone && <Btn wide onClick={onWin}>{labels.backToGames}</Btn>}
+      </GameFrame>
+    );
+  }
+
   const over = usage > r.limit;
-  const lit = on.has("lamp") || on.has("window");
-  const night = round === 3;
+  const lit = theme.alwaysLit || on.has("lamp") || on.has("window");
+  const dark = !!r.dark;
+  const colors = lit && !dark ? theme.lit : theme.dim;
 
   return (
     <GameFrame
-      title="البَيْتُ الذَّكِيُّ"
+      title={room.name}
       goal={pick(profile, homeTexts.goal, homeTexts.goalF)}
-      score={`${ar(round + 1)}/${ar(homeRounds.length)}`}
-      hint={hint || pick(profile, r.text, r.textF)} hintMood={mood} onExit={onExit}
+      score={`${ar(round + 1)}/${ar(room.rounds.length)}`}
+      hint={hint || pick(profile, r.text, r.textF)} hintMood={mood} onExit={backToRooms}
     >
       {!finished ? (
         <>
           <div style={{
             borderRadius: 18, padding: "30px 8px 22px", overflow: "hidden",
-            background: night
-              ? "linear-gradient(180deg,#10182A 0%,#1A2438 100%)"
-              : "linear-gradient(180deg,#1E2B44 0%,#2B3C55 100%)",
-            transition: `background .8s ${ease}`,
+            background: colors.sky, transition: `background .8s ${ease}`,
           }}>
             <div style={{ perspective: 820, width: "100%", display: "flex", justifyContent: "center" }}>
               <div style={{
@@ -586,24 +761,14 @@ function SmartHomeGame({ profile, onExit, onWin }) {
                 transform: `rotateX(${PITCH}deg) rotateY(${YAW}deg)`,
               }}>
                 {/* الجدار الخلفي */}
-                <Wall w={R.w} h={R.h} tz={-R.d / 2} rot="" zIndex={1}
-                  bg={lit
-                    ? "linear-gradient(180deg,#7E8FA1 0%,#63758A 100%)"
-                    : "linear-gradient(180deg,#44536A 0%,#33415A 100%)"} />
+                <Wall w={R.w} h={R.h} tz={-R.d / 2} rot="" zIndex={1} bg={colors.wall} />
                 {/* الجدار الجانبي */}
-                <Wall w={R.d} h={R.h} tz={-R.w / 2} rot="rotateY(90deg)" zIndex={1}
-                  bg={lit
-                    ? "linear-gradient(180deg,#68798D 0%,#526379 100%)"
-                    : "linear-gradient(180deg,#38465C 0%,#2A374D 100%)"} />
+                <Wall w={R.d} h={R.h} tz={-R.w / 2} rot="rotateY(90deg)" zIndex={1} bg={colors.side} />
                 {/* الأرضية */}
-                <Wall w={R.w} h={R.d} tz={-R.h / 2} rot="rotateX(90deg)" zIndex={0}
-                  bg={lit
-                    ? "linear-gradient(180deg,#A8977C 0%,#8A7962 100%)"
-                    : "linear-gradient(180deg,#6A5E4C 0%,#584E3F 100%)"}>
-                  {/* سجادة */}
+                <Wall w={R.w} h={R.d} tz={-R.h / 2} rot="rotateX(90deg)" zIndex={0} bg={colors.floor}>
                   <div style={{
                     position: "absolute", left: "26%", top: "34%", width: "48%", height: "40%",
-                    borderRadius: 10, background: lit ? "rgba(124,148,115,.55)" : "rgba(70,86,66,.5)",
+                    borderRadius: 10, background: lit ? "rgba(124,148,115,.4)" : "rgba(70,86,66,.5)",
                     border: "3px solid rgba(255,255,255,.14)", transition: `background .6s ${ease}`,
                   }} />
                 </Wall>
@@ -612,7 +777,7 @@ function SmartHomeGame({ profile, onExit, onWin }) {
                   bg={lit ? "rgba(226,232,226,.85)" : "rgba(58,70,88,.9)"} />
 
                 {/* الأجهزة */}
-                {homeDevices.map((d) => (
+                {room.devices.map((d) => (
                   <Device key={d.id} dev={d} on={on.has(d.id)} onToggle={toggle} />
                 ))}
 
@@ -631,7 +796,7 @@ function SmartHomeGame({ profile, onExit, onWin }) {
           </div>
 
           <div style={{ display: "grid", gap: 8, gridTemplateColumns: "repeat(auto-fit, minmax(104px, 1fr))" }}>
-            {homeDevices.map((d) => {
+            {room.devices.map((d) => {
               const active = on.has(d.id);
               return (
                 <button
@@ -658,17 +823,17 @@ function SmartHomeGame({ profile, onExit, onWin }) {
           </div>
 
           <Meter
-            value={usage} max={2900} unit="وَاط"
+            value={usage} max={roomMaxWatts} unit="وَاط"
             color={over ? c.bad : usage > r.limit * 0.7 ? c.warn : c.good}
             label="الاسْتِهْلَاكُ الآنَ"
           />
           <p style={{ margin: 0, fontSize: 12, color: c.inkFaint, textAlign: "center", fontFamily: font.body }}>
-            حَدُّ هَذَا الوَقْتِ: {ar(r.limit)} وَاط
+            الحَدُّ الآنَ: {ar(r.limit)} وَاط
           </p>
-          <Btn wide onClick={endDay} tone={over ? "warm" : "brand"}>{homeTexts.endDay}</Btn>
+          <Btn wide onClick={endRound} tone={over ? "warm" : "brand"}>{homeTexts.endDay}</Btn>
         </>
       ) : (
-        <WinCard text={homeTexts.win} onDone={onWin} />
+        <WinCard text={pick(profile, homeTexts.roomWin, homeTexts.roomWinF)} onDone={backToRooms} />
       )}
     </GameFrame>
   );
@@ -677,6 +842,197 @@ function SmartHomeGame({ profile, onExit, onWin }) {
 /* ============================================================
    ٣ — التسوّق المستدام (ممرّ سوق له عمق)
    ============================================================ */
+/* ── رسومُ مُنْتَجَاتِ التَّسَوُّقِ ─────────────────────────
+   كُلُّ أَيْقُونَةٍ صُنْدُوقٌ صَغِيرٌ يُوضِّحُ المُنْتَجَ دَاخِلَ صُورَةِ السِّعْرِ. */
+function MarketIcon({ icon, size = 40 }) {
+  const s = { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2.4, fill: "none" };
+  const shapes = {
+    waterMany: (
+      <g stroke="#EAF6FA" {...s}>
+        <path d="M17 20h6v4c2 1 3 2.6 3 4.6V38a2 2 0 0 1-2 2H16a2 2 0 0 1-2-2V28.6c0-2 1-3.6 3-4.6Z" fill="#4E90B4" />
+        <path d="M27 22h5v3c1.6.8 2.4 2 2.4 3.6V36a1.6 1.6 0 0 1-1.6 1.6H27" fill="#5FA0C2" opacity=".85" />
+      </g>
+    ),
+    waterBig: (
+      <g stroke="#EAF6FA" {...s}>
+        <path d="M19 8h10v7c3.4 1.6 5.6 4.6 5.6 8.6V38a3 3 0 0 1-3 3H16.4a3 3 0 0 1-3-3V23.6c0-4 2.2-7 5.6-8.6Z" fill="#3E7F9C" />
+        <path d="M16 26h16" stroke="#EAF6FA" strokeWidth="1.6" opacity=".7" />
+      </g>
+    ),
+    datesLocal: (
+      <g stroke="#7A5A2E" {...s}>
+        <path d="M8 30c1.5-8 8-10 16-10s14.5 2 16 10c-6 4-26 4-32 0Z" fill="#D9C79A" />
+        <g fill="#8A5A2E" stroke="none">
+          <ellipse cx="18" cy="24" rx="3.4" ry="2.6" /><ellipse cx="26" cy="22" rx="3.4" ry="2.6" /><ellipse cx="33" cy="25" rx="3.4" ry="2.6" />
+        </g>
+      </g>
+    ),
+    datesImported: (
+      <g stroke="#8A7A5E" {...s}>
+        <rect x="8" y="16" width="32" height="18" rx="3" fill="#EDE6D2" />
+        <g fill="#8A5A2E" stroke="none">
+          <ellipse cx="17" cy="25" rx="3" ry="2.3" /><ellipse cx="24" cy="25" rx="3" ry="2.3" /><ellipse cx="31" cy="25" rx="3" ry="2.3" />
+        </g>
+        <path d="M8 16h32M8 34h32" stroke="#FFF" strokeWidth="1.6" opacity=".55" />
+      </g>
+    ),
+    veggieWeek: (
+      <g {...s}>
+        <path d="M8 30c1.5-7 8-9 16-9s14.5 2 16 9c-6 3.6-26 3.6-32 0Z" fill="#D9C79A" stroke="#7A5A2E" />
+        <path d="M15 24l3-7 3 7Z" fill="#C9633B" stroke="#8A431E" />
+        <circle cx="26" cy="23" r="4" fill="#B33D24" stroke="#7A2413" />
+        <path d="M32 22l2-5 2 5Z" fill="#4E8B6E" stroke="#2E5E3F" />
+      </g>
+    ),
+    veggieMany: (
+      <g {...s}>
+        <path d="M6 30c1.5-7 9-9 18-9s16.5 2 18 9c-7 4-29 4-36 0Z" fill="#D9C79A" stroke="#7A5A2E" />
+        <path d="M12 23l3-7 3 7Z" fill="#C9633B" stroke="#8A431E" />
+        <circle cx="21" cy="21" r="4" fill="#B33D24" stroke="#7A2413" />
+        <path d="M28 21l2.4-6 2.4 6Z" fill="#4E8B6E" stroke="#2E5E3F" />
+        <circle cx="36" cy="23" r="3.4" fill="#B33D24" stroke="#7A2413" />
+        <path d="M9 16l-2-3M39 16l2-3" stroke="#7A5A2E" strokeWidth="1.6" opacity=".6" />
+      </g>
+    ),
+    bagPlastic: (
+      <g stroke="#9C5335" {...s}>
+        <path d="M13 16h22l-3 22H16Z" fill="#F0DCD1" />
+        <path d="M19 16v-3a5 5 0 0 1 10 0v3" />
+      </g>
+    ),
+    bagCloth: (
+      <g stroke="#3E7A6E" {...s}>
+        <path d="M12 17h24l-2 20H14Z" fill="#BFE0D4" />
+        <path d="M18 17v-3a6 6 0 0 1 12 0v3" />
+        <path d="M12 23h24" opacity=".6" />
+      </g>
+    ),
+    clothesLocal: (
+      <g stroke="#7C9473" {...s}>
+        <path d="M15 9 10 13l3 4 3-2v20h12V15l3 2 3-4-5-4-2 2h-7Z" fill="#EAF0E6" />
+      </g>
+    ),
+    clothesFast: (
+      <g stroke="#A34E2C" {...s}>
+        <path d="M11 12 7 15l2 3 2-1.5v9h12v-9l2 1.5 2-3-4-3-1.5 1.5h-5.5Z" fill="#F4CBB4" transform="translate(0 -3) scale(.72)" />
+        <path d="M15 20 11 23l2 3 2-1.5v9h12v-9l2 1.5 2-3-4-3-1.5 1.5h-5.5Z" fill="#EFB79A" transform="translate(4 4) scale(.72)" />
+        <path d="M19 14 15 17l2 3 2-1.5v9h12v-9l2 1.5 2-3-4-3-1.5 1.5h-5.5Z" fill="#E9A183" transform="translate(-2 10) scale(.72)" />
+      </g>
+    ),
+    shoeDurable: (
+      <g stroke="#5B4A2E" {...s}>
+        <path d="M6 32c0-3 2-5 5-6l9-4c3-1.4 6-1.4 9 0l9 4c3 1.4 4 2.6 4 6Z" fill="#C9633B" />
+        <path d="M6 32h32v3H6Z" fill="#8A431E" />
+      </g>
+    ),
+    shoeCheap: (
+      <g stroke="#5B4A2E" {...s}>
+        <path d="M6 32c0-3 2-5 5-6l9-4c3-1.4 6-1.4 9 0l9 4c3 1.4 4 2.6 4 6Z" fill="#D9A98C" />
+        <path d="M6 32h32v3H6Z" fill="#8A431E" />
+        <path d="M20 23l4 5-3 2" stroke="#B33D24" strokeWidth="2" />
+      </g>
+    ),
+    giveAway: (
+      <g stroke="#B5862F" {...s}>
+        <path d="M24 34s-12-7-12-15a7 7 0 0 1 12-4.8A7 7 0 0 1 36 19c0 8-12 15-12 15Z" fill="#F3E7CC" />
+      </g>
+    ),
+    trashClothes: (
+      <g stroke="#9C6B4A" {...s}>
+        <path d="M11 16h26l-2.4 20.6A3 3 0 0 1 31.6 39H16.4a3 3 0 0 1-3-2.4Z" fill="#E7DCC8" />
+        <path d="M17 16v-3h14v3" />
+        <path d="M20 21v11M28 21v11" opacity=".55" />
+      </g>
+    ),
+    notebookRecycled: (
+      <g stroke="#4E7345" {...s}>
+        <rect x="11" y="8" width="26" height="32" rx="2" fill="#E4EEDC" />
+        <rect x="11" y="8" width="8" height="32" fill="#BFDCB0" />
+        <path d="M27 18a6 6 0 1 1-4.2 10.2" />
+        <path d="M27 14l3 4-4 1" />
+      </g>
+    ),
+    notebookPlastic: (
+      <g stroke="#4B5A6C" {...s}>
+        <rect x="11" y="8" width="26" height="32" rx="2" fill="#DCE6EC" />
+        <rect x="11" y="8" width="8" height="32" fill="#B7C9D6" />
+        <path d="M25 14h9v9h-9Z" opacity=".5" />
+      </g>
+    ),
+    penRefill: (
+      <g stroke="#2E6E8E" {...s}>
+        <path d="M14 34 30 18l4 4-16 16-5 1Z" fill="#CFE6EE" />
+        <path d="M27 21l4 4" />
+        <path d="M35 12a4 4 0 1 1-2.8 6.8" />
+        <path d="M35 8l3 4-4 1" />
+      </g>
+    ),
+    penDisposable: (
+      <g stroke="#8C6B4A" {...s}>
+        <path d="M10 34 21 23l3 3-11 11-4 1Z" fill="#E9D8C2" />
+        <path d="M18 26l3 3" />
+        <path d="M20 34 31 23l3 3-11 11-4 1Z" fill="#E9D8C2" transform="translate(2 -3)" />
+        <path d="M28 20l3 3" transform="translate(2 -3)" />
+      </g>
+    ),
+    bagDurable: (
+      <g stroke="#5B4A2E" {...s}>
+        <path d="M13 18a11 11 0 0 1 22 0v18a3 3 0 0 1-3 3H16a3 3 0 0 1-3-3Z" fill="#C9633B" />
+        <path d="M18 18v-2a6 6 0 0 1 12 0v2" />
+        <rect x="17" y="24" width="14" height="9" rx="2" fill="#8A431E" opacity=".5" />
+      </g>
+    ),
+    bagCheap: (
+      <g stroke="#5B4A2E" {...s}>
+        <path d="M13 18a11 11 0 0 1 22 0v18a3 3 0 0 1-3 3H16a3 3 0 0 1-3-3Z" fill="#DFAE8F" />
+        <path d="M18 18v-2a6 6 0 0 1 12 0v2" />
+        <path d="M17 27l5 5-2 3" stroke="#B33D24" strokeWidth="2" />
+      </g>
+    ),
+    toyWood: (
+      <g stroke="#8A6A3E" {...s}>
+        <rect x="9" y="22" width="30" height="12" rx="3" fill="#D9A15C" />
+        <circle cx="16" cy="36" r="3.4" fill="#8A6A3E" />
+        <circle cx="32" cy="36" r="3.4" fill="#8A6A3E" />
+        <path d="M14 22v-6h20v6" opacity=".7" />
+      </g>
+    ),
+    toyPlastic: (
+      <g stroke="#3E7F9C" {...s}>
+        <rect x="9" y="22" width="30" height="12" rx="3" fill="#8FC7D8" />
+        <circle cx="16" cy="36" r="3.4" fill="#3E7F9C" />
+        <circle cx="32" cy="36" r="3.4" fill="#3E7F9C" />
+        <path d="M20 24l4 6-3 2" stroke="#B33D24" strokeWidth="2" />
+      </g>
+    ),
+    batteryRecharge: (
+      <g stroke="#1E6B45" {...s}>
+        <rect x="12" y="16" width="24" height="16" rx="3" fill="#DCEFE1" />
+        <rect x="36" y="21" width="3" height="6" fill="#1E6B45" />
+        <path d="M26 18l-5 7h5l-5 7" stroke="#1E6B45" fill="none" />
+      </g>
+    ),
+    batteryDisposable: (
+      <g stroke="#B33D24" {...s}>
+        <rect x="12" y="16" width="24" height="16" rx="3" fill="#FBDCD3" />
+        <rect x="36" y="21" width="3" height="6" fill="#B33D24" />
+        <path d="M20 20l8 8M28 20l-8 8" />
+      </g>
+    ),
+    toyDrawer: (
+      <g stroke="#8C6B4A" {...s}>
+        <rect x="9" y="12" width="30" height="24" rx="2" fill="#E7D7B8" />
+        <rect x="14" y="26" width="20" height="4" rx="2" fill="#8C6B4A" />
+      </g>
+    ),
+  };
+  return (
+    <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden="true" style={{ filter: "drop-shadow(0 3px 5px rgba(34,48,31,.28))" }}>
+      {shapes[icon] || shapes.giveAway}
+    </svg>
+  );
+}
+
 function ProductBox({ opt, chosen, onPick, index }) {
   const tint = index === 0 ? "#B9603C" : "#3E8C7C";
   return (
@@ -694,11 +1050,13 @@ function ProductBox({ opt, chosen, onPick, index }) {
           face={`linear-gradient(165deg, ${tint} 0%, ${tint}d0 100%)`}
           top={`${tint}`} side={`${tint}`}
           glow={chosen ? "rgba(34,48,31,.5)" : null}>
-          <span style={{
-            position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
-            padding: "8px 8px", color: "#FFF", fontFamily: font.display, fontWeight: 700,
-            fontSize: 14, lineHeight: 1.5, textAlign: "center", textShadow: "0 1px 3px rgba(0,0,0,.4)",
-          }}>{opt.name}</span>
+          <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3, padding: "6px 6px 2px" }}>
+            <MarketIcon icon={opt.icon} size={40} />
+            <span style={{
+              color: "#FFF", fontFamily: font.display, fontWeight: 700, fontSize: 11.5,
+              lineHeight: 1.35, textAlign: "center", textShadow: "0 1px 3px rgba(0,0,0,.4)",
+            }}>{opt.name}</span>
+          </div>
           <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: 7, background: "rgba(0,0,0,.18)" }} />
         </Box3D>
       </div>
@@ -715,39 +1073,109 @@ function ProductBox({ opt, chosen, onPick, index }) {
   );
 }
 
+function SetTile({ set, done, onClick }) {
+  return (
+    <button
+      type="button" onClick={onClick}
+      style={{
+        display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
+        background: c.paper, border: `1px solid ${c.line}`, borderRadius: 16, padding: "16px 10px",
+        cursor: "pointer", minHeight: 44, boxShadow: shadow.sm, position: "relative",
+      }}
+    >
+      {done && (
+        <span style={{
+          position: "absolute", top: 8, insetInlineEnd: 8, width: 20, height: 20, borderRadius: "50%",
+          background: c.goodSoft, display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          <Glyph name="check" size={12} color={c.good} strokeWidth={3} />
+        </span>
+      )}
+      <IconChip bg={c.sage} size={46} radius={16}>
+        <Glyph name={set.icon} size={22} color={c.sageDeep} />
+      </IconChip>
+      <span style={{ fontFamily: font.display, fontSize: 15, fontWeight: 700, color: c.ink, textAlign: "center", lineHeight: 1.4 }}>
+        {set.name}
+      </span>
+    </button>
+  );
+}
+
 function MarketGame({ profile, onExit, onWin }) {
+  const [setId, setSetId] = useState(null);
+  const [setsDone, setSetsDone] = useState(() => new Set());
   const [step, setStep] = useState(0);
   const [picks, setPicks] = useState([]);
   const [note, setNote] = useState(null);
   const [mood, setMood] = useState("ask");
-  const [hint] = useState(marketTexts.salimStart);
   const t = useRef(null);
   useEffect(() => () => clearTimeout(t.current), []);
 
-  const done = step >= marketNeeds.length;
-  const spent = picks.reduce((s, p, idx) => s + marketNeeds[idx].options[p].price, 0);
-  const waste = picks.reduce((s, p, idx) => s + marketNeeds[idx].options[p].waste, 0);
-  const allBest = picks.length === marketNeeds.length && picks.every((p, idx) => p === marketNeeds[idx].best);
-  const inBudget = spent <= marketTexts.budget;
+  const mset = marketSets.find((ms) => ms.id === setId);
+
+  const openSet = (id) => {
+    setSetId(id);
+    setStep(0);
+    setPicks([]);
+    setNote(null);
+    setMood("ask");
+  };
+  const backToSets = () => { setSetId(null); setStep(0); setPicks([]); setNote(null); };
+
+  const done = mset ? step >= mset.needs.length : false;
+  const spent = mset ? picks.reduce((s, p, idx) => s + mset.needs[idx].options[p].price, 0) : 0;
+  const waste = mset ? picks.reduce((s, p, idx) => s + mset.needs[idx].options[p].waste, 0) : 0;
+  const allBest = mset && picks.length === mset.needs.length && picks.every((p, idx) => p === mset.needs[idx].best);
+  const inBudget = mset ? spent <= mset.budget : true;
+  const setsAllDone = setsDone.size >= marketSets.length;
 
   const choose = (optIdx) => {
     if (done || note) return;
-    const cur = marketNeeds[step];
+    const cur = mset.needs[step];
     setNote(cur.options[optIdx].note);
     setMood(optIdx === cur.best ? "agree" : "think");
     setPicks((p) => [...p, optIdx]);
-    t.current = setTimeout(() => { setNote(null); setStep((s) => s + 1); setMood("ask"); }, 1600);
+    t.current = setTimeout(() => {
+      setNote(null); setMood("ask");
+      setStep((s) => {
+        const nextStep = s + 1;
+        if (nextStep >= mset.needs.length) setSetsDone((prev) => new Set(prev).add(mset.id));
+        return nextStep;
+      });
+    }, 1600);
   };
 
   const restart = () => { setPicks([]); setStep(0); setNote(null); setMood("ask"); };
-  const cur = marketNeeds[step];
+
+  /* شاشة اختيار السوق */
+  if (!mset) {
+    return (
+      <GameFrame
+        title="التَّسَوُّقُ المُسْتَدَامُ"
+        goal={pick(profile, marketTexts.chooseSet, marketTexts.chooseSetF)}
+        score={`${ar(setsDone.size)}/${ar(marketSets.length)}`}
+        hint={setsAllDone ? pick(profile, marketTexts.win, marketTexts.winF) : marketTexts.salimStart}
+        hintMood={setsAllDone ? "smile" : "ask"}
+        onExit={onExit}
+      >
+        <div style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))" }}>
+          {marketSets.map((ms) => (
+            <SetTile key={ms.id} set={ms} done={setsDone.has(ms.id)} onClick={() => openSet(ms.id)} />
+          ))}
+        </div>
+        {setsAllDone && <Btn wide onClick={onWin}>{labels.backToGames}</Btn>}
+      </GameFrame>
+    );
+  }
+
+  const cur = mset.needs[step];
 
   return (
     <GameFrame
-      title="التَّسَوُّقُ المُسْتَدَامُ"
+      title={mset.name}
       goal={pick(profile, marketTexts.goal, marketTexts.goalF)}
-      score={`${ar(Math.min(step, marketNeeds.length))}/${ar(marketNeeds.length)}`}
-      hint={note || hint} hintMood={mood} onExit={onExit}
+      score={`${ar(Math.min(step, mset.needs.length))}/${ar(mset.needs.length)}`}
+      hint={note} hintMood={mood} onExit={backToSets}
     >
       {!done ? (
         <>
@@ -797,9 +1225,9 @@ function MarketGame({ profile, onExit, onWin }) {
           </div>
 
           <div style={{ display: "grid", gap: 10, gridTemplateColumns: "1fr 1fr" }}>
-            <Meter value={Number(spent.toFixed(2))} max={marketTexts.budget} unit="ر.ع"
+            <Meter value={Number(spent.toFixed(2))} max={mset.budget} unit="ر.ع"
               color={inBudget ? c.good : c.bad} label="أُنْفِقَ" />
-            <Meter value={waste} max={12} unit="نُقْطَة"
+            <Meter value={waste} max={9} unit="نُقْطَة"
               color={waste === 0 ? c.good : waste < 5 ? c.warn : c.bad} label="الهَدَرُ" />
           </div>
         </>
@@ -815,14 +1243,14 @@ function MarketGame({ profile, onExit, onWin }) {
             margin: "6px 0 10px", fontFamily: font.display, fontSize: 18, fontWeight: 700, lineHeight: 1.6,
             color: allBest && inBudget ? c.good : c.warn,
           }}>
-            {allBest && inBudget ? pick(profile, marketTexts.win, marketTexts.winF) : pick(profile, marketTexts.partial, marketTexts.partialF)}
+            {allBest && inBudget ? pick(profile, marketTexts.setWin, marketTexts.setWinF) : pick(profile, marketTexts.partial, marketTexts.partialF)}
           </p>
           <p style={{ margin: "0 0 14px", fontSize: 14, color: c.inkSoft, fontFamily: font.body, fontVariantNumeric: "tabular-nums" }}>
-            {isF(profile) ? "أَنْفَقْتِ" : "أَنْفَقْتَ"} {ar(spent.toFixed(2))} ر.ع مِنْ {ar(marketTexts.budget)} · الهَدَرُ {ar(waste)}
+            {isF(profile) ? "أَنْفَقْتِ" : "أَنْفَقْتَ"} {ar(spent.toFixed(2))} ر.ع مِنْ {ar(mset.budget)} · الهَدَرُ {ar(waste)}
           </p>
           <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
             {!(allBest && inBudget) && <Btn tone="warm" onClick={restart}>{labels.retry}</Btn>}
-            <Btn onClick={onWin}>{labels.backToGames}</Btn>
+            <Btn onClick={backToSets}>{labels.backToGames}</Btn>
           </div>
         </div>
       )}
