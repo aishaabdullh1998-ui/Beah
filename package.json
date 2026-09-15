@@ -1,0 +1,20 @@
+{
+  "name": "mughamarati-albiiyya",
+  "version": "1.0.0",
+  "private": true,
+  "description": "مغامراتي البيئية — قصص تفاعلية ومعجم حركي عن بيئة سلطنة عمان للأطفال",
+  "scripts": {
+    "build:js": "esbuild src/main.jsx --bundle --minify --format=iife --target=es2018 --loader:.jsx=jsx --jsx=automatic --charset=utf8 --outfile=assets/app.js",
+    "build:css": "tailwindcss -i src/input.css -o assets/styles.css --minify",
+    "build": "npm run build:css && npm run build:js"
+  },
+  "dependencies": {
+    "lucide-react": "^0.454.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0",
+    "tailwindcss": "^3.4.14"
+  }
+}
