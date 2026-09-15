@@ -65,6 +65,27 @@ const SHAPES = {
       <path d="M9 4v14M15 6.5v14" />
     </g>
   ),
+  recycleBin: (
+    <g>
+      <path d="M5 8h14l-1.2 11.5a2 2 0 0 1-2 1.5H8.2a2 2 0 0 1-2-1.5L5 8Z" />
+      <path d="M9 8V5h6v3" />
+      <path d="M10 12l2-2 2 2M10 16l2 2 2-2" />
+    </g>
+  ),
+  house: (
+    <g>
+      <path d="M4 11 12 4l8 7" />
+      <path d="M6 10v10h12V10" />
+      <path d="M10 20v-6h4v6" />
+    </g>
+  ),
+  cart: (
+    <g>
+      <path d="M3 4h2.2l2.3 11.2a1.6 1.6 0 0 0 1.6 1.3h8.1a1.6 1.6 0 0 0 1.6-1.2L21 8H6" />
+      <circle cx="10" cy="20" r="1.4" />
+      <circle cx="17" cy="20" r="1.4" />
+    </g>
+  ),
   book: (
     <g>
       <path d="M4 5.5C4 4.7 4.7 4 5.5 4H11v16H5.5A1.5 1.5 0 014 18.5v-13Z" />
@@ -343,6 +364,9 @@ export const keyframes = `
   @keyframes ripple { 0% { transform: scale(.6); opacity:.55; } 100% { transform: scale(1.5); opacity:0; } }
   @keyframes drive { from { transform: translateX(0);} to { transform: translateX(-62px);} }
   @keyframes grow { from { transform: scaleY(.15); } to { transform: scaleY(1); } }
+  @keyframes heatWave { 0%,100% { transform: translateY(0) scaleY(1); opacity:.5; } 50% { transform: translateY(-7px) scaleY(1.2); opacity:.85; } }
+  @keyframes blow { 0% { transform: translateY(0) scaleX(.6); opacity:0; } 35% { opacity:.95; } 100% { transform: translateY(16px) scaleX(1.5); opacity:0; } }
+  @keyframes tvPlay { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
 
   .bob { animation: bob 3.2s ease-in-out infinite; display:inline-block; }
   .star { animation: twinkle 2.4s ease-in-out infinite; }

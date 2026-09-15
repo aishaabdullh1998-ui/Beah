@@ -1,23 +1,27 @@
 /* ============================================================
    مغامراتي البيئية — الواجهة
 
-   النصوص كلها في content.js، والألوان في theme.js، والرسم في
-   art.jsx و scenes.jsx. هذا الملف للشاشات والتنقّل فقط.
+   النصوص في content.js، والألوان في theme.js، والرسم في art.jsx،
+   ومشاهد الكلمات في scenes.jsx، والألعاب في games.jsx.
+   هذا الملف للشاشات والتنقّل فقط.
    ============================================================ */
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { c, env as envColor, shadow, font, ease, bgStyles, isWarningBg, isNightBg, bp } from "./theme.js";
 import {
-  AUTHOR, COPYRIGHT_YEAR, sections, salim as salimText, encouragements,
-  stories, quizSets, dictionaryTerms, doDontCards, labels,
+  COPYRIGHT_YEAR, sections, salim as salimText, encouragements,
+  stories, quizSets, dictionaryTerms, doDontCards, labels, games, mission, footerText,
 } from "./content.js";
 import { Glyph, IconChip, Salim, SalimSays, OmanMap, Medal, keyframes } from "./art.jsx";
 import { WORD_SCENES, ActBtn, Hint } from "./scenes.jsx";
+import { GAMES } from "./games.jsx";
 
 /* ============================================================
    التخزين — تقدّم كل طفل في متصفح جهازه
    ============================================================ */
 const STORAGE_PREFIX = "mughamarati:student:";
-const emptyProfile = (name, gender) => ({ name, gender, completed: [], quizzesTaken: [], updatedAt: Date.now() });
+const emptyProfile = (name, gender) => ({
+  name, gender, completed: [], gamesDone: [], quizzesTaken: [], accepted: false, updatedAt: Date.now(),
+});
 
 async function loadProfile(name, gender) {
   try {
@@ -33,7 +37,9 @@ async function loadProfile(name, gender) {
       name,
       gender: gender || p.gender || "m",
       completed: Array.isArray(p.completed) ? p.completed : [],
+      gamesDone: Array.isArray(p.gamesDone) ? p.gamesDone : [],
       quizzesTaken: Array.isArray(p.quizzesTaken) ? p.quizzesTaken : [],
+      accepted: !!p.accepted,
       updatedAt: p.updatedAt || Date.now(),
     };
   } catch (e) {
@@ -85,7 +91,7 @@ function Card({ children, pad = 18, style }) {
   );
 }
 
-function BigButton({ title, sub, icon, bg, fg, onClick }) {
+function BigButton({ title, sub, icon, bg, fg, onClick, badge }) {
   return (
     <button
       type="button"
@@ -106,6 +112,13 @@ function BigButton({ title, sub, icon, bg, fg, onClick }) {
         <span style={{ display: "block", fontFamily: font.display, color: fg, fontWeight: 700, fontSize: 21, lineHeight: 1.4 }}>{title}</span>
         <span style={{ display: "block", color: fg, opacity: 0.82, fontSize: 12.5, marginTop: 2, fontFamily: font.body }}>{sub}</span>
       </span>
+      {badge && (
+        <span style={{
+          flex: "none", background: "rgba(255,255,255,.26)", color: fg, borderRadius: 11,
+          padding: "4px 10px", fontFamily: font.display, fontWeight: 700, fontSize: 15,
+          fontVariantNumeric: "tabular-nums",
+        }}>{badge}</span>
+      )}
     </button>
   );
 }
@@ -126,6 +139,18 @@ function BackButton({ onClick, text }) {
   );
 }
 
+function ScreenHead({ title, onBack, backText, extra }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+      <h2 style={{ margin: 0, fontFamily: font.display, fontSize: 24, fontWeight: 700, color: c.ink }}>{title}</h2>
+      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        {extra}
+        {onBack && <BackButton onClick={onBack} text={backText} />}
+      </div>
+    </div>
+  );
+}
+
 function ProgressPill({ done, total }) {
   return (
     <span style={{
@@ -139,7 +164,7 @@ function ProgressPill({ done, total }) {
 }
 
 /* ============================================================
-   شاشة الترحيب — الاسم والمخاطبة
+   شاشة الترحيب
    ============================================================ */
 function Welcome({ onStart }) {
   const [name, setName] = useState("");
@@ -153,7 +178,7 @@ function Welcome({ onStart }) {
         <h1 style={{ margin: "6px 0 0", fontFamily: font.display, color: c.ink, fontWeight: 700, fontSize: 34, lineHeight: 1.25 }}>مُغَامَرَتِي</h1>
         <h1 style={{ margin: "-6px 0 0", fontFamily: font.display, color: c.sageDeep, fontWeight: 700, fontSize: 34, lineHeight: 1.25 }}>البَيْئِيَّةُ</h1>
         <p style={{ margin: "10px 0 0", color: c.inkSoft, fontSize: 13.5, lineHeight: 1.9, fontFamily: font.body }}>
-          قِصَصٌ وَكَلِمَاتٌ مِنْ قَلْبِ بِيئَةِ سَلْطَنَةِ عُمَانَ
+          قِصَصٌ وَأَلْعَابٌ وَكَلِمَاتٌ مِنْ قَلْبِ بِيئَةِ سَلْطَنَةِ عُمَانَ
         </p>
       </div>
 
@@ -218,61 +243,222 @@ function Welcome({ onStart }) {
 }
 
 /* ============================================================
-   الخريطة — الشاشة الرئيسية
+   خطاب التكليف — يُفتح مرّة واحدة
    ============================================================ */
-function MapPanel({ profile, onOpenStory, onOpenWords, onOpenMedals, compact }) {
+function MissionLetter({ profile, onAccept }) {
+  const body = isF(profile) ? mission.bodyF : mission.body;
+  return (
+    <div className="rise" style={{ width: "100%", maxWidth: 460, margin: "0 auto", display: "flex", flexDirection: "column", gap: 14 }}>
+      <Card pad={22} style={{ textAlign: "center", border: `1px solid ${c.line}` }}>
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <IconChip bg={c.sage} size={64} radius={22}>
+            <Glyph name="medal" size={30} color={c.sageDeep} />
+          </IconChip>
+        </div>
+        <p style={{ margin: "12px 0 0", fontSize: 12.5, letterSpacing: ".06em", color: c.inkFaint, fontFamily: font.body }}>
+          {mission.org}
+        </p>
+        <h1 style={{ margin: "4px 0 0", fontFamily: font.display, fontSize: 27, fontWeight: 700, color: c.ink, lineHeight: 1.4 }}>
+          {mission.title}
+        </h1>
+
+        <div style={{
+          marginTop: 16, padding: "18px 16px", borderRadius: 14,
+          background: c.sage, border: `2px dashed ${c.sageDeep}55`,
+        }}>
+          <p style={{ margin: 0, fontFamily: font.display, fontSize: 19, fontWeight: 700, color: c.ink, lineHeight: 1.9 }}>
+            {mission.salute} {profile.name}،
+          </p>
+          {body.map((line, idx) => (
+            <p key={idx} style={{
+              margin: "10px 0 0", fontSize: idx === 1 ? 18 : 14.5, lineHeight: 2.05,
+              color: c.ink, fontFamily: idx === 1 ? font.display : font.body,
+              fontWeight: idx === 1 ? 700 : 400,
+            }}>{line}</p>
+          ))}
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 16, justifyContent: "center" }}>
+          <Salim mood="agree" size={54} />
+          <p style={{ margin: 0, fontSize: 12.5, color: c.inkSoft, fontFamily: font.body, textAlign: "right" }}>
+            {mission.signedBy}
+          </p>
+        </div>
+      </Card>
+
+      <button
+        type="button" onClick={onAccept}
+        style={{
+          width: "100%", borderRadius: 16, padding: "15px 18px", border: "none", minHeight: 54,
+          background: c.sageDeep, color: c.onDark, fontFamily: font.display, fontSize: 22,
+          fontWeight: 700, cursor: "pointer", boxShadow: shadow.md,
+        }}
+      >
+        {mission.accept}
+      </button>
+    </div>
+  );
+}
+
+/* ============================================================
+   الشاشة الرئيسية — أقسام التطبيق
+   ============================================================ */
+function HomePanel({ profile, go, compact }) {
+  const done = profile.completed || [];
+  const gdone = profile.gamesDone || [];
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      {!compact && <SalimSays mood="smile" text={pick(profile, salimText.welcome, salimText.welcomeF)} size={58} />}
+      <BigButton
+        title={sections.stories} sub={sections.storiesSub} icon="map"
+        bg={c.sageDeep} fg={c.onDark} badge={`${ed(done.length)}/${ed(stories.length)}`}
+        onClick={() => go("stories")}
+      />
+      <BigButton
+        title={sections.games} sub={sections.gamesSub} icon="house"
+        bg={c.accent} fg={c.onDark} badge={`${ed(gdone.length)}/${ed(games.length)}`}
+        onClick={() => go("games")}
+      />
+      <BigButton
+        title={sections.words} sub={sections.wordsSub} icon="book"
+        bg={c.dusty} fg="#233038" onClick={() => go("words")}
+      />
+      <BigButton
+        title={sections.medals} sub={pick(profile, sections.medalsSub, sections.medalsSubF)} icon="medal"
+        bg={c.sageInk} fg={c.onDark} onClick={() => go("medals")}
+      />
+    </div>
+  );
+}
+
+/* ============================================================
+   القصص — قائمة أزرار، والخريطة اختيارية
+   ============================================================ */
+function StoriesScreen({ profile, onOpenStory, onBack }) {
+  const [mode, setMode] = useState("list");
   const [sel, setSel] = useState(null);
   const done = profile.completed || [];
   const story = stories.find((s) => s.id === sel);
 
+  const Toggle = (
+    <div style={{ display: "flex", background: c.sage, borderRadius: 12, padding: 3, gap: 3 }}>
+      {[["list", labels.showList], ["map", labels.showMap]].map(([m, txt]) => (
+        <button
+          key={m} type="button" onClick={() => { setMode(m); setSel(null); }}
+          aria-pressed={mode === m}
+          style={{
+            border: "none", borderRadius: 10, padding: "8px 12px", cursor: "pointer", minHeight: 40,
+            background: mode === m ? c.surface : "transparent",
+            color: mode === m ? c.sageInk : c.inkSoft,
+            fontFamily: font.body, fontWeight: 700, fontSize: 12.5,
+            boxShadow: mode === m ? shadow.sm : "none", transition: `all .2s ${ease}`,
+          }}
+        >
+          {txt}
+        </button>
+      ))}
+    </div>
+  );
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-      {!compact && (
-        <SalimSays mood="smile" text={pick(profile, salimText.welcome, salimText.welcomeF)} size={58} />
-      )}
+    <div style={{ display: "flex", flexDirection: "column", gap: 13 }}>
+      <ScreenHead title={sections.stories} onBack={onBack} backText={labels.backToMap} extra={Toggle} />
 
-      <Card pad={10} style={{ background: "#D7E6EA" }}>
-        <OmanMap stories={stories} completed={done} onPick={setSel} activeId={sel} />
-      </Card>
-
-      {story ? (
-        <Card pad={16} style={{ borderInlineStart: `4px solid ${envColor[story.id]}` }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <IconChip bg={`${envColor[story.id]}22`} size={48} radius={17}>
-              <Glyph name={story.icon} size={23} color={envColor[story.id]} />
-            </IconChip>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <h3 style={{ margin: 0, fontFamily: font.display, fontSize: 20, fontWeight: 700, color: c.ink, lineHeight: 1.4 }}>{story.title}</h3>
-              <p style={{ margin: "2px 0 0", fontSize: 12, color: c.inkFaint, fontFamily: font.body }}>{story.env}</p>
-            </div>
-            {done.includes(story.id) && (
-              <IconChip bg={c.goodSoft} size={30} radius={10}><Glyph name="check" size={16} color={c.good} strokeWidth={2.6} /></IconChip>
-            )}
-          </div>
-          <p style={{ margin: "10px 0 12px", fontSize: 13.5, color: c.inkSoft, lineHeight: 1.9, fontFamily: font.body }}>{story.teaser}</p>
-          <ActBtn onClick={() => onOpenStory(story.id)}>
-            {done.includes(story.id) ? "أُعِيدُ هَذِهِ القِصَّةَ" : "أَبْدَأُ هَذِهِ القِصَّةَ"}
-          </ActBtn>
-        </Card>
+      {mode === "list" ? (
+        <div style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))" }}>
+          {stories.map((s) => {
+            const col = envColor[s.id];
+            const isDone = done.includes(s.id);
+            return (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => onOpenStory(s.id)}
+                style={{
+                  display: "flex", alignItems: "center", gap: 12, textAlign: "right", width: "100%",
+                  background: c.paper, border: `1px solid ${c.line}`, borderInlineStart: `4px solid ${col}`,
+                  borderRadius: 16, padding: "13px 14px", cursor: "pointer", minHeight: 74,
+                  boxShadow: shadow.sm, transition: `transform .2s ${ease}, border-color .2s`,
+                }}
+                onMouseDown={(e) => { e.currentTarget.style.transform = "scale(.99)"; }}
+                onMouseUp={(e) => { e.currentTarget.style.transform = "none"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.transform = "none"; }}
+              >
+                <IconChip bg={`${col}1F`} size={46} radius={16}>
+                  <Glyph name={s.icon} size={22} color={col} />
+                </IconChip>
+                <span style={{ flex: 1, minWidth: 0 }}>
+                  <span style={{ display: "block", fontFamily: font.display, fontSize: 18.5, fontWeight: 700, color: c.ink, lineHeight: 1.45 }}>
+                    {s.title}
+                  </span>
+                  <span style={{ display: "block", fontSize: 11.5, color: c.inkFaint, marginTop: 1, fontFamily: font.body }}>{s.env}</span>
+                </span>
+                {isDone
+                  ? <IconChip bg={c.goodSoft} size={30} radius={10}><Glyph name="check" size={16} color={c.good} strokeWidth={2.6} /></IconChip>
+                  : <span style={{ width: 30, height: 30, borderRadius: 10, border: `1.5px dashed ${col}66`, flex: "none" }} />}
+              </button>
+            );
+          })}
+        </div>
       ) : (
-        <Card pad={14}>
-          <p style={{ margin: 0, fontSize: 13.5, color: c.inkSoft, textAlign: "center", lineHeight: 1.9, fontFamily: font.body }}>
-            {isF(profile)
-              ? "اُنْقُرِي عَلَى أَيِّ عَلَامَةٍ فِي الخَرِيطَةِ لِتَبْدَئِي مُغَامَرَةً."
-              : "اُنْقُرْ عَلَى أَيِّ عَلَامَةٍ فِي الخَرِيطَةِ لِتَبْدَأَ مُغَامَرَةً."}
-          </p>
-        </Card>
+        <>
+          <Card pad={10} style={{ background: "#D7E6EA" }}>
+            <OmanMap stories={stories} completed={done} onPick={setSel} activeId={sel} />
+          </Card>
+          {story ? (
+            <Card pad={16} style={{ borderInlineStart: `4px solid ${envColor[story.id]}` }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <IconChip bg={`${envColor[story.id]}22`} size={46} radius={16}>
+                  <Glyph name={story.icon} size={22} color={envColor[story.id]} />
+                </IconChip>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <h3 style={{ margin: 0, fontFamily: font.display, fontSize: 19, fontWeight: 700, color: c.ink, lineHeight: 1.4 }}>{story.title}</h3>
+                  <p style={{ margin: "2px 0 0", fontSize: 12, color: c.inkFaint, fontFamily: font.body }}>{story.env}</p>
+                </div>
+              </div>
+              <p style={{ margin: "10px 0 12px", fontSize: 13.5, color: c.inkSoft, lineHeight: 1.9, fontFamily: font.body }}>{story.teaser}</p>
+              <ActBtn onClick={() => onOpenStory(story.id)}>
+                {done.includes(story.id) ? "أُعِيدُ هَذِهِ القِصَّةَ" : "أَبْدَأُ هَذِهِ القِصَّةَ"}
+              </ActBtn>
+            </Card>
+          ) : (
+            <Card pad={14}>
+              <p style={{ margin: 0, fontSize: 13.5, color: c.inkSoft, textAlign: "center", lineHeight: 1.9, fontFamily: font.body }}>
+                {isF(profile)
+                  ? "اُنْقُرِي عَلَى أَيِّ عَلَامَةٍ فِي الخَرِيطَةِ."
+                  : "اُنْقُرْ عَلَى أَيِّ عَلَامَةٍ فِي الخَرِيطَةِ."}
+              </p>
+            </Card>
+          )}
+        </>
       )}
+    </div>
+  );
+}
 
-      <BigButton
-        title={sections.words} sub={sections.wordsSub} icon="book"
-        bg={c.dusty} fg="#233038" onClick={onOpenWords}
+/* ============================================================
+   الألعاب البيئية
+   ============================================================ */
+function GamesScreen({ profile, onOpen, onBack }) {
+  const gdone = profile.gamesDone || [];
+  const tints = { sorting: c.dustyInk, smarthome: c.sageDeep, market: c.accent };
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 13 }}>
+      <ScreenHead title={sections.games} onBack={onBack} backText={labels.backToMap} />
+      <SalimSays
+        mood="ask"
+        text="ثَلَاثُ أَلْعَابٍ: نَفْرِزُ، وَنُدَبِّرُ كَهْرَبَاءَ بَيْتٍ، وَنَتَسَوَّقُ بِحِكْمَةٍ."
+        size={54}
       />
-      <BigButton
-        title={sections.medals}
-        sub={`${ed(done.length)} مِنْ ${ed(stories.length)}`}
-        icon="medal" bg={c.sageDeep} fg={c.onDark} onClick={onOpenMedals}
-      />
+      {games.map((g) => (
+        <BigButton
+          key={g.id}
+          title={g.title} sub={g.sub} icon={g.icon}
+          bg={tints[g.id]} fg={c.onDark}
+          badge={gdone.includes(g.id) ? "✓" : undefined}
+          onClick={() => onOpen(g.id)}
+        />
+      ))}
     </div>
   );
 }
@@ -293,7 +479,7 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded }) {
   return (
     <div
       style={{
-        background: bgStyles[scene.bg], borderRadius: rounded ? 22 : 0, overflow: "hidden",
+        background: bgStyles[scene.bg], borderRadius: rounded ? 22 : 18, overflow: "hidden",
         display: "flex", flexDirection: "column", minHeight: 600, position: "relative",
         transition: `background .6s ${ease}`,
       }}
@@ -314,7 +500,7 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded }) {
             fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: font.body,
           }}
         >
-          <span aria-hidden="true">›</span>{labels.backToMap}
+          <span aria-hidden="true">›</span>{labels.backToStories2}
         </button>
         <div style={{ display: "flex", gap: 7 }} aria-label={`المرحلة ${scene.stage} من ${story.totalStages}`}>
           {Array.from({ length: story.totalStages }).map((_, i) => (
@@ -404,7 +590,7 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded }) {
                 type="button" onClick={() => onComplete(story.id)}
                 style={{ flex: 1, borderRadius: 14, border: "none", background: accent, color: "#FFF", padding: "12px 10px", minHeight: 48, fontFamily: font.display, fontSize: 16, fontWeight: 700, cursor: "pointer" }}
               >
-                {labels.backToMap}
+                {labels.backToStories2}
               </button>
             </div>
           </div>
@@ -530,17 +716,19 @@ function DoDont({ onBack }) {
    ============================================================ */
 function Medals({ profile, onBack }) {
   const done = profile.completed || [];
+  const gdone = profile.gamesDone || [];
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
-        <h2 style={{ margin: 0, fontFamily: font.display, fontSize: 24, fontWeight: 700, color: c.ink }}>{sections.medals}</h2>
-        <ProgressPill done={done.length} total={stories.length} />
-      </div>
+      <ScreenHead
+        title={sections.medals} onBack={onBack} backText={labels.backToMap}
+        extra={<ProgressPill done={done.length + gdone.length} total={stories.length + games.length} />}
+      />
 
-      {done.length === 0 && (
+      {done.length + gdone.length === 0 && (
         <SalimSays mood="ask" text={pick(profile, salimText.emptyMedals, salimText.emptyMedalsF)} size={58} />
       )}
 
+      <h3 style={{ margin: "4px 0 0", fontFamily: font.display, fontSize: 17, fontWeight: 700, color: c.inkSoft }}>أَوْسِمَةُ القِصَصِ</h3>
       <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fill, minmax(132px, 1fr))" }}>
         {stories.map((s) => {
           const earned = done.includes(s.id);
@@ -553,9 +741,9 @@ function Medals({ profile, onBack }) {
               border: earned ? "none" : `1px dashed ${c.line}`,
             }}>
               <div style={{ display: "flex", justifyContent: "center" }}>
-                <Medal storyId={s.id} icon={s.icon} earned={earned} size={60} />
+                <Medal storyId={s.id} icon={s.icon} earned={earned} size={58} />
               </div>
-              <p style={{ margin: "6px 0 0", fontFamily: font.display, fontSize: 14.5, fontWeight: 700, lineHeight: 1.55, color: earned ? c.ink : c.inkFaint }}>
+              <p style={{ margin: "6px 0 0", fontFamily: font.display, fontSize: 14, fontWeight: 700, lineHeight: 1.55, color: earned ? c.ink : c.inkFaint }}>
                 {earned ? ending.badge : "لَمْ يُفْتَحْ بَعْدُ"}
               </p>
               <p style={{ margin: "2px 0 0", fontSize: 11, color: c.inkFaint, fontFamily: font.body }}>{s.env}</p>
@@ -564,8 +752,26 @@ function Medals({ profile, onBack }) {
         })}
       </div>
 
-      <div style={{ display: "flex", justifyContent: "center" }}>
-        <BackButton onClick={onBack} text={labels.backToMap} />
+      <h3 style={{ margin: "8px 0 0", fontFamily: font.display, fontSize: 17, fontWeight: 700, color: c.inkSoft }}>أَوْسِمَةُ الأَلْعَابِ</h3>
+      <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fill, minmax(132px, 1fr))" }}>
+        {games.map((g) => {
+          const earned = gdone.includes(g.id);
+          return (
+            <Card key={g.id} pad={12} style={{
+              textAlign: "center",
+              background: earned ? c.paper : "transparent",
+              boxShadow: earned ? shadow.sm : "none",
+              border: earned ? "none" : `1px dashed ${c.line}`,
+            }}>
+              <div style={{ display: "flex", justifyContent: "center" }}>
+                <Medal storyId="falaj" icon={g.icon} earned={earned} size={58} />
+              </div>
+              <p style={{ margin: "6px 0 0", fontFamily: font.display, fontSize: 14, fontWeight: 700, lineHeight: 1.55, color: earned ? c.ink : c.inkFaint }}>
+                {earned ? g.title : "لَمْ يُفْتَحْ بَعْدُ"}
+              </p>
+            </Card>
+          );
+        })}
       </div>
     </div>
   );
@@ -672,7 +878,7 @@ function Screen({ children }) {
 function Footer() {
   return (
     <footer style={{ padding: "20px 0 24px", textAlign: "center", fontSize: 11.5, lineHeight: 1.9, color: c.inkFaint, fontFamily: font.body }}>
-      © {COPYRIGHT_YEAR} {AUTHOR} — جَمِيعُ الحُقُوقِ مَحْفُوظَةٌ
+      {footerText} © {COPYRIGHT_YEAR}
     </footer>
   );
 }
@@ -693,8 +899,9 @@ export default function App() {
   const vp = useViewport();
   const wide = vp === "wide";
   const [profile, setProfile] = useState(null);
-  const [view, setView] = useState("map");
+  const [view, setView] = useState("home");
   const [storyId, setStoryId] = useState(null);
+  const [gameId, setGameId] = useState(null);
   const [wordId, setWordId] = useState(null);
   const [pendingQuiz, setPendingQuiz] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -704,7 +911,7 @@ export default function App() {
     const p = await loadProfile(name, gender);
     setProfile(p);
     setLoading(false);
-    setView("map");
+    setView(p.accepted ? "home" : "mission");
   };
 
   const completeStory = async (sId) => {
@@ -719,8 +926,17 @@ export default function App() {
       setPendingQuiz(milestone);
       setView("quiz");
     } else {
-      setView("map");
+      setView("stories");
     }
+  };
+
+  const completeGame = async (gId) => {
+    if (!profile) return;
+    const gamesDone = profile.gamesDone.includes(gId) ? profile.gamesDone : [...profile.gamesDone, gId];
+    const next = { ...profile, gamesDone };
+    setProfile(next);
+    await saveProfile(next);
+    setView("games");
   };
 
   const finishQuiz = async () => {
@@ -728,46 +944,50 @@ export default function App() {
     setProfile(next);
     await saveProfile(next);
     setPendingQuiz(null);
-    setView("map");
+    setView("stories");
+  };
+
+  const acceptMission = async () => {
+    const next = { ...profile, accepted: true };
+    setProfile(next);
+    await saveProfile(next);
+    setView("home");
   };
 
   const story = useMemo(() => stories.find((s) => s.id === storyId), [storyId]);
   const term = useMemo(() => dictionaryTerms.find((t) => t.id === wordId), [wordId]);
   const openStory = (id) => { setStoryId(id); setView("story"); };
+  const openGame = (id) => { setGameId(id); setView("game"); };
+  const Game = gameId ? GAMES[gameId] : null;
 
   const content = () => {
     if (view === "story" && story) {
       return (
         <StoryPlayer
           story={story} profile={profile} rounded={vp !== "phone"}
-          onComplete={completeStory} onExit={() => setView("map")}
+          onComplete={completeStory} onExit={() => setView("stories")}
         />
       );
+    }
+    if (view === "game" && Game) {
+      return <Game profile={profile} onExit={() => setView("games")} onWin={() => completeGame(gameId)} />;
     }
     if (view === "quiz" && pendingQuiz !== null) return <Quiz setIndex={pendingQuiz - 1} profile={profile} onFinish={finishQuiz} />;
     if (view === "word" && term) return <WordDetail term={term} profile={profile} onBack={() => setView("words")} />;
     if (view === "dodont") return <DoDont onBack={() => setView("words")} />;
+    if (view === "stories") return <StoriesScreen profile={profile} onOpenStory={openStory} onBack={() => setView("home")} />;
+    if (view === "games") return <GamesScreen profile={profile} onOpen={openGame} onBack={() => setView("home")} />;
     if (view === "words") {
       return (
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
-            <h2 style={{ margin: 0, fontFamily: font.display, fontSize: 24, fontWeight: 700, color: c.ink }}>{sections.words}</h2>
-            <BackButton onClick={() => setView("map")} text={labels.backToMap} />
-          </div>
+          <ScreenHead title={sections.words} onBack={() => setView("home")} backText={labels.backToMap} />
           <WordsList profile={profile} onOpen={(id) => { setWordId(id); setView("word"); }} onOpenDoDont={() => setView("dodont")} />
         </div>
       );
     }
-    if (view === "medals") return <Medals profile={profile} onBack={() => setView("map")} />;
+    if (view === "medals") return <Medals profile={profile} onBack={() => setView("home")} />;
 
-    return (
-      <MapPanel
-        profile={profile} compact={false}
-        onOpenStory={openStory}
-        onOpenWords={() => setView("words")}
-        onOpenMedals={() => setView("medals")}
-      />
-    );
+    return <HomePanel profile={profile} go={setView} compact={false} />;
   };
 
   if (!profile) {
@@ -782,48 +1002,58 @@ export default function App() {
     );
   }
 
+  if (view === "mission") {
+    return (
+      <Screen>
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "24px 0" }}>
+          <MissionLetter profile={profile} onAccept={acceptMission} />
+        </div>
+        <Footer />
+      </Screen>
+    );
+  }
+
   const done = profile.completed || [];
 
   return (
     <Screen>
       <header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "12px 2px 14px", flexWrap: "wrap" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+        <button
+          type="button"
+          onClick={() => setView("home")}
+          style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0, background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "right" }}
+        >
           <Salim mood="smile" size={40} />
-          <div style={{ minWidth: 0 }}>
-            <p style={{ margin: 0, fontSize: 11.5, color: c.inkFaint, fontFamily: font.body }}>أَهْلًا بِكَ</p>
-            <p style={{ margin: 0, fontFamily: font.display, fontWeight: 700, fontSize: 19, color: c.ink, lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          <span style={{ minWidth: 0 }}>
+            <span style={{ display: "block", fontSize: 11.5, color: c.inkFaint, fontFamily: font.body }}>أَهْلًا بِكَ</span>
+            <span style={{ display: "block", fontFamily: font.display, fontWeight: 700, fontSize: 19, color: c.ink, lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               {profile.name}
-            </p>
-          </div>
-        </div>
+            </span>
+          </span>
+        </button>
         <ProgressPill done={done.length} total={stories.length} />
       </header>
 
       {wide ? (
-        <div style={{ display: "grid", gridTemplateColumns: "372px minmax(0,1fr)", gap: 26, alignItems: "start", flex: 1 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "352px minmax(0,1fr)", gap: 26, alignItems: "start", flex: 1 }}>
           <aside style={{ position: "sticky", top: 16 }}>
-            <MapPanel
-              profile={profile} compact
-              onOpenStory={openStory}
-              onOpenWords={() => setView("words")}
-              onOpenMedals={() => setView("medals")}
-            />
+            <HomePanel profile={profile} go={setView} compact />
           </aside>
           <section style={{ minWidth: 0 }}>
-            {view === "map" ? (
+            {view === "home" ? (
               <Card pad={24}>
                 <SalimSays mood="smile" text={pick(profile, salimText.welcome, salimText.welcomeF)} size={74} />
                 <p style={{ margin: "16px 0 0", fontSize: 14, lineHeight: 2, color: c.inkSoft, fontFamily: font.body }}>
                   {isF(profile)
-                    ? "اخْتَارِي مَوْقِعًا مِنَ الخَرِيطَةِ، أَوِ افْتَحِي كَلِمَاتٍ تَتَحَرَّكُ، أَوْ تَصَفَّحِي خِزَانَةَ أَوْسِمَتِكِ."
-                    : "اخْتَرْ مَوْقِعًا مِنَ الخَرِيطَةِ، أَوِ افْتَحْ كَلِمَاتٍ تَتَحَرَّكُ، أَوْ تَصَفَّحْ خِزَانَةَ أَوْسِمَتِكَ."}
+                    ? "اخْتَارِي قِسْمًا مِنَ الجَانِبِ: قِصَصٌ تَقُودِينَهَا، وَأَلْعَابٌ تُجَرِّبِينَ فِيهَا قَرَارَاتِكِ، وَكَلِمَاتٌ تَتَحَرَّكُ بَيْنَ يَدَيْكِ."
+                    : "اخْتَرْ قِسْمًا مِنَ الجَانِبِ: قِصَصٌ تَقُودُهَا، وَأَلْعَابٌ تُجَرِّبُ فِيهَا قَرَارَاتِكَ، وَكَلِمَاتٌ تَتَحَرَّكُ بَيْنَ يَدَيْكَ."}
                 </p>
               </Card>
             ) : content()}
           </section>
         </div>
       ) : (
-        <div style={{ flex: 1, maxWidth: vp === "tablet" ? 620 : "none", width: "100%", margin: "0 auto" }}>{content()}</div>
+        <div style={{ flex: 1, maxWidth: vp === "tablet" ? 640 : "none", width: "100%", margin: "0 auto" }}>{content()}</div>
       )}
 
       <Footer />
