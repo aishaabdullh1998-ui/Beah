@@ -6,12 +6,12 @@
    هذا الملف للشاشات والتنقّل فقط.
    ============================================================ */
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { c, env as envColor, shadow, font, ease, bgStyles, isWarningBg, isNightBg, bp } from "./theme.js";
+import { c, env as envColor, shadow, font, ease, bgStyles, isWarningBg, bp } from "./theme.js";
 import {
   COPYRIGHT_YEAR, sections, salim as salimText, encouragements,
   stories, quizSets, dictionaryTerms, doDontCards, labels, games, mission, footerText,
 } from "./content.js";
-import { Glyph, IconChip, Salim, SalimSays, OmanMap, StoryBadge, keyframes } from "./art.jsx";
+import { Glyph, IconChip, Salim, SalimSays, OmanMap, StoryBadge, SceneBackdrop, keyframes } from "./art.jsx";
 import { WORD_SCENES, ActBtn, Hint } from "./scenes.jsx";
 import { GAMES } from "./games.jsx";
 
@@ -476,12 +476,7 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded }) {
         transition: `background .6s ${ease}`,
       }}
     >
-      {isNightBg(scene.bg) && (
-        <>
-          <span className="star" style={{ position: "absolute", top: "7%", insetInlineStart: "20%", color: "#FFD873", fontSize: 11 }}>✦</span>
-          <span className="star" style={{ position: "absolute", top: "13%", insetInlineStart: "68%", color: "#FFD873", fontSize: 15, animationDelay: ".6s" }}>✦</span>
-        </>
-      )}
+      <SceneBackdrop bg={scene.bg} />
 
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px", gap: 10, position: "relative", zIndex: 2 }}>
         <button

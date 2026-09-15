@@ -1,5 +1,5 @@
 /* ============================================================
-   الرسم — خريطة عُمان، الجدّ سالم، الأوسمة، أيقونات القصص
+   الرسم — خريطة عُمان، الجدّ سالم، أيقونات القصص، ومناظر مشاهدها الكرتونيّة
    ============================================================ */
 import React from "react";
 import { c, env as envColor, shadow, font, ease } from "./theme.js";
@@ -283,6 +283,184 @@ export function StoryBadge({ storyId, icon, color, size = 56 }) {
         <Glyph name={icon} size={size * 0.46} color="#FFF" strokeWidth={2.1} />
       </div>
     </div>
+  );
+}
+
+/* ============================================================
+   خلفيّاتُ مَشَاهِدِ القِصَّةِ — مَنَاظِرُ كَرْتُونِيَّةٌ كَامِلَةُ التَّفْصِيلِ
+   خَلْفَ نَصِّ كُلِّ مَشْهَدٍ، بَدَلَ تَدَرُّجٍ لَوْنِيٍّ مُصْمَتٍ
+   ============================================================ */
+function SceneDefs() {
+  return (
+    <defs>
+      <linearGradient id="skyDay" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#8FD3E8" /><stop offset="55%" stopColor="#BFE6D9" /><stop offset="100%" stopColor="#EADFB8" />
+      </linearGradient>
+      <linearGradient id="skyDawn" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#2E4F7A" /><stop offset="45%" stopColor="#8C93AC" /><stop offset="75%" stopColor="#E8B27E" /><stop offset="100%" stopColor="#F4D9A0" />
+      </linearGradient>
+      <linearGradient id="skyNight" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#0E1B3C" /><stop offset="100%" stopColor="#243A63" />
+      </linearGradient>
+      <linearGradient id="skyWater" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#7FD0E0" /><stop offset="55%" stopColor="#2E86A8" /><stop offset="100%" stopColor="#123B54" />
+      </linearGradient>
+      <linearGradient id="skyForest" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#BFE0D8" /><stop offset="100%" stopColor="#E9E4BE" />
+      </linearGradient>
+      <linearGradient id="skyEnding" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#8FD3E8" /><stop offset="60%" stopColor="#DCEFC7" /><stop offset="100%" stopColor="#F6E7A8" />
+      </linearGradient>
+    </defs>
+  );
+}
+
+function IbexMark({ x, y, scale = 1, color = "#4A3624" }) {
+  return (
+    <g transform={`translate(${x},${y}) scale(${scale})`} fill={color}>
+      <ellipse cx="0" cy="0" rx="13" ry="6.5" />
+      <path d="M11 -3 20 -8 15 0Z" />
+      <path d="M15 -6C20 -14 28 -17 30 -14C25 -11 20 -7 16 -3Z" />
+      <rect x="-8" y="5" width="3" height="9" /><rect x="4" y="5" width="3" height="9" />
+    </g>
+  );
+}
+
+function TurtleMark({ x, y, scale = 1, rotate = 0, color = "#3E6E4E" }) {
+  return (
+    <g transform={`translate(${x},${y}) rotate(${rotate}) scale(${scale})`} fill={color}>
+      <ellipse cx="0" cy="0" rx="16" ry="12" />
+      <ellipse cx="14" cy="-2" rx="6" ry="5" />
+    </g>
+  );
+}
+
+function DayScene() {
+  return (
+    <>
+      <rect x="0" y="0" width="400" height="300" fill="url(#skyDay)" />
+      <circle cx="332" cy="54" r="30" fill="#FFD873" /><circle cx="332" cy="54" r="48" fill="#FFD873" opacity=".2" />
+      <path d="M40 68q20-14 40 0t40 0" stroke="#FFFFFF" strokeWidth="8" strokeLinecap="round" fill="none" opacity=".55" />
+      <path d="M90 92q18-12 36 0t36 0" stroke="#FFFFFF" strokeWidth="7" strokeLinecap="round" fill="none" opacity=".45" />
+      <path d="M0 190 60 130 110 170 160 110 210 165 260 120 320 175 400 140V300H0Z" fill="#D8B27E" />
+      <path d="M0 220 50 175 100 210 150 160 220 215 280 175 340 220 400 195V300H0Z" fill="#BC8656" />
+      <IbexMark x={252} y={166} scale={1.15} />
+      <path d="M0 260 60 245 130 262 200 240 280 260 340 244 400 258V300H0Z" fill="#E4C596" />
+      <ellipse cx="70" cy="272" rx="22" ry="9" fill="#C9A46A" /><ellipse cx="230" cy="278" rx="26" ry="10" fill="#C9A46A" /><ellipse cx="342" cy="270" rx="18" ry="8" fill="#C9A46A" />
+      <g transform="translate(30,255)"><path d="M0 45V10" stroke="#5E7A45" strokeWidth="4" /><path d="M0 26 -12 45M0 20 12 40" stroke="#5E7A45" strokeWidth="3" fill="none" strokeLinecap="round" /></g>
+    </>
+  );
+}
+
+function DawnScene() {
+  return (
+    <>
+      <rect x="0" y="0" width="400" height="300" fill="url(#skyDawn)" />
+      <circle cx="200" cy="150" r="34" fill="#FFCB7A" opacity=".9" /><circle cx="200" cy="150" r="60" fill="#FFCB7A" opacity=".22" />
+      <path d="M60 60q6-6 12 0q6-6 12 0" stroke="#3B4A63" strokeWidth="2" fill="none" strokeLinecap="round" />
+      <path d="M300 84q6-6 12 0q6-6 12 0" stroke="#3B4A63" strokeWidth="2" fill="none" strokeLinecap="round" />
+      <path d="M0 175h400v40H0Z" fill="#3E86A8" />
+      <path d="M0 195q20-6 40 0t40 0 40 0 40 0 40 0 40 0 40 0 40 0 40 0V220H0Z" fill="#5FA6C4" opacity=".7" />
+      <path d="M0 210h400v90H0Z" fill="#EAD9B0" />
+      <path d="M70 300C82 262 92 250 124 216" stroke="#D8C293" strokeWidth="11" fill="none" strokeLinecap="round" />
+      <path d="M64 292C58 284 68 280 62 272M96 262C90 254 100 250 94 242M114 232C108 224 118 220 112 212" stroke="#C9B27E" strokeWidth="4" fill="none" strokeLinecap="round" />
+      <TurtleMark x={140} y={208} scale={1} rotate={-22} />
+    </>
+  );
+}
+
+function NightScene() {
+  return (
+    <>
+      <rect x="0" y="0" width="400" height="300" fill="url(#skyNight)" />
+      <circle cx="320" cy="55" r="22" fill="#F3E6B8" opacity=".9" /><circle cx="312" cy="50" r="22" fill="#0E1B3C" opacity=".55" />
+      {[...Array(10)].map((_, i) => (
+        <circle key={i} cx={20 + (i * 37) % 380} cy={20 + ((i * 53) % 110)} r={i % 3 === 0 ? 1.8 : 1.1} fill="#F3E6B8" opacity={0.5 + (i % 4) * 0.12} />
+      ))}
+      <path d="M0 190h400v30H0Z" fill="#173A55" />
+      <path d="M0 205q20-5 40 0t40 0 40 0 40 0 40 0 40 0 40 0 40 0 40 0V220H0Z" fill="#20496A" opacity=".8" />
+      <path d="M0 210h400v90H0Z" fill="#8A7A54" />
+      <path d="M70 300C82 262 92 250 124 216" stroke="#77694A" strokeWidth="11" fill="none" strokeLinecap="round" />
+      <TurtleMark x={150} y={206} scale={0.95} rotate={-18} color="#2E4A38" />
+    </>
+  );
+}
+
+function WaterScene() {
+  return (
+    <>
+      <rect x="0" y="0" width="400" height="300" fill="url(#skyWater)" />
+      {[0, 1, 2].map((i) => (
+        <path key={i} d={`M${60 + i * 110} 0 L${90 + i * 110} 300`} stroke="#BEE9F2" strokeWidth="14" opacity=".14" />
+      ))}
+      {[...Array(6)].map((_, i) => (
+        <circle key={i} cx={40 + (i * 63) % 360} cy={260 - (i * 37) % 220} r={3 + (i % 3)} fill="#FFFFFF" opacity=".35" />
+      ))}
+      <path d="M0 250h400v50H0Z" fill="#0E3B52" />
+      <path d="M60 255C70 235 90 233 94 251C98 237 114 235 116 255Z" fill="#E88A5C" />
+      <g transform="translate(150,262)"><circle cx="0" cy="0" r="14" fill="#C9633B" /><circle cx="10" cy="4" r="10" fill="#D9754D" /></g>
+      <path d="M230 255C238 237 254 235 258 253C262 239 276 237 278 255Z" fill="#7FA6D6" />
+      <g transform="translate(310,258)"><circle cx="0" cy="0" r="11" fill="#4E8B6E" /><circle cx="9" cy="3" r="8" fill="#5EA07E" /></g>
+      <g transform="translate(120,110)" fill="#F0C86A"><ellipse cx="0" cy="0" rx="12" ry="7" /><path d="M-12 0 -20 -6 -20 6Z" /></g>
+      <g transform="translate(280,150) scale(-1,1)" fill="#7FD1B9"><ellipse cx="0" cy="0" rx="10" ry="6" /><path d="M-10 0 -17 -5 -17 5Z" /></g>
+    </>
+  );
+}
+
+function ForestScene() {
+  return (
+    <>
+      <rect x="0" y="0" width="400" height="300" fill="url(#skyForest)" />
+      <path d="M0 190 70 140 140 175 210 120 280 170 340 135 400 165V300H0Z" fill="#8FBF9C" />
+      <path d="M0 300h400V220q-20-10-40 0t-40 0-40 0-40 0-40 0-40 0-40 0-40 0-40 0-40 0Z" fill="#6E9E7C" opacity=".5" />
+      {[0, 1, 2, 3, 4].map((i) => (
+        <g key={i} transform={`translate(${40 + i * 80},${215 - (i % 2) * 10})`}>
+          <path d="M0 60V20" stroke="#4A6338" strokeWidth="4" />
+          <path d="M0 40 -14 60M0 34 14 54" stroke="#4A6338" strokeWidth="3" fill="none" strokeLinecap="round" />
+          <circle cx="0" cy="14" r="17" fill={i % 2 ? "#5E8352" : "#6E9460"} />
+        </g>
+      ))}
+      <path d="M0 250h400v50H0Z" fill="#4E6E9C" opacity=".4" />
+    </>
+  );
+}
+
+function EndingScene() {
+  return (
+    <>
+      <rect x="0" y="0" width="400" height="300" fill="url(#skyEnding)" />
+      <g transform="translate(200,90)">
+        {[...Array(8)].map((_, i) => (
+          <rect key={i} x="-3" y="-70" width="6" height="30" fill="#FFD873" opacity=".55" transform={`rotate(${i * 45})`} />
+        ))}
+        <circle cx="0" cy="0" r="34" fill="#FFD873" />
+      </g>
+      <path d="M0 210 60 175 130 205 200 165 270 205 340 175 400 200V300H0Z" fill="#8FBF9C" />
+      <path d="M0 240 60 220 130 245 200 215 270 245 340 220 400 235V300H0Z" fill="#6FA37E" />
+      {[...Array(6)].map((_, i) => (
+        <circle key={i} cx={30 + i * 65} cy={260 + (i % 2) * 14} r="5" fill={["#F0C86A", "#E88A5C", "#C9633B", "#F0C86A", "#E88A5C", "#C9633B"][i]} />
+      ))}
+      <path d="M70 130q10-8 20 0q10-8 20 0" stroke="#3B4A63" strokeWidth="2" fill="none" strokeLinecap="round" />
+      <path d="M300 110q10-8 20 0q10-8 20 0" stroke="#3B4A63" strokeWidth="2" fill="none" strokeLinecap="round" />
+    </>
+  );
+}
+
+const SCENE_BY_BASE = { day: DayScene, dawn: DawnScene, night: NightScene, water: WaterScene, forest: ForestScene, ending: EndingScene };
+
+export function SceneBackdrop({ bg }) {
+  const warn = bg.startsWith("warning");
+  const base = warn ? bg.slice(7, 8).toLowerCase() + bg.slice(8) : bg;
+  const Scene = SCENE_BY_BASE[base] || DayScene;
+  return (
+    <svg
+      viewBox="0 0 400 300" preserveAspectRatio="xMidYMax slice" width="100%" height="100%"
+      style={{ position: "absolute", inset: 0, display: "block" }} aria-hidden="true"
+    >
+      <SceneDefs />
+      <Scene />
+      {warn && <rect x="0" y="0" width="400" height="300" fill="#5B4530" opacity=".38" />}
+    </svg>
   );
 }
 
