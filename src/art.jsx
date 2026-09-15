@@ -118,6 +118,58 @@ const SHAPES = {
       <path d="M10 7.5 8.5 5M14 7.5 15.5 5" />
     </g>
   ),
+  ac: (
+    <g>
+      <rect x="3" y="6" width="18" height="7" rx="2" />
+      <path d="M6 17v3M12 17v4M18 17v3" />
+      <circle cx="18" cy="9.5" r=".6" fill="currentColor" stroke="none" />
+    </g>
+  ),
+  heater: (
+    <g>
+      <rect x="7" y="3" width="10" height="18" rx="4" />
+      <path d="M9.5 8h5M9.5 12h5" />
+    </g>
+  ),
+  lamp: (
+    <g>
+      <path d="M9 21h6M12 21v-4" />
+      <path d="M6 3h12l-2.5 8h-7Z" />
+    </g>
+  ),
+  tv: (
+    <g>
+      <rect x="3" y="5" width="18" height="12" rx="2" />
+      <path d="M8 21h8M12 17v4" />
+    </g>
+  ),
+  fridge: (
+    <g>
+      <rect x="6" y="2" width="12" height="20" rx="2" />
+      <path d="M6 10h12" />
+      <path d="M9 5.5v2M9 13v2.5" />
+    </g>
+  ),
+  window: (
+    <g>
+      <rect x="4" y="4" width="16" height="16" rx="1" />
+      <path d="M12 4v16M4 12h16" />
+    </g>
+  ),
+  fan: (
+    <g>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 12 12 5.5a3 3 0 1 1 3 3ZM12 12l6.1 2.2a3 3 0 1 1-2.1 3.8ZM12 12l-4 5.2a3 3 0 1 1-2.4-3.6Z" />
+      <circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none" />
+    </g>
+  ),
+  projector: (
+    <g>
+      <rect x="3" y="7" width="12" height="8" rx="2" />
+      <circle cx="9" cy="11" r="2.2" />
+      <path d="M15 10.5 21 8v8l-6-2.5Z" />
+    </g>
+  ),
 };
 
 export function Glyph({ name, size = 26, color = c.ink, strokeWidth = 2 }) {

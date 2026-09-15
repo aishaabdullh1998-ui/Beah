@@ -4,9 +4,9 @@
    إطار واحد يجمع الألعاب الثلاث: الهدف أعلى الشاشة، والنتيجة
    بجانبه، وتلميح الجدّ سالم تحتهما، والخروج في مكانه دائمًا.
 
-   المشاهد مبنيّة بمنظور ثلاثي الأبعاد حقيقي عبر CSS transforms:
-   جدران لها عمق، وأجسام لها وجه وجانب وسطح، وإضاءة تتغيّر مع
-   حالة الغرفة. بلا أي مكتبة خارجية، لتعمل على أجهزة المدارس.
+   فرز المخلّفات والتسوّق مبنيّان بمنظور ثلاثي الأبعاد عبر CSS
+   transforms. البيت الذكي رسمٌ مسطّح بـ SVG، وأجهزته تستجيب
+   بصريًّا لحالة تشغيلها. بلا أي مكتبة خارجية، لتعمل على أجهزة المدارس.
    ============================================================ */
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { c, shadow, font, ease } from "./theme.js";
@@ -107,29 +107,6 @@ function WinCard({ text, onDone, mood = "smile" }) {
    ============================================================ */
 const YAW = -15;   // دوران المشهد حول المحور الرأسي
 const PITCH = 6;   // ميل بسيط للأعلى
-
-/* جسم قائم في الفراغ، يُدار عكس المشهد ليبقى مواجهًا للناظر */
-function Obj({ x = 0, y = 0, z = 0, onClick, label, pressed, children, zIndex }) {
-  const inner = (
-    <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center" }}>
-      {children}
-    </div>
-  );
-  const style = {
-    position: "absolute", left: "50%", top: "50%",
-    transform: `translate3d(${x}px, ${y}px, ${z}px) rotateY(${-YAW}deg) translate(-50%, -50%)`,
-    zIndex,
-  };
-  if (!onClick) return <div style={style}>{inner}</div>;
-  return (
-    <button
-      type="button" onClick={onClick} aria-label={label} aria-pressed={pressed}
-      style={{ ...style, background: "none", border: "none", padding: 0, cursor: "pointer" }}
-    >
-      {inner}
-    </button>
-  );
-}
 
 /* صندوق له وجه وسطح وجانب — لبنة كل الأجسام */
 function Box3D({ w, h, dep = 14, face, top, side, radius = 4, children, glow }) {
@@ -367,252 +344,380 @@ function SortingGame({ profile, onExit, onWin }) {
 }
 
 /* ============================================================
-   ٢ — البيت الذكي (غرفة مأهولة بمنظور حقيقي)
+   ٢ — البيت الذكي (رسوم مسطّحة لكل مكان، بأسلوب واضح ومحبّب للطفل)
    ============================================================ */
-const R = { w: 312, h: 206, d: 186 };
-
-function Wall({ w, h, tz, rot, bg, children, zIndex }) {
-  return (
-    <div style={{
-      position: "absolute", left: "50%", top: "50%", width: w, height: h,
-      marginLeft: -w / 2, marginTop: -h / 2,
-      transform: `${rot} translateZ(${tz}px)`,
-      background: bg, transformStyle: "preserve-3d", zIndex, pointerEvents: "none",
-    }}>{children}</div>
-  );
-}
-
-/* الأجهزة مرسومة أجسامًا في الغرفة، والجسم نفسه هو الزرّ */
-function Device({ dev, on, onToggle }) {
-  const label = dev.isWindow ? (on ? "مَفْتُوحَة" : "مُغْلَقَة") : (on ? "يَعْمَل" : "مُطْفَأ");
-
-  if (dev.id === "window") {
-    return (
-      <Obj x={44} y={8} z={-R.d / 2 + 2} onClick={() => onToggle(dev.id)} label={`${dev.name}: ${label}`} pressed={on} zIndex={2}>
-        <div style={{ position: "relative", width: 76, height: 62 }}>
-          <div style={{
-            position: "absolute", inset: 0, borderRadius: 5, overflow: "hidden",
-            background: on
-              ? "linear-gradient(180deg,#8FD2E6 0%,#D8E9C8 100%)"
-              : "linear-gradient(180deg,#5E7B8C 0%,#4A6272 100%)",
-            border: "4px solid #E8E2D4", boxSizing: "border-box",
-            boxShadow: on ? "0 0 26px rgba(255,214,120,.55)" : "inset 0 2px 8px rgba(0,0,0,.35)",
-            transition: `all .45s ${ease}`,
-          }}>
-            {on && <div style={{ position: "absolute", top: 8, left: 10, width: 20, height: 20, borderRadius: "50%", background: "#FFD873", boxShadow: "0 0 16px #FFD873" }} />}
-            <div style={{ position: "absolute", left: "50%", top: 0, bottom: 0, width: 4, marginLeft: -2, background: "#E8E2D4" }} />
-            <div style={{ position: "absolute", top: "50%", left: 0, right: 0, height: 4, marginTop: -2, background: "#E8E2D4" }} />
-            {!on && (
-              <div style={{ position: "absolute", inset: 0, background: "repeating-linear-gradient(180deg,#D9D3C4 0 7px,#C9C2B2 7px 14px)" }} />
-            )}
-          </div>
-          {on && (
-            <>
-              <span style={{ position: "absolute", right: -16, top: 12, width: 10, height: 26, borderRadius: 8, background: "rgba(255,196,120,.5)", filter: "blur(3px)", animation: "heatWave 2.4s ease-in-out infinite" }} />
-              <span style={{ position: "absolute", right: -24, top: 26, width: 8, height: 20, borderRadius: 8, background: "rgba(255,196,120,.38)", filter: "blur(3px)", animation: "heatWave 2.4s ease-in-out .7s infinite" }} />
-            </>
-          )}
-        </div>
-      </Obj>
-    );
-  }
-
-  if (dev.id === "ac") {
-    return (
-      <Obj x={44} y={-62} z={-R.d / 2 + 4} onClick={() => onToggle(dev.id)} label={`${dev.name}: ${label}`} pressed={on} zIndex={2}>
-        <div style={{ position: "relative" }}>
-          <Box3D w={82} h={28} dep={16} radius={6}
-            face="linear-gradient(180deg,#FAFBF9 0%,#DFE4DE 100%)"
-            top="#FFFFFF" side="#C8CFC8"
-            glow={on ? "rgba(140,210,235,.75)" : null}>
-            <div style={{ position: "absolute", bottom: 4, left: 6, right: 6, height: 7, borderRadius: 3, background: "repeating-linear-gradient(90deg,#B9C3BC 0 3px,#DDE3DC 3px 6px)" }} />
-            <div style={{ position: "absolute", top: 5, right: 7, width: 6, height: 6, borderRadius: "50%", background: on ? "#6FD3A6" : "#B7BFB8", boxShadow: on ? "0 0 7px #6FD3A6" : "none" }} />
-          </Box3D>
-          {on && [0, 1, 2].map((k) => (
-            <span key={k} style={{
-              position: "absolute", left: 14 + k * 24, top: 32, width: 14, height: 3, borderRadius: 3,
-              background: "rgba(150,215,240,.85)", animation: `blow 1.5s ease-in-out ${k * 0.22}s infinite`,
-            }} />
-          ))}
-        </div>
-      </Obj>
-    );
-  }
-
-  if (dev.id === "tv") {
-    return (
-      <Obj x={-62} y={-30} z={-R.d / 2 + 4} onClick={() => onToggle(dev.id)} label={`${dev.name}: ${label}`} pressed={on} zIndex={2}>
-        <Box3D w={92} h={56} dep={12} radius={5}
-          face="linear-gradient(180deg,#2D343B 0%,#1B2127 100%)"
-          top="#3A424A" side="#151A1F"
-          glow={on ? "rgba(120,200,235,.6)" : null}>
-          <div style={{
-            position: "absolute", inset: 5, borderRadius: 3,
-            background: on
-              ? "linear-gradient(120deg,#3EA9C9 0%,#7FD1B9 38%,#F0C86A 70%,#E08A5C 100%)"
-              : "#11161B",
-            backgroundSize: on ? "260% 100%" : "auto",
-            animation: on ? "tvPlay 5s linear infinite" : "none",
-            transition: `background .4s ${ease}`,
-          }} />
-        </Box3D>
-      </Obj>
-    );
-  }
-
-  if (dev.id === "lamp") {
-    return (
-      <Obj x={124} y={22} z={62} onClick={() => onToggle(dev.id)} label={`${dev.name}: ${label}`} pressed={on} zIndex={6}>
-        <div style={{ position: "relative", width: 56, display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <div style={{
-            width: 0, height: 0, borderLeft: "26px solid transparent", borderRight: "26px solid transparent",
-            borderBottom: `30px solid ${on ? "#FFD873" : "#B9BEB4"}`,
-            filter: on ? "drop-shadow(0 0 16px rgba(255,216,115,.9))" : "none",
-            transform: "rotate(180deg)", transition: `all .4s ${ease}`,
-          }} />
-          <div style={{ width: 6, height: 62, background: "linear-gradient(90deg,#8C948C,#C3C9C1,#8C948C)" }} />
-          <div style={{ width: 40, height: 8, borderRadius: "50%", background: "#7E867E" }} />
-          {on && <div style={{ position: "absolute", top: 22, width: 120, height: 120, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,216,115,.38) 0%, transparent 68%)", pointerEvents: "none" }} />}
-        </div>
-      </Obj>
-    );
-  }
-
-  if (dev.id === "fridge") {
-    return (
-      <Obj x={-126} y={26} z={22} onClick={() => onToggle(dev.id)} label={`${dev.name}: ${label}`} pressed={on} zIndex={5}>
-        <Box3D w={58} h={102} dep={20} radius={6}
-          face="linear-gradient(170deg,#F2F4F1 0%,#D6DBD5 100%)"
-          top="#FBFCFA" side="#BFC6BE"
-          glow={on ? "rgba(140,210,235,.35)" : null}>
-          <div style={{ position: "absolute", left: 0, right: 0, top: 38, height: 3, background: "#B7BFB7" }} />
-          <div style={{ position: "absolute", right: 7, top: 14, width: 4, height: 18, borderRadius: 3, background: "#9AA29A" }} />
-          <div style={{ position: "absolute", right: 7, top: 48, width: 4, height: 24, borderRadius: 3, background: "#9AA29A" }} />
-          <div style={{ position: "absolute", left: 8, top: 8, width: 6, height: 6, borderRadius: "50%", background: on ? "#6FD3A6" : "#C2C8C1", boxShadow: on ? "0 0 7px #6FD3A6" : "none" }} />
-        </Box3D>
-      </Obj>
-    );
-  }
-
-  if (dev.id === "heater") {
-    return (
-      <Obj x={-150} y={-74} z={-58} onClick={() => onToggle(dev.id)} label={`${dev.name}: ${label}`} pressed={on} zIndex={4}>
-        <Box3D w={44} h={58} dep={16} radius={20}
-          face="linear-gradient(180deg,#EFF1EC 0%,#D3D8D0 100%)"
-          top="#FAFBF8" side="#BCC2B9"
-          glow={on ? "rgba(240,150,90,.6)" : null}>
-          <div style={{ position: "absolute", left: 9, right: 9, top: 14, height: 3, borderRadius: 3, background: "#AEB5AC" }} />
-          <div style={{ position: "absolute", left: 9, right: 9, top: 24, height: 3, borderRadius: 3, background: "#AEB5AC" }} />
-          <div style={{ position: "absolute", left: "50%", marginLeft: -4, bottom: 8, width: 8, height: 8, borderRadius: "50%", background: on ? "#E8894F" : "#C2C8C1", boxShadow: on ? "0 0 9px #E8894F" : "none" }} />
-        </Box3D>
-      </Obj>
-    );
-  }
-
-  /* المَوْقِدُ — يَشْغَلُ نَفْسَ مَوْضِعِ المُكَيِّفِ فِي غُرَفٍ لَا مُكَيِّفَ فِيهَا */
-  if (dev.id === "stove") {
-    return (
-      <Obj x={44} y={-62} z={-R.d / 2 + 4} onClick={() => onToggle(dev.id)} label={`${dev.name}: ${label}`} pressed={on} zIndex={2}>
-        <Box3D w={82} h={30} dep={16} radius={6}
-          face="linear-gradient(180deg,#3A3F42 0%,#25292B 100%)"
-          top="#4A5054" side="#1A1D1E"
-          glow={on ? "rgba(232,116,68,.75)" : null}>
-          <div style={{ position: "absolute", top: 6, left: 10, width: 16, height: 16, borderRadius: "50%", background: on ? "#E8744C" : "#5A6165", boxShadow: on ? "0 0 12px #E8744C" : "none", transition: `all .3s ${ease}` }} />
-          <div style={{ position: "absolute", top: 6, right: 10, width: 16, height: 16, borderRadius: "50%", background: on ? "#F0A15C" : "#5A6165", boxShadow: on ? "0 0 12px #F0A15C" : "none", transition: `all .3s ${ease}` }} />
-        </Box3D>
-      </Obj>
-    );
-  }
-
-  /* الشَّفَّاطُ — يَشْغَلُ مَوْضِعَ التِّلْفَازِ فِي غُرَفٍ لَا تِلْفَازَ فِيهَا */
-  if (dev.id === "fan") {
-    return (
-      <Obj x={-62} y={-30} z={-R.d / 2 + 4} onClick={() => onToggle(dev.id)} label={`${dev.name}: ${label}`} pressed={on} zIndex={2}>
-        <Box3D w={52} h={52} dep={10} radius={26}
-          face="linear-gradient(180deg,#E7EAE6 0%,#C9CEC5 100%)"
-          top="#F2F4F0" side="#B2B8AD"
-          glow={on ? "rgba(140,210,235,.55)" : null}>
-          <div style={{
-            position: "absolute", inset: 10, borderRadius: "50%", border: "2px solid #8C948C",
-            animation: on ? "spinFan 1.1s linear infinite" : "none",
-          }}>
-            {[0, 90, 180, 270].map((deg) => (
-              <span key={deg} style={{
-                position: "absolute", left: "50%", top: "50%", width: 3, height: 13,
-                background: "#8C948C", transformOrigin: "top", marginLeft: -1.5,
-                transform: `rotate(${deg}deg) translateY(0)`,
-              }} />
-            ))}
-          </div>
-        </Box3D>
-      </Obj>
-    );
-  }
-
-  /* الدُّشُّ — يَشْغَلُ مَوْضِعَ المُكَيِّفِ فِي غُرَفٍ لَا مُكَيِّفَ فِيهَا */
-  if (dev.id === "shower") {
-    return (
-      <Obj x={44} y={-62} z={-R.d / 2 + 4} onClick={() => onToggle(dev.id)} label={`${dev.name}: ${label}`} pressed={on} zIndex={2}>
-        <div style={{ position: "relative" }}>
-          <Box3D w={40} h={16} dep={10} radius={8}
-            face="linear-gradient(180deg,#DCE6E8 0%,#B9C6CE 100%)"
-            top="#EDF2F3" side="#9FAEB6"
-            glow={on ? "rgba(140,210,235,.7)" : null} />
-          {on && [0, 1, 2, 3].map((k) => (
-            <span key={k} style={{
-              position: "absolute", left: 6 + k * 9, top: 16, width: 2.4, height: 30, borderRadius: 3,
-              background: "rgba(140,200,225,.75)", animation: `dripFall 1s linear ${k * 0.18}s infinite`,
-            }} />
-          ))}
-        </div>
-      </Obj>
-    );
-  }
-
-  /* جِهَازُ العَرْضِ — يَشْغَلُ مَوْضِعَ التِّلْفَازِ فِي غُرَفٍ لَا تِلْفَازَ فِيهَا */
-  return (
-    <Obj x={-62} y={-30} z={-R.d / 2 + 4} onClick={() => onToggle(dev.id)} label={`${dev.name}: ${label}`} pressed={on} zIndex={2}>
-      <div style={{ position: "relative" }}>
-        <Box3D w={70} h={26} dep={10} radius={5}
-          face="linear-gradient(180deg,#EDEFEA 0%,#CFD5C9 100%)"
-          top="#F7F8F4" side="#B6BDAE"
-          glow={on ? "rgba(120,200,235,.55)" : null}>
-          <div style={{ position: "absolute", left: 8, top: "50%", marginTop: -5, width: 10, height: 10, borderRadius: "50%", background: on ? "#4487AE" : "#9CA69C", boxShadow: on ? "0 0 10px #4487AE" : "none" }} />
-        </Box3D>
-        {on && (
-          <div style={{
-            position: "absolute", left: 4, top: 12, width: 0, height: 0,
-            borderTop: "22px solid transparent", borderBottom: "22px solid transparent",
-            borderRight: "58px solid rgba(150,205,230,.28)",
-          }} />
-        )}
-      </div>
-    </Obj>
-  );
-}
-
-const ROOM_THEME = {
-  living: {
-    lit:  { wall: "linear-gradient(180deg,#7E8FA1 0%,#63758A 100%)", side: "linear-gradient(180deg,#68798D 0%,#526379 100%)", floor: "linear-gradient(180deg,#A8977C 0%,#8A7962 100%)", sky: "linear-gradient(180deg,#1E2B44 0%,#2B3C55 100%)" },
-    dim:  { wall: "linear-gradient(180deg,#44536A 0%,#33415A 100%)", side: "linear-gradient(180deg,#38465C 0%,#2A374D 100%)", floor: "linear-gradient(180deg,#6A5E4C 0%,#584E3F 100%)", sky: "linear-gradient(180deg,#10182A 0%,#1A2438 100%)" },
-    alwaysLit: false,
-  },
-  kitchen: {
-    lit: { wall: "linear-gradient(180deg,#F2E2C8 0%,#E4CCA2 100%)", side: "linear-gradient(180deg,#E6D2AC 0%,#D3B989 100%)", floor: "linear-gradient(180deg,#D8C7A0 0%,#C0AA7E 100%)", sky: "linear-gradient(180deg,#3A2E1E 0%,#4A3B26 100%)" },
-    dim: { wall: "linear-gradient(180deg,#8A7A5E 0%,#6E6148 100%)", side: "linear-gradient(180deg,#7C6D53 0%,#5E5340 100%)", floor: "linear-gradient(180deg,#6A5D45 0%,#544936 100%)", sky: "linear-gradient(180deg,#241C12 0%,#332818 100%)" },
-    alwaysLit: true,
-  },
-  bathroom: {
-    lit: { wall: "linear-gradient(180deg,#CFE6EA 0%,#AFD1D8 100%)", side: "linear-gradient(180deg,#BEDBE0 0%,#9DC3CB 100%)", floor: "linear-gradient(180deg,#B5D0D5 0%,#95B4BA 100%)", sky: "linear-gradient(180deg,#123240 0%,#1A4756 100%)" },
-    dim: { wall: "linear-gradient(180deg,#4A6067 0%,#374A50 100%)", side: "linear-gradient(180deg,#3E5257 0%,#2C3C40 100%)", floor: "linear-gradient(180deg,#354649 0%,#273336 100%)", sky: "linear-gradient(180deg,#0B1F26 0%,#122C33 100%)" },
-    alwaysLit: false,
-  },
-  school: {
-    lit: { wall: "linear-gradient(180deg,#DCE7D6 0%,#C3D6BB 100%)", side: "linear-gradient(180deg,#CEDCC6 0%,#B2C7A8 100%)", floor: "linear-gradient(180deg,#C9B78E 0%,#AF9C74 100%)", sky: "linear-gradient(180deg,#1E3420 0%,#2A4A2C 100%)" },
-    dim: { wall: "linear-gradient(180deg,#586B54 0%,#455641 100%)", side: "linear-gradient(180deg,#4C5E48 0%,#3A4A37 100%)", floor: "linear-gradient(180deg,#4C4331 0%,#3A3326 100%)", sky: "linear-gradient(180deg,#101F12 0%,#172B18 100%)" },
-    alwaysLit: false,
-  },
+const ROOM_PALETTE = {
+  living:   { wall: "#F6DFA8", floor: "#C9754F", floor2: "#B8623E", rug: "#E9A15C" },
+  kitchen:  { wall: "#F3E3CE", floor: "#D8C7A0", floor2: "#C7B389", rug: "#EADCC0" },
+  bathroom: { wall: "#8FD0D6", floor: "#EAF4F4", floor2: "#D8E9E9", rug: "#C9E7E9" },
+  school:   { wall: "#F3D3DA", floor: "#E3CFA4", floor2: "#D2BC8B", rug: "#EEDDBB" },
 };
+
+function RoomStyle() {
+  return (
+    <style>{`
+      @keyframes srSpin { to { transform: rotate(360deg); } }
+      @keyframes srDrip { 0% { opacity:0; transform: translateY(0); } 30% { opacity:1; } 100% { opacity:0; transform: translateY(20px); } }
+      @keyframes srBlow { 0%,100% { opacity:.35; transform: translateX(0); } 50% { opacity:.9; transform: translateX(6px); } }
+      @keyframes srGlow { 0%,100% { opacity:.55; } 50% { opacity:1; } }
+      @keyframes srBeam { 0%,100% { opacity:.14; } 50% { opacity:.26; } }
+    `}</style>
+  );
+}
+
+/* ── أجهزة تفاعليّة: تعكس حالة التشغيل داخل الرسم نفسه ── */
+function WallWindow({ x, y, on }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <rect x="0" y="0" width="64" height="84" rx="4" fill="#F4EAD7" />
+      <rect x="4" y="4" width="56" height="76" rx="2" fill={on ? "#BEE7EE" : "#2E3A47"} />
+      {on ? <circle cx="46" cy="18" r="9" fill="#FFD873" /> : (
+        <g fill="#3B4A5C">
+          <rect x="4" y="10" width="56" height="6" /><rect x="4" y="22" width="56" height="6" />
+          <rect x="4" y="34" width="56" height="6" /><rect x="4" y="46" width="56" height="6" />
+          <rect x="4" y="58" width="56" height="6" /><rect x="4" y="70" width="56" height="6" />
+        </g>
+      )}
+      <rect x="30" y="4" width="4" height="76" fill="#F4EAD7" />
+      <rect x="4" y="38" width="56" height="4" fill="#F4EAD7" />
+    </g>
+  );
+}
+
+function WallAC({ x, y, on }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <rect x="0" y="0" width="54" height="20" rx="6" fill="#F4F7F2" stroke="#C7D0C2" strokeWidth="1.5" />
+      <rect x="5" y="13" width="44" height="4" rx="2" fill="#AEB8A8" />
+      <circle cx="46" cy="6" r="2.6" fill={on ? "#6FD3A6" : "#B7BFB8"} />
+      {on && [0, 1, 2].map((i) => (
+        <rect key={i} x={8 + i * 15} y="21" width="9" height="3" rx="1.5" fill="#8FD0E6"
+          style={{ animation: `srBlow 1.4s ease-in-out ${i * 0.22}s infinite` }} />
+      ))}
+    </g>
+  );
+}
+
+function CeilingLamp({ x, y, on }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {on && <circle cx="20" cy="42" r="34" fill="#FFD873" opacity=".2" style={{ animation: "srGlow 2.4s ease-in-out infinite" }} />}
+      <line x1="20" y1="0" x2="20" y2="22" stroke="#8C948C" strokeWidth="3" />
+      <path d="M4 22h32l-6 18H10Z" fill={on ? "#FFD873" : "#C7CBC0"} />
+    </g>
+  );
+}
+
+function FloorLamp({ x, y, on }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {on && <circle cx="14" cy="10" r="32" fill="#FFD873" opacity=".22" style={{ animation: "srGlow 2.4s ease-in-out infinite" }} />}
+      <path d="M0 0h28l-6 16H6Z" fill={on ? "#FFD873" : "#C7CBC0"} />
+      <line x1="14" y1="16" x2="14" y2="70" stroke="#8C948C" strokeWidth="3" />
+      <ellipse cx="14" cy="72" rx="16" ry="4" fill="#7E867E" />
+    </g>
+  );
+}
+
+function WallHeater({ x, y, on }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <rect x="0" y="0" width="26" height="46" rx="6" fill="#F0F1EC" stroke="#C7CBC0" strokeWidth="1.5" />
+      <rect x="5" y="8" width="16" height="3" fill="#B9BFB4" />
+      <rect x="5" y="16" width="16" height="3" fill="#B9BFB4" />
+      <rect x="5" y="24" width="16" height="3" fill="#B9BFB4" />
+      <circle cx="13" cy="38" r="4" fill={on ? "#E8894F" : "#C2C8C1"} />
+      {on && <circle cx="13" cy="38" r="11" fill="#E8894F" opacity=".28" style={{ animation: "srGlow 2s ease-in-out infinite" }} />}
+    </g>
+  );
+}
+
+function WallFridge({ x, y, on, big }) {
+  const w = big ? 50 : 36, h = big ? 108 : 60;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <rect x="0" y="0" width={w} height={h} rx="6" fill="#EEF1EC" stroke="#C7CBC0" strokeWidth="1.5" />
+      <line x1="0" y1={h * 0.35} x2={w} y2={h * 0.35} stroke="#C7CBC0" strokeWidth="1.5" />
+      <rect x={w - 8} y="6" width="3" height="10" rx="1.5" fill="#9AA29A" />
+      <rect x={w - 8} y={h * 0.35 + 6} width="3" height="14" rx="1.5" fill="#9AA29A" />
+      <circle cx="6" cy="6" r="3" fill={on ? "#6FD3A6" : "#C2C8C1"} />
+    </g>
+  );
+}
+
+function TVWall({ x, y, on }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <rect x="0" y="0" width="74" height="46" rx="4" fill="#2A3138" />
+      <rect x="4" y="4" width="66" height="38" rx="2" fill={on ? "#5FBFC9" : "#171C21"} />
+      {on && (
+        <g opacity=".85">
+          <rect x="8" y="8" width="26" height="14" rx="2" fill="#F0C86A" />
+          <rect x="38" y="8" width="24" height="30" rx="2" fill="#7FD1B9" />
+          <rect x="8" y="26" width="26" height="12" rx="2" fill="#E08A5C" />
+        </g>
+      )}
+      <rect x="32" y="46" width="10" height="6" fill="#3A424A" />
+    </g>
+  );
+}
+
+function Stove({ x, y, on }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <rect x="0" y="0" width="76" height="18" rx="3" fill="#3A3F42" />
+      <circle cx="18" cy="9" r="6.5" fill={on ? "#E8744C" : "#5A6165"} />
+      <circle cx="38" cy="9" r="6.5" fill={on ? "#F0A15C" : "#5A6165"} />
+      <circle cx="58" cy="9" r="6.5" fill="#5A6165" />
+      {on && (
+        <>
+          <circle cx="18" cy="9" r="11" fill="#E8744C" opacity=".3" style={{ animation: "srGlow 1.6s ease-in-out infinite" }} />
+          <circle cx="38" cy="9" r="11" fill="#F0A15C" opacity=".3" style={{ animation: "srGlow 1.6s ease-in-out .3s infinite" }} />
+        </>
+      )}
+    </g>
+  );
+}
+
+function ExhaustFan({ x, y, on }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <circle cx="20" cy="20" r="20" fill="#E7EAE6" stroke="#C7CBC0" strokeWidth="1.5" />
+      <g style={{ transformOrigin: "20px 20px", animation: on ? "srSpin 1s linear infinite" : "none" }}>
+        <path d="M20 20 L20 6 A14 14 0 0 1 32 13 Z" fill="#8C948C" />
+        <path d="M20 20 L32 27 A14 14 0 0 1 20 34 Z" fill="#8C948C" />
+        <path d="M20 20 L8 27 A14 14 0 0 1 8 13 Z" fill="#8C948C" />
+      </g>
+      <circle cx="20" cy="20" r="3" fill="#5A6165" />
+    </g>
+  );
+}
+
+function ShowerHead({ x, y, on }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <path d="M0 0h30v8a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4Z" fill="#B9C6CE" />
+      <line x1="15" y1="12" x2="15" y2="18" stroke="#9FAEB6" strokeWidth="2" />
+      {on && [0, 1, 2, 3].map((i) => (
+        <line key={i} x1={4 + i * 7} y1="20" x2={4 + i * 7} y2="44" stroke="#8FD0E6" strokeWidth="2.4" strokeLinecap="round"
+          style={{ animation: `srDrip 1s linear ${i * 0.18}s infinite` }} />
+      ))}
+    </g>
+  );
+}
+
+function ProjectorUnit({ x, y, on }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {on && <path d="M12 9 L150 70 L150 -50 Z" fill="#9FD3EA" opacity=".22" style={{ animation: "srBeam 2.4s ease-in-out infinite" }} />}
+      <rect x="0" y="0" width="46" height="18" rx="4" fill="#EDEFEA" stroke="#C7CBC0" strokeWidth="1.5" />
+      <circle cx="10" cy="9" r="5" fill={on ? "#4487AE" : "#9CA69C"} />
+    </g>
+  );
+}
+
+/* ── عناصر تزيينية ثابتة ── */
+function Bookshelf({ x, y }) {
+  const rows = [["#C9633B", "#4E8B6E", "#EAA33C"], ["#3E8C7C", "#B33D24", "#4E8B6E"]];
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <rect x="0" y="0" width="76" height="80" rx="3" fill="#B08A5C" />
+      <rect x="4" y="4" width="68" height="34" rx="2" fill="#8A6A3E" />
+      <rect x="4" y="42" width="68" height="34" rx="2" fill="#8A6A3E" />
+      {rows.map((row, ri) => (
+        <g key={ri} transform={`translate(8,${8 + ri * 38})`}>
+          {row.map((col, ci) => <rect key={ci} x={ci * 20} y="0" width="16" height="24" rx="1.5" fill={col} />)}
+        </g>
+      ))}
+    </g>
+  );
+}
+
+function Sofa({ x, y }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <rect x="-8" y="8" width="20" height="56" rx="10" fill="#357867" />
+      <rect x="208" y="8" width="20" height="56" rx="10" fill="#357867" />
+      <rect x="0" y="0" width="220" height="42" rx="14" fill="#3E8C7C" />
+      <rect x="0" y="30" width="220" height="34" rx="12" fill="#48A088" />
+      <rect x="10" y="34" width="62" height="26" rx="8" fill="#3E8C7C" />
+      <rect x="79" y="34" width="62" height="26" rx="8" fill="#3E8C7C" />
+      <rect x="148" y="34" width="62" height="26" rx="8" fill="#3E8C7C" />
+    </g>
+  );
+}
+
+function CoffeeTable({ x, y }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <rect x="6" y="12" width="6" height="18" fill="#6E5330" />
+      <rect x="80" y="12" width="6" height="18" fill="#6E5330" />
+      <rect x="0" y="0" width="92" height="12" rx="4" fill="#8A6A3E" />
+    </g>
+  );
+}
+
+function Chalkboard({ x, y }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <rect x="-6" y="-6" width="132" height="82" rx="4" fill="#8A6A3E" />
+      <rect x="0" y="0" width="120" height="70" rx="2" fill="#3E7A5E" />
+      <path d="M14 46h22M42 38h30M14 30h40" stroke="#EAF0E6" strokeWidth="2.4" strokeLinecap="round" opacity=".8" />
+      <rect x="0" y="72" width="120" height="8" rx="2" fill="#B08A5C" />
+    </g>
+  );
+}
+
+function TeacherDesk({ x, y }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <rect x="6" y="36" width="6" height="14" fill="#8A431E" />
+      <rect x="72" y="36" width="6" height="14" fill="#8A431E" />
+      <rect x="0" y="10" width="84" height="26" rx="4" fill="#C9633B" />
+      <rect x="10" y="0" width="30" height="12" rx="2" fill="#EAF0E6" />
+    </g>
+  );
+}
+
+function StudentDesk({ x, y }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <rect x="2" y="16" width="5" height="12" fill="#B5862F" />
+      <rect x="27" y="16" width="5" height="12" fill="#B5862F" />
+      <rect x="0" y="4" width="34" height="12" rx="3" fill="#EAA33C" />
+      <rect x="0" y="26" width="34" height="10" rx="3" fill="#D9A15C" />
+    </g>
+  );
+}
+
+function Clock({ x, y }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <circle cx="14" cy="14" r="14" fill="#FFFDF6" stroke="#8A6A3E" strokeWidth="2" />
+      <line x1="14" y1="14" x2="14" y2="6" stroke="#3A3F42" strokeWidth="2" strokeLinecap="round" />
+      <line x1="14" y1="14" x2="19" y2="16" stroke="#3A3F42" strokeWidth="2" strokeLinecap="round" />
+    </g>
+  );
+}
+
+function Bathtub({ x, y }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <rect x="0" y="10" width="120" height="46" rx="20" fill="#FFFFFF" stroke="#BFD8DC" strokeWidth="2" />
+      <rect x="8" y="18" width="104" height="26" rx="14" fill="#EAF6F8" />
+      <circle cx="10" cy="58" r="4" fill="#C7D9DB" /><circle cx="110" cy="58" r="4" fill="#C7D9DB" />
+    </g>
+  );
+}
+
+function Sink({ x, y }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <rect x="10" y="24" width="10" height="22" fill="#D9E6E8" />
+      <path d="M30 6v-8" stroke="#9FAEB6" strokeWidth="3" strokeLinecap="round" />
+      <ellipse cx="30" cy="20" rx="34" ry="14" fill="#FFFFFF" stroke="#BFD8DC" strokeWidth="2" />
+      <ellipse cx="30" cy="20" rx="22" ry="8" fill="#EAF6F8" />
+    </g>
+  );
+}
+
+function Toilet({ x, y }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <rect x="6" y="0" width="26" height="16" rx="3" fill="#FFFFFF" stroke="#BFD8DC" strokeWidth="2" />
+      <ellipse cx="19" cy="34" rx="20" ry="16" fill="#FFFFFF" stroke="#BFD8DC" strokeWidth="2" />
+      <ellipse cx="19" cy="33" rx="12" ry="9" fill="#EAF6F8" />
+    </g>
+  );
+}
+
+function ShowerStall({ x, y, children }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <rect x="0" y="0" width="78" height="110" rx="6" fill="#DCEEF0" opacity=".55" stroke="#9FC7CC" strokeWidth="2" />
+      {children}
+    </g>
+  );
+}
+
+const Rug = ({ x, y, w, h, fill }) => <rect x={x} y={y} width={w} height={h} rx={h / 2} fill={fill} opacity=".9" />;
+
+/* رسمُ المكان بالكامل، مسطّحًا وواضحًا، وأجهزته تتفاعل مع حالة التشغيل */
+function RoomScene({ room, on, dark }) {
+  const pal = ROOM_PALETTE[room.id];
+  const has = (id) => on.has(id);
+  let content;
+  if (room.id === "living") {
+    content = (
+      <>
+        <Rug x={60} y={178} w={280} h={50} fill={pal.rug} />
+        <WallWindow x={22} y={16} on={has("window")} />
+        <Bookshelf x={298} y={20} />
+        <WallAC x={118} y={12} on={has("ac")} />
+        <TVWall x={188} y={46} on={has("tv")} />
+        <WallHeater x={20} y={112} on={has("heater")} />
+        <WallFridge x={352} y={106} on={has("fridge")} />
+        <Sofa x={88} y={148} />
+        <CoffeeTable x={156} y={198} />
+        <FloorLamp x={336} y={92} on={has("lamp")} />
+      </>
+    );
+  } else if (room.id === "kitchen") {
+    content = (
+      <>
+        <Rug x={40} y={182} w={320} h={46} fill={pal.rug} />
+        <rect x={140} y={30} width="120" height="46" rx="4" fill="#EFE0C4" stroke={pal.floor2} strokeWidth="2" />
+        <rect x={148} y={38} width="50" height="30" rx="2" fill={pal.floor2} />
+        <rect x={202} y={38} width="50" height="30" rx="2" fill={pal.floor2} />
+        <ExhaustFan x={60} y={40} on={has("fan")} />
+        <rect x={20} y={100} width="290" height="70" rx="6" fill="#D9A15C" />
+        <rect x={20} y={100} width="290" height="14" rx="4" fill="#B5862F" />
+        <Stove x={56} y={94} on={has("stove")} />
+        <WallFridge x={322} y={62} on={has("fridge")} big />
+      </>
+    );
+  } else if (room.id === "bathroom") {
+    content = (
+      <>
+        <Rug x={140} y={190} w={120} h={34} fill={pal.rug} />
+        <ShowerStall x={296} y={26}>
+          <ShowerHead x={24} y={4} on={has("shower")} />
+        </ShowerStall>
+        <WallHeater x={20} y={28} on={has("heater")} />
+        <CeilingLamp x={160} y={0} on={has("lamp")} />
+        <Bathtub x={24} y={130} />
+        <Toilet x={210} y={150} />
+        <Sink x={270} y={140} />
+      </>
+    );
+  } else {
+    content = (
+      <>
+        <Rug x={40} y={198} w={320} h={30} fill={pal.rug} />
+        <Clock x={30} y={18} />
+        <Chalkboard x={150} y={22} />
+        <Bookshelf x={330} y={40} />
+        <WallAC x={276} y={12} on={has("ac")} />
+        <ProjectorUnit x={186} y={6} on={has("projector")} />
+        <CeilingLamp x={340} y={0} on={has("lamp")} />
+        <TeacherDesk x={150} y={106} />
+        <StudentDesk x={34} y={150} /><StudentDesk x={84} y={150} />
+        <StudentDesk x={34} y={192} /><StudentDesk x={84} y={192} />
+        <StudentDesk x={254} y={150} /><StudentDesk x={304} y={150} />
+      </>
+    );
+  }
+  return (
+    <svg viewBox="0 0 400 240" width="100%" style={{ display: "block", maxWidth: 420, margin: "0 auto" }} aria-hidden="true">
+      <RoomStyle />
+      <rect x="0" y="0" width="400" height="168" fill={pal.wall} />
+      <rect x="0" y="168" width="400" height="72" fill={pal.floor} />
+      <rect x="0" y="166" width="400" height="4" fill={pal.floor2} opacity=".6" />
+      {content}
+      {dark && <rect x="0" y="0" width="400" height="240" fill="#0B1626" opacity=".5" />}
+    </svg>
+  );
+}
 
 function RoomTile({ room, done, onClick }) {
   return (
@@ -668,7 +773,6 @@ function SmartHomeGame({ profile, onExit, onWin }) {
   };
 
   const r = room ? room.rounds[round] : null;
-  const theme = room ? ROOM_THEME[room.id] : null;
   const roomMaxWatts = room ? room.devices.reduce((sum, d) => sum + d.watts, 0) + 400 : 0;
 
   const usage = useMemo(() => {
@@ -738,9 +842,7 @@ function SmartHomeGame({ profile, onExit, onWin }) {
   }
 
   const over = usage > r.limit;
-  const lit = theme.alwaysLit || on.has("lamp") || on.has("window");
   const dark = !!r.dark;
-  const colors = lit && !dark ? theme.lit : theme.dim;
 
   return (
     <GameFrame
@@ -752,47 +854,10 @@ function SmartHomeGame({ profile, onExit, onWin }) {
       {!finished ? (
         <>
           <div style={{
-            borderRadius: 18, padding: "30px 8px 22px", overflow: "hidden",
-            background: colors.sky, transition: `background .8s ${ease}`,
+            borderRadius: 18, padding: 10, overflow: "hidden",
+            background: c.paper, boxShadow: shadow.sm,
           }}>
-            <div style={{ perspective: 820, width: "100%", display: "flex", justifyContent: "center" }}>
-              <div style={{
-                position: "relative", width: R.w, height: R.h, transformStyle: "preserve-3d",
-                transform: `rotateX(${PITCH}deg) rotateY(${YAW}deg)`,
-              }}>
-                {/* الجدار الخلفي */}
-                <Wall w={R.w} h={R.h} tz={-R.d / 2} rot="" zIndex={1} bg={colors.wall} />
-                {/* الجدار الجانبي */}
-                <Wall w={R.d} h={R.h} tz={-R.w / 2} rot="rotateY(90deg)" zIndex={1} bg={colors.side} />
-                {/* الأرضية */}
-                <Wall w={R.w} h={R.d} tz={-R.h / 2} rot="rotateX(90deg)" zIndex={0} bg={colors.floor}>
-                  <div style={{
-                    position: "absolute", left: "26%", top: "34%", width: "48%", height: "40%",
-                    borderRadius: 10, background: lit ? "rgba(124,148,115,.4)" : "rgba(70,86,66,.5)",
-                    border: "3px solid rgba(255,255,255,.14)", transition: `background .6s ${ease}`,
-                  }} />
-                </Wall>
-                {/* السقف */}
-                <Wall w={R.w} h={R.d} tz={R.h / 2} rot="rotateX(90deg)" zIndex={0}
-                  bg={lit ? "rgba(226,232,226,.85)" : "rgba(58,70,88,.9)"} />
-
-                {/* الأجهزة */}
-                {room.devices.map((d) => (
-                  <Device key={d.id} dev={d} on={on.has(d.id)} onToggle={toggle} />
-                ))}
-
-                {/* طبقة الإضاءة */}
-                <div style={{
-                  position: "absolute", left: "50%", top: "50%", width: R.w, height: R.h,
-                  marginLeft: -R.w / 2, marginTop: -R.h / 2, transform: "translateZ(30px)",
-                  pointerEvents: "none", borderRadius: 2,
-                  background: on.has("lamp")
-                    ? "radial-gradient(circle at 82% 62%, rgba(255,216,115,.30) 0%, transparent 62%)"
-                    : (lit ? "none" : "rgba(8,14,26,.42)"),
-                  transition: `background .6s ${ease}`, zIndex: 8,
-                }} />
-              </div>
-            </div>
+            <RoomScene room={room} on={on} dark={dark} />
           </div>
 
           <div style={{ display: "grid", gap: 8, gridTemplateColumns: "repeat(auto-fit, minmax(104px, 1fr))" }}>
