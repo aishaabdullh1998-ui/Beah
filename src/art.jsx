@@ -289,6 +289,100 @@ function BiomeBackdrop({ biome }) {
   }
 }
 
+/* ============================================================
+   أَيْقُونَاتُ القِصَصِ المُلَوَّنَةُ — رَسْمٌ مُفَصَّلٌ بِأَلْوَانِهِ الطَّبِيعِيَّةِ
+   بَدَلَ رَمْزٍ أُحَادِيِّ اللَّوْنِ، لِيَظْهَرَ أَقْرَبَ إِلَى شَكْلِهِ الحَقِيقِيِّ
+   ============================================================ */
+const STORY_ICON_SHAPES = {
+  drop: (
+    <g>
+      <path d="M24 6C24 6 10 24 10 33a14 14 0 0028 0C38 24 24 6 24 6Z" fill="#5FA6C4" stroke="#2E6E8E" strokeWidth="1.6" />
+      <path d="M17 30a8 10 0 007 9c-6-1-10-5-10-9.6Z" fill="#BEE3EC" opacity=".75" />
+    </g>
+  ),
+  turtle: (
+    <g>
+      <ellipse cx="24" cy="27" rx="15" ry="11" fill="#6E9460" stroke="#4A6338" strokeWidth="1.6" />
+      <path d="M17 22l3 4-3 4M24 20v5.5M31 22l-3 4 3 4M15.5 27h4M32.5 27h-4" stroke="#4A6338" strokeWidth="1.2" fill="none" strokeLinecap="round" opacity=".55" />
+      <ellipse cx="37" cy="20" rx="4.6" ry="3.8" fill="#8FAE72" stroke="#4A6338" strokeWidth="1.3" />
+      <circle cx="38.6" cy="19" r="1" fill="#2E3A28" />
+      <ellipse cx="8" cy="19" rx="3.6" ry="2.4" fill="#8FAE72" stroke="#4A6338" strokeWidth="1.2" transform="rotate(-25 8 19)" />
+      <ellipse cx="8" cy="35" rx="3.6" ry="2.4" fill="#8FAE72" stroke="#4A6338" strokeWidth="1.2" transform="rotate(25 8 35)" />
+      <ellipse cx="40" cy="35" rx="3.6" ry="2.4" fill="#8FAE72" stroke="#4A6338" strokeWidth="1.2" transform="rotate(-25 40 35)" />
+      <ellipse cx="24" cy="40" rx="2.6" ry="1.8" fill="#8FAE72" stroke="#4A6338" strokeWidth="1.2" />
+    </g>
+  ),
+  boat: (
+    <g>
+      <path d="M6 30h36l-5 9H11Z" fill="#B5824F" stroke="#7A5530" strokeWidth="1.6" />
+      <rect x="22.8" y="6" width="2.4" height="25" fill="#6E5330" />
+      <path d="M25.4 8 38 27H25.4Z" fill="#FBF6E8" stroke="#C9B98C" strokeWidth="1.3" />
+      <path d="M23 12 13 27h10Z" fill="#F0E4C4" stroke="#C9B98C" strokeWidth="1.2" opacity=".9" />
+      <path d="M28 12 34 24M26 16 31 25" stroke="#D8C89E" strokeWidth=".8" opacity=".7" fill="none" />
+    </g>
+  ),
+  shell: (
+    <g>
+      <path d="M24 6c8 4 16 14 16 24a16 11 0 01-32 0c0-10 8-20 16-24Z" fill="#EAC48C" stroke="#B5862F" strokeWidth="1.6" />
+      <path d="M24 12v22M18 14 19.2 32M30 14 28.8 32M13 19 15.5 34M35 19 32.5 34M9 27 12 36M39 27 36 36" stroke="#C99A54" strokeWidth="1.3" fill="none" strokeLinecap="round" />
+      <path d="M24 34a7 4 0 01-7-4h14a7 4 0 01-7 4Z" fill="#F2A98B" opacity=".7" />
+    </g>
+  ),
+  goat: (
+    <g>
+      <ellipse cx="20" cy="27" rx="13" ry="7" fill="#B5895A" stroke="#7A5A2E" strokeWidth="1.6" />
+      <path d="M11 27a13 4 0 0018 0Z" fill="#D9C09B" opacity=".6" />
+      <rect x="9" y="32" width="3.2" height="9" rx="1.4" fill="#8A6A3E" />
+      <rect x="17" y="33" width="3.2" height="8" rx="1.4" fill="#8A6A3E" />
+      <rect x="27" y="33" width="3.2" height="8" rx="1.4" fill="#8A6A3E" />
+      <ellipse cx="34" cy="19" rx="5.4" ry="4.6" fill="#C29A66" stroke="#7A5A2E" strokeWidth="1.4" />
+      <circle cx="36.6" cy="18" r="1.1" fill="#2E2113" />
+      <path d="M36.5 15c3-7 9-11 12-10-4 3-7 7-9.4 12Z" fill="#5A4326" stroke="#3B2A18" strokeWidth="1" />
+      <path d="M38 15.5c1-2.4 2.4-4.4 4-6M39.4 17.2c1.6-2 3.4-3.6 5-4.8" stroke="#7A5A2E" strokeWidth=".8" opacity=".6" fill="none" />
+    </g>
+  ),
+  falcon: (
+    <g>
+      <path d="M24 16c-6 8-14 11-22 9 7 5 16 5 22-1 6 6 15 6 22 1-8 2-16-1-22-9Z" fill="#8A6A45" stroke="#5A4326" strokeWidth="1.3" />
+      <path d="M19 24c-2 5-1.2 10 1.2 13 1.2-4 2.8-7 3.8-8.8 1 1.8 2.6 4.8 3.8 8.8 2.4-3 3.2-8 1.2-13-2 1.2-3.6 3.2-5 5.2-1.4-2-3-4-5-5.2Z" fill="#B5895A" stroke="#5A4326" strokeWidth="1.2" />
+      <path d="M12 21c1.6.6 3.4.6 5-.4M31 20.6c1.6 1 3.4 1 5 .4" stroke="#5A4326" strokeWidth=".9" opacity=".6" fill="none" />
+    </g>
+  ),
+  wind: (
+    <g>
+      <path d="M6 16h21a4.8 4.8 0 10-4.6-6.4" fill="none" stroke="#5FA6C4" strokeWidth="2.8" strokeLinecap="round" />
+      <path d="M6 27.2h30a5.6 5.6 0 11-5.4 7.4" fill="none" stroke="#5FA6C4" strokeWidth="2.8" strokeLinecap="round" opacity=".85" />
+      <path d="M6 37.2h15" fill="none" stroke="#5FA6C4" strokeWidth="2.8" strokeLinecap="round" opacity=".6" />
+      <path d="M33 22c2-2 5-1.6 5.6 1 .5 2.2-1.6 4-4 3.4-1.6-.4-2.6-2-1.6-4.4Z" fill="#7FB86A" stroke="#4E7A3E" strokeWidth="1" transform="rotate(20 35 24)" />
+    </g>
+  ),
+  tree: (
+    <g>
+      <path d="M22 42V26c-3-2-5-5-4-9" stroke="#8A6A45" strokeWidth="2.6" fill="none" strokeLinecap="round" />
+      <path d="M22 30 15 36M23 25 30 30M20 33 13 30" stroke="#8A6A45" strokeWidth="2" fill="none" strokeLinecap="round" opacity=".8" />
+      <ellipse cx="14" cy="16" rx="8.4" ry="7" fill="#9FB585" stroke="#6E8A58" strokeWidth="1.4" />
+      <ellipse cx="25" cy="11" rx="7.4" ry="6.2" fill="#8FAE72" stroke="#6E8A58" strokeWidth="1.4" />
+      <ellipse cx="27" cy="21" rx="6.6" ry="5.6" fill="#7FA164" stroke="#6E8A58" strokeWidth="1.4" />
+    </g>
+  ),
+  baysun: (
+    <g>
+      <circle cx="24" cy="16" r="7.2" fill="#F0B84E" stroke="#C9863A" strokeWidth="1.4" />
+      <path d="M24 4v3.6M24 24.4V28M10 16h3.6M34.4 16H38M14 6l2.6 2.6M31.4 6l-2.6 2.6" stroke="#F0B84E" strokeWidth="2.4" strokeLinecap="round" />
+      <path d="M4 33.4c3.2-2 6.4-2 9.6 0s6.4 2 9.6 0 6.4-2 9.6 0 6.4 2 9.6 0" fill="none" stroke="#3E86A8" strokeWidth="2.6" strokeLinecap="round" />
+      <path d="M4 40c3.2-2 6.4-2 9.6 0s6.4 2 9.6 0 6.4-2 9.6 0 6.4 2 9.6 0" fill="none" stroke="#6FB4CE" strokeWidth="2.6" strokeLinecap="round" opacity=".75" />
+    </g>
+  ),
+};
+
+export function StoryIcon({ icon, size = 40 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden="true" style={{ display: "block" }}>
+      {STORY_ICON_SHAPES[icon] || STORY_ICON_SHAPES.drop}
+    </svg>
+  );
+}
+
 export function StoryBadge({ storyId, icon, color, size = 56 }) {
   const biome = BIOME_OF[storyId] || "mountain";
   return (
@@ -296,11 +390,14 @@ export function StoryBadge({ storyId, icon, color, size = 56 }) {
       <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden="true" style={{ display: "block" }}>
         <BiomeBackdrop biome={biome} />
       </svg>
-      <div style={{
-        position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
-        background: "rgba(20,28,18,.16)",
-      }}>
-        <Glyph name={icon} size={size * 0.46} color="#FFF" strokeWidth={2.1} />
+      <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{
+          width: size * 0.62, height: size * 0.62, borderRadius: "50%",
+          background: "rgba(255,255,255,.85)", display: "flex", alignItems: "center", justifyContent: "center",
+          boxShadow: "0 2px 6px rgba(20,28,18,.25)",
+        }}>
+          <StoryIcon icon={icon} size={size * 0.44} />
+        </div>
       </div>
     </div>
   );

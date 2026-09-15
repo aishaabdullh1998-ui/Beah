@@ -11,7 +11,7 @@ import {
   COPYRIGHT_YEAR, sections, salim as salimText, encouragements,
   stories, quizSets, dictionaryTerms, doDontCards, labels, games, mission, footerText,
 } from "./content.js";
-import { Glyph, IconChip, Salim, SalimSays, OmanMap, StoryBadge, SceneBackdrop, keyframes } from "./art.jsx";
+import { Glyph, IconChip, Salim, SalimSays, OmanMap, StoryBadge, StoryIcon, SceneBackdrop, keyframes } from "./art.jsx";
 import { WORD_SCENES, ActBtn, Hint } from "./scenes.jsx";
 import { GAMES } from "./games.jsx";
 
@@ -507,8 +507,8 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded }) {
       >
         <div style={{ display: "flex", justifyContent: "center", paddingTop: 4 }}>
           <div className="bob" style={{ filter: "drop-shadow(0 6px 10px rgba(0,0,0,.25))" }}>
-            <IconChip bg="rgba(255,255,255,.3)" size={82} radius={28}>
-              <Glyph name={story.icon} size={38} color="#FFF" strokeWidth={1.8} />
+            <IconChip bg="rgba(255,255,255,.85)" size={82} radius={28}>
+              <StoryIcon icon={story.icon} size={46} />
             </IconChip>
           </div>
         </div>
