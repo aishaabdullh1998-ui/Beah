@@ -1053,6 +1053,11 @@ function StoryPlayer({ story, studentName, onComplete, onExit }) {
   );
 }
 
+/* ================= حقوق النشر ================= */
+/* لتغيير الاسم أو السنة في تذييل التطبيق، عدّل السطرين التاليين فقط */
+const AUTHOR = "أ. عَائِشَة البَرْوَانِيَّة";
+const COPYRIGHT_YEAR = "٢٠٢٦";
+
 /* ================= التطبيق الرئيسي ================= */
 export default function App() {
   const [view, setView] = useState("welcome");
@@ -1097,7 +1102,7 @@ export default function App() {
   const currentStory = stories.find((s) => s.id === storyId);
 
   return (
-    <div dir="rtl" style={{ fontFamily: "'Tajawal', sans-serif", background: "#EDE7DA" }} className="min-h-screen w-full flex items-center justify-center p-4">
+    <div dir="rtl" style={{ fontFamily: "'Tajawal', sans-serif", background: "#EDE7DA" }} className="min-h-screen w-full flex flex-col items-center justify-center gap-3 p-4">
       <style>{`
         @keyframes bob { 0%,100% { transform: translateY(0px) rotate(-2deg);} 50% { transform: translateY(-10px) rotate(2deg);} }
         @keyframes twinkle { 0%,100% { opacity: .3;} 50% { opacity: 1;} }
@@ -1124,6 +1129,15 @@ export default function App() {
       {view === "quiz" && profile && pendingQuiz !== null && (
         <Quiz setIndex={pendingQuiz - 1} studentName={profile.name} onFinish={handleQuizFinish} />
       )}
+
+      <footer
+        style={{
+          fontFamily: "'Tajawal', sans-serif", fontSize: 11.5, color: "#7A8577",
+          textAlign: "center", lineHeight: 1.9, maxWidth: 384, paddingInline: 8,
+        }}
+      >
+        © {COPYRIGHT_YEAR} {AUTHOR} — جَمِيعُ الحُقُوقِ مَحْفُوظَةٌ
+      </footer>
 
       {loading && (
         <div className="fixed inset-0 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.2)" }}>
