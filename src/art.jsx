@@ -6,50 +6,70 @@ import { c, env as envColor, shadow, font, ease } from "./theme.js";
 
 /* ── أيقونات البيئات ───────────────────────────────────── */
 const SHAPES = {
-  drop: <path d="M12 3C12 3 5 12 5 16.5A7 7 0 0019 16.5C19 12 12 3 12 3Z" />,
+  drop: <path d="M12 3C12 3 5 12 5 16.5A7 7 0 0019 16.5C19 12 12 3 12 3Z" fill="currentColor" stroke="none" />,
   turtle: (
-    <g>
-      <path d="M4 13c0-3 3.5-5 8-5s8 2 8 5-3.5 5-8 5-8-2-8-5Z" />
-      <circle cx="18.6" cy="9.6" r="1.6" />
-      <path d="M6 17l-2 3M18 17l2 3M6 9l-2.5-1M18 9l2.5-1" />
+    <g fill="currentColor" stroke="none">
+      <ellipse cx="12" cy="13" rx="7.4" ry="5.6" />
+      <circle cx="17.6" cy="9.6" r="1.7" />
+      <ellipse cx="4.4" cy="9.2" rx="2" ry="1.3" transform="rotate(-25 4.4 9.2)" />
+      <ellipse cx="4.4" cy="16.8" rx="2" ry="1.3" transform="rotate(25 4.4 16.8)" />
+      <ellipse cx="19.8" cy="17" rx="2" ry="1.3" transform="rotate(-25 19.8 17)" />
+      <ellipse cx="12" cy="19.6" rx="1.3" ry=".9" />
+      <circle cx="12" cy="13" r="2.6" fillOpacity=".18" fill="#000" />
     </g>
   ),
   boat: (
-    <g>
-      <path d="M3 15h18l-2.5 4h-13L3 15Z" />
-      <path d="M12 15V5" />
-      <path d="M12 5.5l5 5H12" />
-      <path d="M2 19.5c1.5 1 3 1 4.5 0s3-1 4.5 0 3 1 4.5 0 3-1 4.5 0" />
+    <g fill="currentColor" stroke="none">
+      <path d="M3 15.5h18l-2.6 4.3H5.6Z" />
+      <rect x="11.3" y="3.5" width="1.4" height="12" />
+      <path d="M12.7 4.2 19 14.3h-6.3Z" />
+      <path d="M11.3 6.5 6.4 14.3h4.9Z" fillOpacity=".7" />
     </g>
   ),
-  shell: <path d="M12 20c-4 0-7-3-7-7a7 7 0 0114 0c0 2.2-1.6 3.8-3.8 3.8A3.8 3.8 0 0111.5 13a2.2 2.2 0 012.2-2.2" />,
+  shell: (
+    <g>
+      <path d="M12 3c4 2 8 7 8 12a8 5.5 0 01-16 0c0-5 4-10 8-12Z" fill="currentColor" stroke="none" />
+      <path d="M12 6v11M9 7.4 9.6 17M15 7.4 14.4 17M6.6 10 8 17.6M17.4 10 16 17.6" stroke="#000" strokeOpacity=".18" strokeWidth="1" fill="none" strokeLinecap="round" />
+    </g>
+  ),
   goat: (
-    <g>
-      <path d="M4 18l7-13 7 13H4Z" />
-      <circle cx="17.3" cy="7" r="1.9" />
-      <path d="M16.2 5.4c.4-1.4 1.8-1.9 2.8-1.3M18.4 5.4c-.4-1.4-1.8-1.9-2.8-1.3" />
+    <g fill="currentColor" stroke="none">
+      <ellipse cx="10.5" cy="14" rx="6.3" ry="3.4" />
+      <rect x="5.5" y="16" width="1.6" height="4.4" rx=".6" />
+      <rect x="9" y="16.6" width="1.6" height="3.8" rx=".6" />
+      <rect x="13" y="16.6" width="1.6" height="3.8" rx=".6" />
+      <ellipse cx="17.2" cy="10.4" rx="2.6" ry="2.2" />
+      <path d="M18.4 8.6c1.6-3.4 4.4-5.4 6-5-2 1.4-3.6 3.4-4.6 6Z" />
     </g>
   ),
-  falcon: <path d="M2 13c4-5 8-6 10-6s6 1 10 6c-4-2-7-2-10-1-3-1-6-1-10 1Z" />,
+  falcon: (
+    <g fill="currentColor" stroke="none">
+      <path d="M12 8c-3 4-7 5.6-11 4.6 3.6 2.4 8 2.4 11-.4 3 2.8 7.4 2.8 11 .4-4 1-8-.6-11-4.6Z" />
+      <path d="M9.5 12.4c-1 2.6-.6 5 .6 6.6.6-2 1.4-3.6 1.9-4.4.5.8 1.3 2.4 1.9 4.4 1.2-1.6 1.6-4 .6-6.6-1 .6-1.8 1.6-2.5 2.6-.7-1-1.5-2-2.5-2.6Z" fillOpacity=".85" />
+    </g>
+  ),
   wind: (
-    <g>
-      <path d="M3 8h11a2.4 2.4 0 100-4.8" />
-      <path d="M3 13h15a2.4 2.4 0 110 4.8" />
-      <path d="M3 18h8" />
+    <g fill="currentColor" stroke="none">
+      <path d="M3 8h10.5a2.4 2.4 0 10-2.3-3.2 1 1 0 101.9.6 1.4 1.4 0 111.3 1.8H3a1 1 0 000 2Z" />
+      <path d="M3 13.6h15a2.8 2.8 0 11-2.7 3.7 1 1 0 111.9-.6 1.8 1.8 0 100-2.3H3a1 1 0 010-2Z" fillOpacity=".85" />
+      <path d="M3 18.6h7.5a1 1 0 010 2H3a1 1 0 010-2Z" fillOpacity=".6" />
     </g>
   ),
   tree: (
     <g>
-      <circle cx="10" cy="8" r="5.3" />
-      <path d="M10 13.3V21" />
-      <path d="M17 10.2c1.2 0 2.1 1 2.1 2.1s-1 2.1-2.1 2.1" />
+      <path d="M11 22V13.5" stroke="currentColor" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+      <path d="M11 17 7 20M11 15 15.5 18" stroke="currentColor" strokeWidth="1.3" fill="none" strokeLinecap="round" strokeOpacity=".8" />
+      <ellipse cx="8" cy="8.5" rx="4.6" ry="4" fill="currentColor" stroke="none" />
+      <ellipse cx="13.5" cy="6.5" rx="4" ry="3.4" fill="currentColor" stroke="none" />
+      <ellipse cx="14.6" cy="11.4" rx="3.6" ry="3" fill="currentColor" stroke="none" />
     </g>
   ),
   baysun: (
     <g>
-      <path d="M2 20c1.5-1 3-1 4.5 0s3 1 4.5 0 3-1 4.5 0 3 1 4.5 0" />
-      <path d="M12 13V8" />
-      <path d="M9 8a3 3 0 016 0" />
+      <circle cx="12" cy="9" r="3.6" fill="currentColor" stroke="none" />
+      <path d="M12 2.6v1.8M12 12.6v1.8M5.6 9h1.8M16.6 9h1.8M7.3 4.3l1.3 1.3M15.4 4.3l-1.3 1.3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" fill="none" />
+      <path d="M2 17.4c1.6-1 3.2-1 4.8 0s3.2 1 4.8 0 3.2-1 4.8 0 3.2 1 4.8 0" stroke="currentColor" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+      <path d="M2 20.4c1.6-1 3.2-1 4.8 0s3.2 1 4.8 0 3.2-1 4.8 0 3.2 1 4.8 0" stroke="currentColor" strokeWidth="1.6" fill="none" strokeLinecap="round" strokeOpacity=".6" />
     </g>
   ),
   check: <path d="M5 13l4.5 4.5L19 8" />,
@@ -179,7 +199,7 @@ export function Glyph({ name, size = 26, color = c.ink, strokeWidth = 2 }) {
       height={size}
       viewBox="0 0 24 24"
       aria-hidden="true"
-      style={{ fill: "none", stroke: color, strokeWidth, strokeLinecap: "round", strokeLinejoin: "round" }}
+      style={{ fill: "none", stroke: color, color, strokeWidth, strokeLinecap: "round", strokeLinejoin: "round" }}
     >
       {SHAPES[name] || SHAPES.drop}
     </svg>
