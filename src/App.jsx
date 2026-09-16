@@ -13,7 +13,10 @@ import {
 } from "./content.js";
 import { Glyph, IconChip, Salim, SalimSays, OmanMap, StoryBadge, StoryIcon, SceneBackdrop, keyframes } from "./art.jsx";
 import { WORD_SCENES, ActBtn, Hint } from "./scenes.jsx";
-import { GAMES } from "./games.jsx";
+import { GAMES as BASE_GAMES } from "./games.jsx";
+import { NeedsWantsGame } from "./needsWants.jsx";
+
+const GAMES = { ...BASE_GAMES, needsWants: NeedsWantsGame };
 
 /* ============================================================
    التخزين — تقدّم كل طفل في متصفح جهازه
@@ -24,16 +27,18 @@ const emptyProfile = (name, gender) => ({
 });
 
 async function loadProfile(name, gender) {
+  const base = emptyProfile(name, gender);
   try {
     if (typeof window !== "undefined" && window.storage && typeof window.storage.get === "function") {
       const res = await window.storage.get(`student:${name}`, true);
       const p = res ? JSON.parse(res.value) : null;
-      return p ? { ...emptyProfile(name, gender), ...p, gender } : emptyProfile(name, gender);
+      return p ? { ...base, ...p, gender } : base;
     }
     const raw = window.localStorage.getItem(STORAGE_PREFIX + name);
-    if (!raw) return emptyProfile(name, gender);
+    if (!raw) return base;
     const p = JSON.parse(raw);
     return {
+      ...base, ...p,
       name,
       gender: gender || p.gender || "m",
       completed: Array.isArray(p.completed) ? p.completed : [],
@@ -43,7 +48,7 @@ async function loadProfile(name, gender) {
       updatedAt: p.updatedAt || Date.now(),
     };
   } catch (e) {
-    return emptyProfile(name, gender);
+    return base;
   }
 }
 
@@ -877,6 +882,13 @@ export default function App() {
     setView("home");
   };
 
+  const updateProfile = async (patch) => {
+    if (!profile) return;
+    const next = { ...profile, ...patch };
+    setProfile(next);
+    await saveProfile(next);
+  };
+
   const story = useMemo(() => stories.find((s) => s.id === storyId), [storyId]);
   const term = useMemo(() => dictionaryTerms.find((t) => t.id === wordId), [wordId]);
   const openStory = (id) => { setStoryId(id); setView("story"); };
@@ -893,7 +905,12 @@ export default function App() {
       );
     }
     if (view === "game" && Game) {
-      return <Game profile={profile} onExit={() => setView("games")} onWin={() => completeGame(gameId)} />;
+      return (
+        <Game
+          profile={profile} onExit={() => setView("games")} onWin={() => completeGame(gameId)}
+          onUpdateProfile={updateProfile}
+        />
+      );
     }
     if (view === "quiz" && pendingQuiz !== null) return <Quiz setIndex={pendingQuiz - 1} profile={profile} onFinish={finishQuiz} />;
     if (view === "word" && term) return <WordDetail term={term} profile={profile} onBack={() => setView("words")} />;

@@ -61,7 +61,7 @@ export function GameFrame({ title, goal, score, hint, hintMood = "ask", onExit, 
   );
 }
 
-function Btn({ children, onClick, tone = "brand", wide }) {
+export function Btn({ children, onClick, tone = "brand", wide }) {
   const bg = tone === "brand" ? c.sageDeep : tone === "warm" ? c.accent : tone === "cool" ? c.dustyInk : c.warn;
   return (
     <button
@@ -77,7 +77,7 @@ function Btn({ children, onClick, tone = "brand", wide }) {
   );
 }
 
-const Meter = ({ value, max, color, label, unit }) => {
+export const Meter = ({ value, max, color, label, unit }) => {
   const pct = Math.max(0, Math.min(100, (value / max) * 100));
   return (
     <div style={{ width: "100%" }}>
@@ -92,7 +92,7 @@ const Meter = ({ value, max, color, label, unit }) => {
   );
 };
 
-function WinCard({ text, onDone, mood = "smile" }) {
+export function WinCard({ text, onDone, mood = "smile" }) {
   return (
     <div className="pop" style={{ background: c.goodSoft, borderRadius: 18, padding: 22, textAlign: "center" }}>
       <div style={{ display: "flex", justifyContent: "center" }}><Salim mood={mood} size={80} /></div>
@@ -909,7 +909,7 @@ function SmartHomeGame({ profile, onExit, onWin }) {
    ============================================================ */
 /* ── رسومُ مُنْتَجَاتِ التَّسَوُّقِ ─────────────────────────
    كُلُّ أَيْقُونَةٍ صُنْدُوقٌ صَغِيرٌ يُوضِّحُ المُنْتَجَ دَاخِلَ صُورَةِ السِّعْرِ. */
-function MarketIcon({ icon, size = 40 }) {
+export function MarketIcon({ icon, size = 40 }) {
   const s = { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2.4, fill: "none" };
   const shapes = {
     waterMany: (
