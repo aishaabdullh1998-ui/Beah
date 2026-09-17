@@ -933,7 +933,8 @@ function HomeMission({ profile, onDone, onExit }) {
   const timerRef = useRef(null);
   const rafRef = useRef(null);
 
-  const start = () => {
+  const start = (e) => {
+    e.currentTarget.setPointerCapture?.(e.pointerId);
     const t0 = Date.now();
     const tick = () => {
       const p = Math.min(1, (Date.now() - t0) / 3000);
@@ -955,11 +956,11 @@ function HomeMission({ profile, onDone, onExit }) {
       </div>
       <button
         type="button"
-        onPointerDown={start} onPointerUp={cancel} onPointerLeave={cancel}
+        onPointerDown={start} onPointerUp={cancel} onPointerLeave={cancel} onPointerCancel={cancel}
         style={{
           position: "relative", overflow: "hidden", border: "none", borderRadius: 16, padding: "16px 14px",
           background: c.accent, color: "#FFF", fontFamily: font.display, fontWeight: 700, fontSize: 15,
-          cursor: "pointer", minHeight: 54,
+          cursor: "pointer", minHeight: 54, touchAction: "none", WebkitUserSelect: "none", WebkitTouchCallout: "none", userSelect: "none",
         }}
       >
         <span style={{ position: "absolute", inset: 0, background: "rgba(255,255,255,.35)", width: `${progress * 100}%`, transition: "width .05s linear" }} />
@@ -1148,8 +1149,8 @@ export function NeedsWantsGame({ profile, onExit, onWin, onUpdateProfile }) {
       onExit={onExit}
     >
       <div
-        onPointerDown={teacherPress} onPointerUp={teacherRelease} onPointerLeave={teacherRelease}
-        style={{ textAlign: "center", fontSize: 16, color: c.lineSoft, userSelect: "none", letterSpacing: 3 }}
+        onPointerDown={teacherPress} onPointerUp={teacherRelease} onPointerLeave={teacherRelease} onPointerCancel={teacherRelease}
+        style={{ textAlign: "center", fontSize: 16, color: c.lineSoft, userSelect: "none", WebkitUserSelect: "none", WebkitTouchCallout: "none", touchAction: "none", letterSpacing: 3 }}
       >
         •••
       </div>
