@@ -39,6 +39,7 @@ jobs:
           cp index.html _site/
           cp .nojekyll _site/
           cp assets/app.js assets/styles.css _site/assets/
+          cp -r assets/characters _site/assets/
 
       - uses: actions/upload-pages-artifact@v3
         with:
