@@ -857,6 +857,9 @@ export const keyframes = `
   .rise { animation: rise .5s ${ease} both; }
   .pop { animation: pop .42s ${ease} both; }
 
+  .btn-pop { transition: transform .12s ${ease}, box-shadow .12s ${ease}; }
+  .btn-pop:active { transform: translateY(5px); box-shadow: 0 1px 0 ${c.ink} !important; }
+
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
   }

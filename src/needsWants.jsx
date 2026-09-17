@@ -253,8 +253,8 @@ export function Dates({ n }) {
 }
 
 const BASKET_STYLE = {
-  need: { bg: c.sage, ink: c.sageInk, deep: c.sageDeep, icon: "house", label: T.needBasket },
-  want: { bg: "#F3E2CE", ink: "#8A5A2E", deep: "#C9863A", icon: "star", label: T.wantBasket },
+  need: { bg: "#D7EDE6", ink: c.ink, deep: "#144D4A", icon: "house", label: T.needBasket },
+  want: { bg: "#F9C9A7", ink: c.ink, deep: c.sageDeep, icon: "star", label: T.wantBasket },
 };
 
 function Basket({ kind, active, onClick, refEl }) {

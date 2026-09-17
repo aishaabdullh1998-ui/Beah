@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>مغامراتي البيئية</title>
 <meta name="description" content="قصص تفاعلية ومعجم حركي للأطفال عن بيئة سلطنة عمان: الأفلاج والسلاحف وغابات القرم وجبال ظفار.">
-<meta name="theme-color" content="#7C9473">
+<meta name="theme-color" content="#F2A41A">
 <meta name="author" content="أ. عائشة البروانية">
 <meta name="copyright" content="© 2026 أ. عائشة البروانية">
 
@@ -15,26 +15,52 @@
 <meta property="og:locale" content="ar_OM">
 <meta name="twitter:card" content="summary">
 
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237C9473' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3C12 3 5 12 5 16.5A7 7 0 0019 16.5C19 12 12 3 12 3Z'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23F2A41A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3C12 3 5 12 5 16.5A7 7 0 0019 16.5C19 12 12 3 12 3Z'/%3E%3C/svg%3E">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Markazi+Text:wght@500;600;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@500;600;700;800&family=Noto+Naskh+Arabic:wght@500;600;700&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="assets/styles.css">
 <style>
   html { height: 100%; }
   html, body, #root { min-height: 100%; }
-  html, body { margin: 0; padding: 0; background: #EDE7DA; }
-  body { font-family: 'Tajawal', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  html, body { margin: 0; padding: 0; background: #FBF0DF; }
+  body {
+    font-family: 'Noto Naskh Arabic', system-ui, serif;
+    -webkit-font-smoothing: antialiased;
+    color: #5B3626;
+    position: relative;
+  }
   * { -webkit-tap-highlight-color: transparent; }
-  :focus-visible { outline: 3px solid #7C9473; outline-offset: 2px; border-radius: 8px; }
-  #noscript { padding: 40px 20px; text-align: center; color: #22301F; font-size: 16px; line-height: 2; }
+  :focus-visible { outline: 4px solid #144D4A; outline-offset: 4px; border-radius: 8px; }
+  #noscript { padding: 40px 20px; text-align: center; color: #5B3626; font-size: 16px; line-height: 2; }
+
+  /* حبيبات الورق فوق التطبيق كله */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .36  0 0 0 0 .21  0 0 0 0 .15  0 0 0 .6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    opacity: .08;
+    mix-blend-mode: multiply;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+  }
 </style>
 </head>
 <body>
 <div id="root"></div>
 <noscript><div id="noscript">هذا التطبيق يحتاج إلى تفعيل جافاسكربت في المتصفح لكي يعمل.</div></noscript>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="hand-drawn">
+    <feTurbulence type="fractalNoise" baseFrequency=".03" numOctaves="2" seed="7"/>
+    <feDisplacementMap in="SourceGraphic" scale="3"/>
+  </filter>
+</svg>
 <script src="assets/app.js" defer></script>
 </body>
 </html>

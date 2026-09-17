@@ -91,7 +91,7 @@ const ed = (n) => String(n).replace(/[0-9]/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Numb
    ============================================================ */
 function Card({ children, pad = 18, style }) {
   return (
-    <div style={{ background: c.paper, borderRadius: 18, boxShadow: shadow.sm, padding: pad, ...style }}>
+    <div style={{ background: c.paper, borderRadius: 24, boxShadow: shadow.sm, border: `3px solid ${c.ink}`, padding: pad, ...style }}>
       {children}
     </div>
   );
@@ -105,26 +105,24 @@ function BigButton({ title, sub, icon, bg, fg, onClick, badge, locked, lockedNot
       type="button"
       onClick={locked ? undefined : onClick}
       disabled={locked}
+      className={locked ? "" : "btn-pop"}
       style={{
         display: "flex", alignItems: "center", gap: 14, textAlign: "right", width: "100%",
-        background: bgEff, border: "none", borderRadius: 20, padding: 18, cursor: locked ? "default" : "pointer",
-        boxShadow: locked ? "none" : shadow.md, minHeight: 44, transition: `transform .25s ${ease}`,
+        background: bgEff, border: `3px solid ${c.ink}`, borderRadius: 24, padding: 18, cursor: locked ? "default" : "pointer",
+        boxShadow: locked ? "none" : shadow.md, minHeight: 44,
         opacity: locked ? .75 : 1,
       }}
-      onMouseDown={(e) => { if (!locked) e.currentTarget.style.transform = "scale(.985)"; }}
-      onMouseUp={(e) => { e.currentTarget.style.transform = "none"; }}
-      onMouseLeave={(e) => { e.currentTarget.style.transform = "none"; }}
     >
-      <IconChip bg={locked ? "rgba(34,48,31,.08)" : "rgba(255,255,255,0.26)"} size={52} radius={19}>
+      <IconChip bg={locked ? "rgba(91,54,38,.08)" : "rgba(255,248,236,.4)"} size={52} radius={19}>
         <Glyph name={locked ? "lock" : icon} size={25} color={fgEff} />
       </IconChip>
       <span style={{ flex: 1, minWidth: 0 }}>
         <span style={{ display: "block", fontFamily: font.display, color: fgEff, fontWeight: 700, fontSize: 21, lineHeight: 1.4 }}>{title}</span>
-        <span style={{ display: "block", color: fgEff, opacity: locked ? 1 : 0.82, fontSize: 12.5, marginTop: 2, fontFamily: font.body }}>{locked ? lockedNote : sub}</span>
+        <span style={{ display: "block", color: fgEff, opacity: locked ? 1 : 0.88, fontSize: 12.5, marginTop: 2, fontFamily: font.body }}>{locked ? lockedNote : sub}</span>
       </span>
       {badge && (
         <span style={{
-          flex: "none", background: "rgba(255,255,255,.26)", color: fg, borderRadius: 11,
+          flex: "none", background: "rgba(255,248,236,.4)", color: fg, borderRadius: 11,
           padding: "4px 10px", fontFamily: font.display, fontWeight: 700, fontSize: 15,
           fontVariantNumeric: "tabular-nums",
         }}>{badge}</span>
@@ -139,9 +137,9 @@ function BackButton({ onClick, text }) {
       type="button"
       onClick={onClick}
       style={{
-        display: "inline-flex", alignItems: "center", gap: 7, background: c.sage, border: "none",
-        borderRadius: 11, padding: "9px 14px", cursor: "pointer", color: c.ink,
-        fontFamily: font.body, fontSize: 13.5, fontWeight: 700, minHeight: 44, boxShadow: shadow.sm,
+        display: "inline-flex", alignItems: "center", gap: 7, background: c.paper, border: `2.5px solid ${c.ink}`,
+        borderRadius: 999, padding: "9px 14px", cursor: "pointer", color: c.ink,
+        fontFamily: font.display, fontSize: 13.5, fontWeight: 700, minHeight: 44, boxShadow: shadow.sm,
       }}
     >
       <span aria-hidden="true">›</span>{text}
@@ -152,7 +150,7 @@ function BackButton({ onClick, text }) {
 function ScreenHead({ title, onBack, backText, extra }) {
   return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
-      <h2 style={{ margin: 0, fontFamily: font.display, fontSize: 24, fontWeight: 700, color: c.ink }}>{title}</h2>
+      <h2 style={{ margin: 0, fontFamily: font.display, fontSize: 24, fontWeight: 800, color: c.ink }}>{title}</h2>
       <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
         {extra}
         {onBack && <BackButton onClick={onBack} text={backText} />}
@@ -164,9 +162,9 @@ function ScreenHead({ title, onBack, backText, extra }) {
 function ProgressPill({ done, total }) {
   return (
     <span style={{
-      background: c.surface, borderRadius: 14, padding: "6px 12px", fontFamily: font.display,
-      fontWeight: 700, fontSize: 18, color: c.sageDeep, fontVariantNumeric: "tabular-nums",
-      whiteSpace: "nowrap", boxShadow: shadow.sm,
+      background: c.surface, borderRadius: 999, padding: "6px 14px", fontFamily: font.display,
+      fontWeight: 700, fontSize: 18, color: c.sageInk, fontVariantNumeric: "tabular-nums",
+      whiteSpace: "nowrap", boxShadow: shadow.sm, border: `2.5px solid ${c.ink}`,
     }}>
       {ed(done)}/{ed(total)}
     </span>

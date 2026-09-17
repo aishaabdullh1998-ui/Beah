@@ -28,13 +28,13 @@ export function GameFrame({ title, goal, score, hint, hintMood = "ask", onExit, 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
-        <h2 style={{ margin: 0, fontFamily: font.display, fontSize: 23, fontWeight: 700, color: c.ink }}>{title}</h2>
+        <h2 style={{ margin: 0, fontFamily: font.display, fontSize: 23, fontWeight: 800, color: c.ink }}>{title}</h2>
         <button
           type="button" onClick={onExit}
           style={{
-            display: "inline-flex", alignItems: "center", gap: 7, background: c.sage, border: "none",
-            borderRadius: 11, padding: "9px 14px", cursor: "pointer", color: c.ink,
-            fontFamily: font.body, fontSize: 13.5, fontWeight: 700, minHeight: 44, boxShadow: shadow.sm,
+            display: "inline-flex", alignItems: "center", gap: 7, background: c.paper, border: `2.5px solid ${c.ink}`,
+            borderRadius: 999, padding: "9px 14px", cursor: "pointer", color: c.ink,
+            fontFamily: font.display, fontSize: 13.5, fontWeight: 700, minHeight: 44, boxShadow: shadow.sm,
           }}
         >
           <span aria-hidden="true">›</span>{labels.backToGames}
@@ -43,12 +43,12 @@ export function GameFrame({ title, goal, score, hint, hintMood = "ask", onExit, 
 
       <div style={{
         display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12,
-        background: c.sage, borderRadius: 14, padding: "10px 14px",
+        background: c.sage, borderRadius: 20, padding: "10px 14px", border: `2.5px solid ${c.ink}`,
       }}>
         <p style={{ margin: 0, fontSize: 13, lineHeight: 1.8, color: c.ink, fontFamily: font.body, minWidth: 0 }}>{goal}</p>
         {score != null && (
           <span style={{
-            flex: "none", background: c.surface, borderRadius: 11, padding: "5px 11px",
+            flex: "none", background: c.surface, borderRadius: 11, padding: "5px 11px", border: `2px solid ${c.ink}`,
             fontFamily: font.display, fontWeight: 700, fontSize: 17, color: c.sageInk,
             fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap",
           }}>{score}</span>
@@ -66,10 +66,11 @@ export function Btn({ children, onClick, tone = "brand", wide }) {
   return (
     <button
       type="button" onClick={onClick}
+      className="btn-pop"
       style={{
-        border: "none", borderRadius: 13, padding: "12px 20px", cursor: "pointer",
+        border: `3px solid ${c.ink}`, borderRadius: 999, padding: "12px 22px", cursor: "pointer",
         background: bg, color: c.onDark, fontFamily: font.display, fontWeight: 700,
-        fontSize: 17.5, minHeight: 46, boxShadow: shadow.sm, width: wide ? "100%" : "auto",
+        fontSize: 17.5, minHeight: 48, boxShadow: shadow.md, width: wide ? "100%" : "auto",
       }}
     >
       {children}
@@ -85,7 +86,7 @@ export const Meter = ({ value, max, color, label, unit }) => {
         <span>{label}</span>
         <span style={{ fontVariantNumeric: "tabular-nums" }}>{ar(value)} {unit}</span>
       </div>
-      <div style={{ height: 9, borderRadius: 99, background: c.lineSoft, overflow: "hidden" }}>
+      <div style={{ height: 9, borderRadius: 99, background: c.lineSoft, overflow: "hidden", border: `1.5px solid ${c.ink}` }}>
         <div style={{ height: "100%", width: `${pct}%`, background: color, borderRadius: 99, transition: `width .4s ${ease}, background .4s ${ease}` }} />
       </div>
     </div>
@@ -94,7 +95,7 @@ export const Meter = ({ value, max, color, label, unit }) => {
 
 export function WinCard({ text, onDone, mood = "smile", doneLabel }) {
   return (
-    <div className="pop" style={{ background: c.goodSoft, borderRadius: 18, padding: 22, textAlign: "center" }}>
+    <div className="pop" style={{ background: c.goodSoft, borderRadius: 24, padding: 22, textAlign: "center", border: `3px solid ${c.ink}`, boxShadow: shadow.sm }}>
       <div style={{ display: "flex", justifyContent: "center" }}><Salim mood={mood} size={80} /></div>
       <p style={{ margin: "6px 0 14px", fontFamily: font.display, fontSize: 18, fontWeight: 700, color: c.good, lineHeight: 1.6 }}>{text}</p>
       <Btn onClick={onDone}>{doneLabel || labels.backToGames}</Btn>
