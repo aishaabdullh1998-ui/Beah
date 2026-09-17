@@ -605,74 +605,25 @@ export function SceneBackdrop({ bg }) {
 /* ============================================================
    الجدّ سالم — الشخصية التي توجّه التطبيق
    الحالات: ask | think | agree | warn | smile
+   صور بملمس مرسوم، بخلفية شفّافة، بدل رسم SVG مكوَّد.
    ============================================================ */
-const SKIN = "#EFD0AB";
-const SKIN_SHADE = "#E0BC92";
-const HAIR = "#F4F2EC";
-
-function mouthFor(mood) {
-  switch (mood) {
-    case "smile": return <path d="M50 76 Q60 86 70 76" fill="none" stroke="#8A5A42" strokeWidth="3" strokeLinecap="round" />;
-    case "agree": return <path d="M52 76 Q60 83 68 76" fill="none" stroke="#8A5A42" strokeWidth="3" strokeLinecap="round" />;
-    case "ask":   return <ellipse cx="60" cy="78" rx="4.5" ry="5" fill="#8A5A42" />;
-    case "warn":  return <path d="M51 79 Q60 73 69 79" fill="none" stroke="#8A5A42" strokeWidth="3" strokeLinecap="round" />;
-    default:      return <path d="M52 78 H68" fill="none" stroke="#8A5A42" strokeWidth="3" strokeLinecap="round" />;
-  }
-}
-
-function browsFor(mood) {
-  const s = { fill: "none", stroke: "#CFCBC0", strokeWidth: 3.4, strokeLinecap: "round" };
-  switch (mood) {
-    case "ask":   return <g {...s}><path d="M43 47 Q49 41 55 45" /><path d="M65 45 Q71 42 77 47" /></g>;
-    case "warn":  return <g {...s}><path d="M43 43 Q49 48 55 49" /><path d="M65 49 Q71 48 77 43" /></g>;
-    case "think": return <g {...s}><path d="M43 46 Q49 43 55 46" /><path d="M65 44 Q71 40 77 44" /></g>;
-    default:      return <g {...s}><path d="M43 45 Q49 41 55 45" /><path d="M65 45 Q71 41 77 45" /></g>;
-  }
-}
-
-function eyesFor(mood) {
-  if (mood === "smile") {
-    return (
-      <g fill="none" stroke="#3B3126" strokeWidth="3" strokeLinecap="round">
-        <path d="M45 58 Q49 54 53 58" />
-        <path d="M67 58 Q71 54 75 58" />
-      </g>
-    );
-  }
-  return (
-    <g fill="#3B3126">
-      <circle cx="49" cy="58" r="3.2" />
-      <circle cx="71" cy="58" r="3.2" />
-    </g>
-  );
-}
+const SALIM_FACE_RATIO = 361 / 263; // ارتفاع/عرض صور الوجه
+const SALIM_IMG = {
+  ask:   "assets/characters/salim-ask.webp",
+  think: "assets/characters/salim-think.webp",
+  warn:  "assets/characters/salim-warn.webp",
+  smile: "assets/characters/salim-smile.webp",
+  agree: "assets/characters/salim-agree.webp",
+};
 
 export function Salim({ mood = "smile", size = 96 }) {
+  const src = SALIM_IMG[mood] || SALIM_IMG.smile;
   return (
-    <svg width={size} height={size * 1.17} viewBox="0 0 120 140" aria-hidden="true">
-      {/* الدشداشة */}
-      <path d="M16 140 C18 114 36 101 60 101 C84 101 102 114 104 140 Z" fill="#FBFAF6" stroke={c.line} strokeWidth="2" />
-      <path d="M52 104 L60 121 L68 104" fill="none" stroke={c.sageDeep} strokeWidth="3.2" strokeLinecap="round" />
-      {/* الرقبة */}
-      <path d="M52 88 h16 v12 a8 8 0 0 1 -16 0 Z" fill={SKIN_SHADE} />
-      {/* اللحية */}
-      <path d="M33 60 C33 96 45 110 60 110 C75 110 87 96 87 60 C80 72 40 72 33 60 Z" fill={HAIR} />
-      {/* الوجه */}
-      <ellipse cx="60" cy="60" rx="27" ry="29" fill={SKIN} />
-      {/* الأذنان */}
-      <ellipse cx="32" cy="62" rx="4.5" ry="6" fill={SKIN_SHADE} />
-      <ellipse cx="88" cy="62" rx="4.5" ry="6" fill={SKIN_SHADE} />
-      {/* المصر العُماني */}
-      <path d="M29 44 C29 20 44 9 60 9 C76 9 91 20 91 44 C76 34 44 34 29 44 Z" fill={c.sageDeep} />
-      <path d="M27 46 C43 34 77 34 93 46 C93 55 82 58 60 58 C38 58 27 55 27 46 Z" fill={c.sageInk} />
-      <path d="M30 44 C46 36 74 36 90 44" fill="none" stroke={c.accent} strokeWidth="2.6" strokeLinecap="round" opacity=".85" />
-      <path d="M91 44 C98 47 100 54 96 60" fill="none" stroke={c.sageInk} strokeWidth="5" strokeLinecap="round" />
-      {browsFor(mood)}
-      {eyesFor(mood)}
-      {/* الشارب */}
-      <path d="M50 70 Q60 66 70 70" fill="none" stroke="#DAD6CB" strokeWidth="4" strokeLinecap="round" />
-      {mouthFor(mood)}
-    </svg>
+    <img
+      src={src} alt="" aria-hidden="true" draggable="false"
+      width={size} height={Math.round(size * SALIM_FACE_RATIO)}
+      style={{ display: "block", width: size, height: Math.round(size * SALIM_FACE_RATIO), objectFit: "contain" }}
+    />
   );
 }
 
