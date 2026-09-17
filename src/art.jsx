@@ -74,6 +74,19 @@ const SHAPES = {
   ),
   check: <path d="M5 13l4.5 4.5L19 8" />,
   star: <path d="M12 3.5 14.7 9 20.8 9.9 16.4 14.2 17.5 20.3 12 17.4 6.5 20.3 7.6 14.2 3.2 9.9 9.3 9Z" />,
+  lock: (
+    <g>
+      <rect x="5" y="11" width="14" height="10" rx="2" />
+      <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+      <circle cx="12" cy="15.5" r="1.4" fill="currentColor" stroke="none" />
+    </g>
+  ),
+  search: (
+    <g>
+      <circle cx="10.5" cy="10.5" r="6.5" />
+      <path d="M15.2 15.2 20 20" />
+    </g>
+  ),
   medal: (
     <g>
       <circle cx="12" cy="10" r="6" />

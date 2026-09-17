@@ -229,7 +229,7 @@ function NWIcon({ icon, size = 40 }) {
 /* ============================================================
    عناصر مشتركة
    ============================================================ */
-function Coins({ n }) {
+export function Coins({ n }) {
   return (
     <span style={{
       display: "inline-flex", alignItems: "center", gap: 5, background: c.surface, borderRadius: 11,
@@ -242,7 +242,7 @@ function Coins({ n }) {
   );
 }
 
-function Dates({ n }) {
+export function Dates({ n }) {
   return (
     <div style={{ display: "flex", gap: 4, justifyContent: "center" }}>
       {[1, 2, 3].map((i) => (
@@ -862,7 +862,7 @@ function BudgetLevel({ profile, onDone, onExit }) {
 /* ============================================================
    ٧ — قرار البيسات بعد كل مستوى
    ============================================================ */
-function CoinDecision({ profile, earned, onChoose, onExit }) {
+export function CoinDecision({ profile, earned, onChoose, onExit }) {
   return (
     <GameFrame title={T.place} goal={T.coinDecisionTitle} score={<Coins n={earned} />} hint={pick(profile, T.coinDecisionGoal, T.coinDecisionGoalF)} hintMood="smile" onExit={onExit}>
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -877,7 +877,7 @@ function CoinDecision({ profile, earned, onChoose, onExit }) {
 /* ============================================================
    ٨ — دُكّان الزينة
    ============================================================ */
-function Shop({ profile, wallet, owned, onBuy, onExit }) {
+export function Shop({ profile, wallet, owned, onBuy, onExit }) {
   return (
     <GameFrame title={T.place} goal={pick(profile, T.shopTitle, T.shopTitleF)} score={<Coins n={wallet} />} hint={pick(profile, T.shopGoal, T.shopGoalF)} hintMood="ask" onExit={onExit}>
       <div style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fit, minmax(100px, 1fr))" }}>
@@ -909,7 +909,7 @@ function Shop({ profile, wallet, owned, onBuy, onExit }) {
 /* ============================================================
    ٩ — فتح المندوس
    ============================================================ */
-function MandoosOpen({ profile, amount, onDone }) {
+export function MandoosOpen({ profile, amount, onDone }) {
   return (
     <GameFrame title={T.place} hint="" onExit={onDone}>
       <div className="pop" style={{ background: "linear-gradient(180deg,#FFF3D0 0%,#F6E1A0 100%)", borderRadius: 18, padding: 24, textAlign: "center" }}>

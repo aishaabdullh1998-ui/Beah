@@ -92,12 +92,12 @@ export const Meter = ({ value, max, color, label, unit }) => {
   );
 };
 
-export function WinCard({ text, onDone, mood = "smile" }) {
+export function WinCard({ text, onDone, mood = "smile", doneLabel }) {
   return (
     <div className="pop" style={{ background: c.goodSoft, borderRadius: 18, padding: 22, textAlign: "center" }}>
       <div style={{ display: "flex", justifyContent: "center" }}><Salim mood={mood} size={80} /></div>
       <p style={{ margin: "6px 0 14px", fontFamily: font.display, fontSize: 18, fontWeight: 700, color: c.good, lineHeight: 1.6 }}>{text}</p>
-      <Btn onClick={onDone}>{labels.backToGames}</Btn>
+      <Btn onClick={onDone}>{doneLabel || labels.backToGames}</Btn>
     </div>
   );
 }

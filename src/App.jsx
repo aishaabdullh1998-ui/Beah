@@ -15,8 +15,9 @@ import { Glyph, IconChip, Salim, SalimSays, OmanMap, StoryBadge, StoryIcon, Scen
 import { WORD_SCENES, ActBtn, Hint } from "./scenes.jsx";
 import { GAMES as BASE_GAMES } from "./games.jsx";
 import { NeedsWantsGame } from "./needsWants.jsx";
+import { DiscountCodeGame } from "./discountCode.jsx";
 
-const GAMES = { ...BASE_GAMES, needsWants: NeedsWantsGame };
+const GAMES = { ...BASE_GAMES, needsWants: NeedsWantsGame, discountCode: DiscountCodeGame };
 
 /* ============================================================
    التخزين — تقدّم كل طفل في متصفح جهازه
@@ -96,26 +97,30 @@ function Card({ children, pad = 18, style }) {
   );
 }
 
-function BigButton({ title, sub, icon, bg, fg, onClick, badge }) {
+function BigButton({ title, sub, icon, bg, fg, onClick, badge, locked, lockedNote }) {
+  const bgEff = locked ? c.sage : bg;
+  const fgEff = locked ? c.inkFaint : fg;
   return (
     <button
       type="button"
-      onClick={onClick}
+      onClick={locked ? undefined : onClick}
+      disabled={locked}
       style={{
         display: "flex", alignItems: "center", gap: 14, textAlign: "right", width: "100%",
-        background: bg, border: "none", borderRadius: 20, padding: 18, cursor: "pointer",
-        boxShadow: shadow.md, minHeight: 44, transition: `transform .25s ${ease}`,
+        background: bgEff, border: "none", borderRadius: 20, padding: 18, cursor: locked ? "default" : "pointer",
+        boxShadow: locked ? "none" : shadow.md, minHeight: 44, transition: `transform .25s ${ease}`,
+        opacity: locked ? .75 : 1,
       }}
-      onMouseDown={(e) => { e.currentTarget.style.transform = "scale(.985)"; }}
+      onMouseDown={(e) => { if (!locked) e.currentTarget.style.transform = "scale(.985)"; }}
       onMouseUp={(e) => { e.currentTarget.style.transform = "none"; }}
       onMouseLeave={(e) => { e.currentTarget.style.transform = "none"; }}
     >
-      <IconChip bg="rgba(255,255,255,0.26)" size={52} radius={19}>
-        <Glyph name={icon} size={25} color={fg} />
+      <IconChip bg={locked ? "rgba(34,48,31,.08)" : "rgba(255,255,255,0.26)"} size={52} radius={19}>
+        <Glyph name={locked ? "lock" : icon} size={25} color={fgEff} />
       </IconChip>
       <span style={{ flex: 1, minWidth: 0 }}>
-        <span style={{ display: "block", fontFamily: font.display, color: fg, fontWeight: 700, fontSize: 21, lineHeight: 1.4 }}>{title}</span>
-        <span style={{ display: "block", color: fg, opacity: 0.82, fontSize: 12.5, marginTop: 2, fontFamily: font.body }}>{sub}</span>
+        <span style={{ display: "block", fontFamily: font.display, color: fgEff, fontWeight: 700, fontSize: 21, lineHeight: 1.4 }}>{title}</span>
+        <span style={{ display: "block", color: fgEff, opacity: locked ? 1 : 0.82, fontSize: 12.5, marginTop: 2, fontFamily: font.body }}>{locked ? lockedNote : sub}</span>
       </span>
       {badge && (
         <span style={{
@@ -438,24 +443,29 @@ function StoriesScreen({ profile, onOpenStory, onBack }) {
    ============================================================ */
 function GamesScreen({ profile, onOpen, onBack }) {
   const gdone = profile.gamesDone || [];
-  const tints = { sorting: c.dustyInk, smarthome: c.sageDeep, market: c.accent };
+  const tints = { sorting: c.dustyInk, smarthome: c.sageDeep, market: c.accent, needsWants: c.warn, discountCode: envColor.oilspill };
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 13 }}>
       <ScreenHead title={sections.games} onBack={onBack} backText={labels.backToMap} />
       <SalimSays
         mood="ask"
-        text="ثَلَاثُ أَلْعَابٍ: نَفْرِزُ، وَنُدَبِّرُ كَهْرَبَاءَ بَيْتٍ، وَنَتَسَوَّقُ بِحِكْمَةٍ."
+        text="نَفْرِزُ، وَنُدَبِّرُ كَهْرَبَاءَ بَيْتٍ، وَنَتَسَوَّقُ بِحِكْمَةٍ، وَنَكْتَشِفُ حِيَلَ الإِعْلَانَاتِ."
         size={54}
       />
-      {games.map((g) => (
-        <BigButton
-          key={g.id}
-          title={g.title} sub={g.sub} icon={g.icon}
-          bg={tints[g.id]} fg={c.onDark}
-          badge={gdone.includes(g.id) ? "✓" : undefined}
-          onClick={() => onOpen(g.id)}
-        />
-      ))}
+      {games.map((g) => {
+        const locked = g.requires && !gdone.includes(g.requires);
+        return (
+          <BigButton
+            key={g.id}
+            title={g.title} sub={g.sub} icon={g.icon}
+            bg={tints[g.id]} fg={c.onDark}
+            badge={gdone.includes(g.id) ? "✓" : undefined}
+            locked={locked}
+            lockedNote={pick(profile, "يُفتح بعد إنهاء سوق نزوى", "يُفتح بعد إنهاء سوق نزوى")}
+            onClick={() => onOpen(g.id)}
+          />
+        );
+      })}
     </div>
   );
 }
