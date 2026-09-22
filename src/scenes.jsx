@@ -313,29 +313,31 @@ function HabitatScene({ onDone }) {
     <>
       <Stage sky={placed ? "#DCEFE1" : "#EDF1EA"} height={120}>
         <rect x="0" y="112" width="220" height="28" fill={c.sage} />
-        <g className={placed ? "pop" : "bob"} transform="translate(110 70)">
-          {cur.id === "ibex" && (
-            <g fill="none" stroke="#A2703F" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M-18 26 L0 -14 L18 26 Z" />
-              <circle cx="14" cy="-8" r="5" />
-              <path d="M10 -13 q3 -8 10 -6M18 -13 q-3 -8 -10 -6" />
-            </g>
-          )}
-          {cur.id === "turtle" && (
-            <g fill="none" stroke="#2E6E8E" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M-22 4 q0 -14 22 -14 t22 14 q0 14 -22 14 T-22 4Z" />
-              <circle cx="20" cy="-6" r="4.5" />
-              <path d="M-14 16 l-6 9M14 16 l6 9" />
-            </g>
-          )}
-          {cur.id === "palm" && (
-            <g>
-              <path d="M0 28 V-6" stroke="#8A6A3E" strokeWidth="4.5" strokeLinecap="round" />
-              <path d="M0 -4 q-22 -6 -28 -18 q22 0 28 18Z" fill="#5E8352" />
-              <path d="M0 -4 q22 -6 28 -18 q-22 0 -28 18Z" fill="#6E9460" />
-              <path d="M0 -8 q-8 -18 2 -26 q8 12 -2 26Z" fill="#4E7345" />
-            </g>
-          )}
+        <g transform="translate(110 70)">
+          <g className={placed ? "pop" : "bob"}>
+            {cur.id === "ibex" && (
+              <g fill="none" stroke="#A2703F" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M-18 26 L0 -14 L18 26 Z" />
+                <circle cx="14" cy="-8" r="5" />
+                <path d="M10 -13 q3 -8 10 -6M18 -13 q-3 -8 -10 -6" />
+              </g>
+            )}
+            {cur.id === "turtle" && (
+              <g fill="none" stroke="#2E6E8E" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M-22 4 q0 -14 22 -14 t22 14 q0 14 -22 14 T-22 4Z" />
+                <circle cx="20" cy="-6" r="4.5" />
+                <path d="M-14 16 l-6 9M14 16 l6 9" />
+              </g>
+            )}
+            {cur.id === "palm" && (
+              <g>
+                <path d="M0 28 V-6" stroke="#8A6A3E" strokeWidth="4.5" strokeLinecap="round" />
+                <path d="M0 -4 q-22 -6 -28 -18 q22 0 28 18Z" fill="#5E8352" />
+                <path d="M0 -4 q22 -6 28 -18 q-22 0 -28 18Z" fill="#6E9460" />
+                <path d="M0 -8 q-8 -18 2 -26 q8 12 -2 26Z" fill="#4E7345" />
+              </g>
+            )}
+          </g>
         </g>
       </Stage>
 
@@ -429,8 +431,10 @@ function CollectScene({ onDone }) {
         </g>
         {/* عصفور يظهر بعد التنظيف */}
         {left.length === 0 && (
-          <g className="pop" transform="translate(150 36)">
-            <path d="M-14 0 q7 -9 14 -9 t14 9 q-7 -3 -14 -1 -7 -2 -14 1Z" fill={c.dustyInk} />
+          <g transform="translate(150 36)">
+            <g className="pop">
+              <path d="M-14 0 q7 -9 14 -9 t14 9 q-7 -3 -14 -1 -7 -2 -14 1Z" fill={c.dustyInk} />
+            </g>
           </g>
         )}
         {/* القمامة */}
