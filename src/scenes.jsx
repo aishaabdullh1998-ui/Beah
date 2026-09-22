@@ -8,6 +8,7 @@
    ============================================================ */
 import React, { useEffect, useRef, useState } from "react";
 import { c, shadow, font, ease } from "./theme.js";
+import { ImgFallback } from "./art.jsx";
 
 /* ── عناصر مشتركة ──────────────────────────────────────── */
 export function Stage({ children, sky = "#E7F0F2", height = 168 }) {
@@ -187,15 +188,25 @@ function FaucetScene({ onDone }) {
         <rect x="0" y="112" width="220" height="28" fill={c.sage} />
         <path d="M74 112 q36 -22 72 0 Z" fill="#DCE6E8" stroke="#B7C4CE" strokeWidth="2.5" />
         {/* الصنبور */}
-        <g>
-          <rect x="100" y="34" width="12" height="26" rx="3" fill="#9FB0B8" stroke="#77878F" strokeWidth="2" />
-          <path d="M106 36 h26 v22" fill="none" stroke="#9FB0B8" strokeWidth="9" strokeLinecap="round" />
-          <path d="M106 36 h26 v22" fill="none" stroke="#C3D0D6" strokeWidth="4" strokeLinecap="round" />
-          {/* المقبض يدور عند الإغلاق */}
-          <g style={{ transformOrigin: "106px 32px", transform: open ? "rotate(0deg)" : "rotate(92deg)", transition: `transform .5s ${ease}` }}>
-            <rect x="88" y="28" width="36" height="8" rx="4" fill={open ? c.accent : c.good} stroke="#7C4119" strokeWidth="1.6" />
-          </g>
-        </g>
+        <foreignObject x="80" y="18" width="56" height="56">
+          <ImgFallback
+            src={open ? "assets/img/dict-scenes/water-tap-drip.webp" : "assets/img/dict-scenes/water-tap-closed.webp"}
+            alt={open ? "صنبور يقطر" : "صنبور مغلق"}
+            style={{ width: 56, height: 56, objectFit: "contain" }}
+            fallback={
+              <svg viewBox="0 0 56 56" width="56" height="56">
+                <g transform="translate(-64 -10)">
+                  <rect x="100" y="34" width="12" height="26" rx="3" fill="#9FB0B8" stroke="#77878F" strokeWidth="2" />
+                  <path d="M106 36 h26 v22" fill="none" stroke="#9FB0B8" strokeWidth="9" strokeLinecap="round" />
+                  <path d="M106 36 h26 v22" fill="none" stroke="#C3D0D6" strokeWidth="4" strokeLinecap="round" />
+                  <g style={{ transformOrigin: "106px 32px", transform: open ? "rotate(0deg)" : "rotate(92deg)", transition: `transform .5s ${ease}` }}>
+                    <rect x="88" y="28" width="36" height="8" rx="4" fill={open ? c.accent : c.good} stroke="#7C4119" strokeWidth="1.6" />
+                  </g>
+                </g>
+              </svg>
+            }
+          />
+        </foreignObject>
         {/* القطرات */}
         {open && (
           <g fill="#4FA3BE">
@@ -205,8 +216,15 @@ function FaucetScene({ onDone }) {
             ))}
           </g>
         )}
-        {/* ماء متجمّع */}
-        <rect x="80" y={112 - Math.min(16, wasted * 0.16)} width="60" height={Math.min(16, wasted * 0.16)} rx="3" fill="#8FC7D8" opacity=".85" />
+        {/* الدلو */}
+        <foreignObject x="70" y="80" width="40" height="34">
+          <ImgFallback
+            src={wasted >= 50 ? "assets/img/dict-scenes/water-bucket-full.webp" : "assets/img/dict-scenes/water-bucket-empty.webp"}
+            alt={wasted >= 50 ? "دلو ممتلئ" : "دلو فارغ"}
+            style={{ width: 40, height: 34, objectFit: "contain" }}
+            fallback={<rect x="0" y={34 - Math.min(16, wasted * 0.16)} width="40" height={Math.min(16, wasted * 0.16)} rx="3" fill="#8FC7D8" opacity=".85" />}
+          />
+        </foreignObject>
       </Stage>
 
       <Meter value={wasted} color={wasted > 70 ? c.bad : wasted > 35 ? c.warn : c.dustyInk} label="مَاءٌ ضَاعَ" />
@@ -215,6 +233,9 @@ function FaucetScene({ onDone }) {
 
       {!open && lost && (
         <>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <ImgFallback src="assets/img/dict-scenes/water-drop-sad.webp" alt="قطرة حزينة" width={48} height={48} fallback={null} />
+          </div>
           <Hint tone="bad">امْتَلَأَ العَدَّادُ، وَضَاعَ المَاءُ كُلُّهُ.</Hint>
           <ActBtn tone="warm" onClick={reset}>أُحَاوِلُ مَرَّةً أُخْرَى</ActBtn>
         </>
@@ -222,6 +243,9 @@ function FaucetScene({ onDone }) {
 
       {!open && !lost && (
         <>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <ImgFallback src="assets/img/dict-scenes/water-drop-happy.webp" alt="قطرة سعيدة" width={48} height={48} fallback={null} />
+          </div>
           <Hint tone="good">أَغْلَقْتَهُ فِي وَقْتِهِ، فَحَفِظْتَ {saved}٪ مِنَ المَاءِ.</Hint>
           <ActBtn onClick={onDone}>أُوَاصِلُ التَّعَلُّمَ</ActBtn>
         </>
@@ -245,6 +269,42 @@ const CREATURES = [
   { id: "palm", name: "النَّخْلَةُ", home: "oasis" },
 ];
 
+const HABITAT_CARD_IMG = {
+  mountain: "assets/img/dict-scenes/bio-card-mountain.webp",
+  sea: "assets/img/dict-scenes/bio-card-sea.webp",
+  oasis: "assets/img/dict-scenes/bio-card-oasis.webp",
+};
+
+function HabitatCardArt({ kind }) {
+  return (
+    <svg viewBox="0 0 92 54" style={{ width: "100%", display: "block" }} aria-hidden="true">
+      {kind === "mountain" && (
+        <>
+          <path d="M0 54 L26 20 L44 40 L62 14 L92 54 Z" fill="#C4B58E" stroke="#A89670" strokeWidth="2" strokeLinejoin="round" />
+          <path d="M62 14 L70 24 L54 24 Z" fill="#EFEAD9" />
+        </>
+      )}
+      {kind === "sea" && (
+        <>
+          <rect x="0" y="26" width="92" height="28" fill="#7FBBD2" />
+          <g fill="none" stroke="#FFF" strokeWidth="2" opacity=".7" strokeLinecap="round">
+            <path d="M8 36 q7 -5 14 0 t14 0" /><path d="M50 44 q7 -5 14 0 t14 0" />
+          </g>
+        </>
+      )}
+      {kind === "oasis" && (
+        <>
+          <rect x="0" y="40" width="92" height="14" fill="#DCCFA8" />
+          <path d="M46 40 V22" stroke="#8A6A3E" strokeWidth="3.4" strokeLinecap="round" />
+          <path d="M46 24 q-16 -4 -20 -12 q16 0 20 12Z" fill="#5E8352" />
+          <path d="M46 24 q16 -4 20 -12 q-16 0 -20 12Z" fill="#6E9460" />
+          <ellipse cx="18" cy="44" rx="14" ry="5" fill="#8FC7D8" />
+        </>
+      )}
+    </svg>
+  );
+}
+
 function HabitatCard({ kind, onPick, wrong }) {
   const h = HABITATS[kind];
   return (
@@ -258,31 +318,11 @@ function HabitatCard({ kind, onPick, wrong }) {
         transform: wrong ? "translateX(-4px)" : "none",
       }}
     >
-      <svg viewBox="0 0 92 54" style={{ width: "100%", display: "block" }} aria-hidden="true">
-        {kind === "mountain" && (
-          <>
-            <path d="M0 54 L26 20 L44 40 L62 14 L92 54 Z" fill="#C4B58E" stroke="#A89670" strokeWidth="2" strokeLinejoin="round" />
-            <path d="M62 14 L70 24 L54 24 Z" fill="#EFEAD9" />
-          </>
-        )}
-        {kind === "sea" && (
-          <>
-            <rect x="0" y="26" width="92" height="28" fill="#7FBBD2" />
-            <g fill="none" stroke="#FFF" strokeWidth="2" opacity=".7" strokeLinecap="round">
-              <path d="M8 36 q7 -5 14 0 t14 0" /><path d="M50 44 q7 -5 14 0 t14 0" />
-            </g>
-          </>
-        )}
-        {kind === "oasis" && (
-          <>
-            <rect x="0" y="40" width="92" height="14" fill="#DCCFA8" />
-            <path d="M46 40 V22" stroke="#8A6A3E" strokeWidth="3.4" strokeLinecap="round" />
-            <path d="M46 24 q-16 -4 -20 -12 q16 0 20 12Z" fill="#5E8352" />
-            <path d="M46 24 q16 -4 20 -12 q-16 0 -20 12Z" fill="#6E9460" />
-            <ellipse cx="18" cy="44" rx="14" ry="5" fill="#8FC7D8" />
-          </>
-        )}
-      </svg>
+      <ImgFallback
+        src={HABITAT_CARD_IMG[kind]} alt={h.name}
+        style={{ width: "100%", height: 54, objectFit: "cover" }}
+        fallback={<HabitatCardArt kind={kind} />}
+      />
       <span style={{ display: "block", fontSize: 12.5, fontWeight: 700, color: c.ink, padding: "5px 0 7px", fontFamily: font.body }}>
         {h.name}
       </span>
@@ -315,19 +355,32 @@ function HabitatScene({ onDone }) {
         <rect x="0" y="112" width="220" height="28" fill={c.sage} />
         <g transform="translate(110 70)">
           <g className={placed ? "pop" : "bob"}>
-            {cur.id === "ibex" && (
-              <g fill="none" stroke="#A2703F" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M-18 26 L0 -14 L18 26 Z" />
-                <circle cx="14" cy="-8" r="5" />
-                <path d="M10 -13 q3 -8 10 -6M18 -13 q-3 -8 -10 -6" />
-              </g>
-            )}
-            {cur.id === "turtle" && (
-              <g fill="none" stroke="#2E6E8E" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M-22 4 q0 -14 22 -14 t22 14 q0 14 -22 14 T-22 4Z" />
-                <circle cx="20" cy="-6" r="4.5" />
-                <path d="M-14 16 l-6 9M14 16 l6 9" />
-              </g>
+            {(cur.id === "ibex" || cur.id === "turtle") && (
+              <foreignObject x="-24" y="-24" width="48" height="48">
+                <ImgFallback
+                  src={`assets/img/dict-scenes/bio-${cur.id}.webp`} alt={cur.name}
+                  style={{ width: 48, height: 48, objectFit: "contain" }}
+                  fallback={
+                    cur.id === "ibex" ? (
+                      <svg viewBox="-24 -24 48 48" width="48" height="48">
+                        <g fill="none" stroke="#A2703F" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M-18 26 L0 -14 L18 26 Z" />
+                          <circle cx="14" cy="-8" r="5" />
+                          <path d="M10 -13 q3 -8 10 -6M18 -13 q-3 -8 -10 -6" />
+                        </g>
+                      </svg>
+                    ) : (
+                      <svg viewBox="-24 -24 48 48" width="48" height="48">
+                        <g fill="none" stroke="#2E6E8E" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M-22 4 q0 -14 22 -14 t22 14 q0 14 -22 14 T-22 4Z" />
+                          <circle cx="20" cy="-6" r="4.5" />
+                          <path d="M-14 16 l-6 9M14 16 l6 9" />
+                        </g>
+                      </svg>
+                    )
+                  }
+                />
+              </foreignObject>
             )}
             {cur.id === "palm" && (
               <g>
@@ -374,13 +427,24 @@ function WarmScene({ onDone }) {
         <circle cx="188" cy="26" r="15" fill={cool ? "#F0C86A" : "#E8894F"} style={{ transition: `fill .6s ${ease}` }} />
         {/* الأرض */}
         <g transform="translate(66 46)">
-          <circle cx="0" cy="0" r="30" fill={earthColor} style={{ transition: `fill .6s ${ease}` }} />
-          <path d="M-18 -8 q8 -7 16 0 q8 7 16 0" fill="none" stroke="#FFF" strokeWidth="2.4" opacity=".55" strokeLinecap="round" />
-          {cool
-            ? <path d="M-11 8 q11 10 22 0" fill="none" stroke="#FFF" strokeWidth="3" strokeLinecap="round" />
-            : <path d="M-11 12 q11 -8 22 0" fill="none" stroke="#FFF" strokeWidth="3" strokeLinecap="round" />}
-          <circle cx="-10" cy="-2" r="2.6" fill="#FFF" />
-          <circle cx="10" cy="-2" r="2.6" fill="#FFF" />
+          <foreignObject x="-32" y="-32" width="64" height="64">
+            <ImgFallback
+              src={cool ? "assets/img/dict-scenes/warm-earth-happy.webp" : trees >= 1 ? "assets/img/dict-scenes/warm-earth-better.webp" : "assets/img/dict-scenes/warm-earth-hot.webp"}
+              alt="حالة الأرض"
+              style={{ width: 64, height: 64, objectFit: "contain" }}
+              fallback={
+                <svg viewBox="-32 -32 64 64" width="64" height="64">
+                  <circle cx="0" cy="0" r="30" fill={earthColor} style={{ transition: `fill .6s ${ease}` }} />
+                  <path d="M-18 -8 q8 -7 16 0 q8 7 16 0" fill="none" stroke="#FFF" strokeWidth="2.4" opacity=".55" strokeLinecap="round" />
+                  {cool
+                    ? <path d="M-11 8 q11 10 22 0" fill="none" stroke="#FFF" strokeWidth="3" strokeLinecap="round" />
+                    : <path d="M-11 12 q11 -8 22 0" fill="none" stroke="#FFF" strokeWidth="3" strokeLinecap="round" />}
+                  <circle cx="-10" cy="-2" r="2.6" fill="#FFF" />
+                  <circle cx="10" cy="-2" r="2.6" fill="#FFF" />
+                </svg>
+              }
+            />
+          </foreignObject>
         </g>
         {/* الأرضية والشتلات */}
         <rect x="0" y="112" width="220" height="28" fill={c.sage} />

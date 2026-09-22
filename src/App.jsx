@@ -11,7 +11,7 @@ import {
   COPYRIGHT_YEAR, sections, salim as salimText, encouragements,
   stories, quizSets, dictionaryTerms, doDontCards, labels, games, mission, footerText,
 } from "./content.js";
-import { Glyph, IconChip, Salim, SalimSays, OmanMap, StoryBadge, StoryIcon, SceneBackdrop, keyframes } from "./art.jsx";
+import { Glyph, IconChip, ImgFallback, Salim, SalimSays, OmanMap, StoryBadge, StoryIcon, StoryHero, CompletionBadge, SceneBackdrop, keyframes } from "./art.jsx";
 import { WORD_SCENES, ActBtn, Hint } from "./scenes.jsx";
 import { GAMES as BASE_GAMES } from "./games.jsx";
 import { NeedsWantsGame } from "./needsWants.jsx";
@@ -86,6 +86,28 @@ const isF = (p) => !!p && p.gender === "f";
 const pick = (p, m, f) => (isF(p) ? (f || m) : m);
 const ed = (n) => String(n).replace(/[0-9]/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]);
 
+/* أيقونات أزرار اختيار القصص بدل الإيموجي */
+const EMOJI_RE = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{1F1E6}-\u{1F1FF}]/gu;
+const CHOICE_ICON_BY_EMOJI = {
+  "🎈": "assets/img/choices/choice-balloon.webp",
+  "⛵": "assets/img/choices/choice-boat.webp",
+  "🚤": "assets/img/choices/choice-boat.webp",
+  "🔍": "assets/img/choices/choice-investigate.webp",
+  "🔎": "assets/img/choices/choice-investigate.webp",
+  "🐾": "assets/img/choices/choice-tracks.webp",
+  "🚶": "assets/img/choices/choice-walk.webp",
+  "🏃": "assets/img/choices/choice-walk.webp",
+};
+const GRANDPA_EMOJI = "👴";
+
+function parseChoiceLabel(label) {
+  const found = label.match(EMOJI_RE) || [];
+  const text = label.replace(EMOJI_RE, "").trim();
+  const isGrandpa = found.includes(GRANDPA_EMOJI);
+  const icon = !isGrandpa ? found.map((e) => CHOICE_ICON_BY_EMOJI[e]).find(Boolean) : null;
+  return { text, icon, isGrandpa };
+}
+
 /* ============================================================
    عناصر مشتركة
    ============================================================ */
@@ -97,7 +119,7 @@ function Card({ children, pad = 18, style }) {
   );
 }
 
-function BigButton({ title, sub, icon, bg, fg, onClick, badge, locked, lockedNote }) {
+function BigButton({ title, sub, icon, image, imageAlt, bg, fg, onClick, badge, badgeIcon, locked, lockedNote }) {
   const bgEff = locked ? c.sage : bg;
   const fgEff = locked ? c.inkFaint : fg;
   return (
@@ -113,19 +135,35 @@ function BigButton({ title, sub, icon, bg, fg, onClick, badge, locked, lockedNot
         opacity: locked ? .75 : 1,
       }}
     >
-      <IconChip bg={locked ? "rgba(91,54,38,.08)" : "rgba(255,248,236,.4)"} size={52} radius={19}>
-        <Glyph name={locked ? "lock" : icon} size={25} color={fgEff} />
-      </IconChip>
+      {!locked && image ? (
+        <ImgFallback
+          src={image} alt={imageAlt}
+          width={56} height={56} style={{ flexShrink: 0 }}
+          fallback={
+            <IconChip bg="rgba(255,248,236,.4)" size={52} radius={19}>
+              <Glyph name={icon} size={25} color={fgEff} />
+            </IconChip>
+          }
+        />
+      ) : (
+        <IconChip bg={locked ? "rgba(91,54,38,.08)" : "rgba(255,248,236,.4)"} size={52} radius={19}>
+          <Glyph name={locked ? "lock" : icon} size={25} color={fgEff} />
+        </IconChip>
+      )}
       <span style={{ flex: 1, minWidth: 0 }}>
         <span style={{ display: "block", fontFamily: font.display, color: fgEff, fontWeight: 700, fontSize: 21, lineHeight: 1.4 }}>{title}</span>
         <span style={{ display: "block", color: fgEff, opacity: locked ? 1 : 0.88, fontSize: 12.5, marginTop: 2, fontFamily: font.body }}>{locked ? lockedNote : sub}</span>
       </span>
       {badge && (
         <span style={{
-          flex: "none", background: "rgba(255,248,236,.4)", color: fg, borderRadius: 11,
+          flex: "none", display: "flex", alignItems: "center", gap: 4,
+          background: "rgba(255,248,236,.4)", color: fg, borderRadius: 11,
           padding: "4px 10px", fontFamily: font.display, fontWeight: 700, fontSize: 15,
           fontVariantNumeric: "tabular-nums",
-        }}>{badge}</span>
+        }}>
+          {badgeIcon && <ImgFallback src={badgeIcon} alt="" width={16} height={16} fallback={null} />}
+          {badge}
+        </span>
       )}
     </button>
   );
@@ -319,16 +357,21 @@ function HomePanel({ profile, go, compact }) {
       {!compact && <SalimSays mood="smile" text={pick(profile, salimText.welcome, salimText.welcomeF)} size={58} />}
       <BigButton
         title={sections.stories} sub={sections.storiesSub} icon="map"
+        image="assets/img/home/home-stories.webp" imageAlt="رسمة قصص بيئية"
         bg={c.sageDeep} fg={c.onDark} badge={`${ed(done.length)}/${ed(stories.length)}`}
+        badgeIcon="assets/img/home/ui-medal.webp"
         onClick={() => go("stories")}
       />
       <BigButton
         title={sections.games} sub={sections.gamesSub} icon="house"
+        image="assets/img/home/home-games.webp" imageAlt="رسمة ألعاب بيئية"
         bg={c.accent} fg={c.onDark} badge={`${ed(gdone.length)}/${ed(games.length)}`}
+        badgeIcon="assets/img/home/ui-trophy.webp"
         onClick={() => go("games")}
       />
       <BigButton
         title={sections.words} sub={sections.wordsSub} icon="book"
+        image="assets/img/home/home-dictionary.webp" imageAlt="رسمة المعجم البصري"
         bg={c.dusty} fg="#233038" onClick={() => go("words")}
       />
     </div>
@@ -395,9 +438,7 @@ function StoriesScreen({ profile, onOpenStory, onBack }) {
                   </span>
                   <span style={{ display: "block", fontSize: 11.5, color: c.inkFaint, marginTop: 1, fontFamily: font.body }}>{s.env}</span>
                 </span>
-                {isDone
-                  ? <IconChip bg={c.goodSoft} size={30} radius={10}><Glyph name="check" size={16} color={c.good} strokeWidth={2.6} /></IconChip>
-                  : <span style={{ width: 30, height: 30, borderRadius: 10, border: `1.5px dashed ${col}66`, flex: "none" }} />}
+                <CompletionBadge storyId={s.id} earned={isDone} size={30} />
               </button>
             );
           })}
@@ -489,7 +530,7 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded }) {
         transition: `background .6s ${ease}`,
       }}
     >
-      <SceneBackdrop bg={scene.bg} />
+      <SceneBackdrop bg={scene.bg} storyId={story.id} isEnding={!!scene.isEnding} />
 
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px", gap: 10, position: "relative", zIndex: 2 }}>
         <button
@@ -521,7 +562,7 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded }) {
         <div style={{ display: "flex", justifyContent: "center", paddingTop: 4 }}>
           <div className="bob" style={{ filter: "drop-shadow(0 6px 10px rgba(0,0,0,.25))" }}>
             <IconChip bg="rgba(255,255,255,.85)" size={82} radius={28}>
-              <StoryIcon icon={story.icon} size={46} />
+              <StoryHero storyId={story.id} sceneId={currentId} icon={story.icon} size={46} />
             </IconChip>
           </div>
         </div>
@@ -540,25 +581,31 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded }) {
               <SalimSays mood="ask" text={pick(profile, salimText.onChoice, salimText.onChoiceF)} size={48} tone="sand" />
             )}
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {scene.choices.map((ch) => (
-                <button
-                  key={ch.next}
-                  type="button"
-                  onClick={() => go(ch.next, !!scene.isRetry)}
-                  style={{
-                    width: "100%", textAlign: "right", borderRadius: 14, padding: "13px 16px", border: "none",
-                    background: scene.isRetry ? accent : "#FFFFFF", color: scene.isRetry ? "#FFF" : accent,
-                    fontFamily: font.display, fontSize: 17, fontWeight: 700, cursor: "pointer",
-                    boxShadow: shadow.md, minHeight: 48, lineHeight: 1.5,
-                    transition: `transform .2s ${ease}`,
-                  }}
-                  onMouseDown={(e) => { e.currentTarget.style.transform = "scale(.98)"; }}
-                  onMouseUp={(e) => { e.currentTarget.style.transform = "none"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.transform = "none"; }}
-                >
-                  {ch.label}
-                </button>
-              ))}
+              {scene.choices.map((ch) => {
+                const { text, icon, isGrandpa } = parseChoiceLabel(ch.label);
+                return (
+                  <button
+                    key={ch.next}
+                    type="button"
+                    onClick={() => go(ch.next, !!scene.isRetry)}
+                    style={{
+                      width: "100%", textAlign: "right", borderRadius: 14, padding: "13px 16px", border: "none",
+                      background: scene.isRetry ? accent : "#FFFFFF", color: scene.isRetry ? "#FFF" : accent,
+                      fontFamily: font.display, fontSize: 17, fontWeight: 700, cursor: "pointer",
+                      boxShadow: shadow.md, minHeight: 48, lineHeight: 1.5,
+                      transition: `transform .2s ${ease}`,
+                      display: "flex", alignItems: "center", gap: 10,
+                    }}
+                    onMouseDown={(e) => { e.currentTarget.style.transform = "scale(.98)"; }}
+                    onMouseUp={(e) => { e.currentTarget.style.transform = "none"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.transform = "none"; }}
+                  >
+                    {isGrandpa && <span style={{ flexShrink: 0 }}><Salim mood="ask" size={30} /></span>}
+                    {icon && <ImgFallback src={icon} alt="" width={26} height={26} style={{ flexShrink: 0 }} fallback={null} />}
+                    <span style={{ flex: 1 }}>{text}</span>
+                  </button>
+                );
+              })}
             </div>
           </>
         )}
@@ -615,6 +662,16 @@ const WORD_ICON = {
   energy: "wind",
 };
 
+const WORD_IMG = {
+  recycle: "assets/img/dictionary/dict-recycling.webp",
+  conserve: "assets/img/dictionary/dict-water.webp",
+  biodiversity: "assets/img/dictionary/dict-biodiversity.webp",
+  warming: "assets/img/dictionary/dict-warming.webp",
+  pollution: "assets/img/dictionary/dict-pollution.webp",
+  sustainability: "assets/img/dictionary/dict-sustainability.webp",
+  greenh2: "assets/img/dictionary/dict-hydrogen.webp",
+};
+
 function WordsList({ profile, onOpen, onOpenDoDont }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -635,14 +692,24 @@ function WordsList({ profile, onOpen, onOpenDoDont }) {
             onMouseEnter={(e) => { e.currentTarget.style.borderColor = c.sageDeep; }}
             onMouseLeave={(e) => { e.currentTarget.style.borderColor = c.line; }}
           >
-            <IconChip bg={c.sage} size={40} radius={14}>
-              <Glyph name={WORD_ICON[t.scene] || "star"} size={20} color={c.sageInk} strokeWidth={2.2} />
-            </IconChip>
+            <ImgFallback
+              src={WORD_IMG[t.id]} alt={t.term}
+              width={44} height={44}
+              fallback={
+                <IconChip bg={c.sage} size={40} radius={14}>
+                  <Glyph name={WORD_ICON[t.scene] || "star"} size={20} color={c.sageInk} strokeWidth={2.2} />
+                </IconChip>
+              }
+            />
             {t.term}
           </button>
         ))}
       </div>
-      <BigButton title={labels.doDont} sub="أُصَنِّفُ السُّلُوكَ بِنَفْسِي" icon="check" bg={c.sageDeep} fg={c.onDark} onClick={onOpenDoDont} />
+      <BigButton
+        title={labels.doDont} sub="أُصَنِّفُ السُّلُوكَ بِنَفْسِي" icon="check"
+        image="assets/img/dictionary/dict-dodont.webp" imageAlt="بطاقات افعل ولا تفعل"
+        bg={c.sageDeep} fg={c.onDark} onClick={onOpenDoDont}
+      />
     </div>
   );
 }

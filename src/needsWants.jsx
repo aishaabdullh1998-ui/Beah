@@ -11,7 +11,7 @@
    ============================================================ */
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { c, shadow, font, ease } from "./theme.js";
-import { Salim, SalimSays, Glyph, IconChip } from "./art.jsx";
+import { Salim, SalimSays, Glyph, IconChip, ImgFallback } from "./art.jsx";
 import { GameFrame, Btn, WinCard, MarketIcon } from "./games.jsx";
 import {
   needsWantsItems1, needsWantsItems2, needsWantsSituations, needsWantsBudget,
@@ -1148,6 +1148,11 @@ export function NeedsWantsGame({ profile, onExit, onWin, onUpdateProfile }) {
       hintMood="smile"
       onExit={onExit}
     >
+      <ImgFallback
+        src="assets/img/scenes/nw-shop-scene.webp" alt="مشهد دكان الجدّ سالم في سوق نزوى"
+        style={{ width: "100%", height: 130, borderRadius: 18, border: `3px solid ${c.ink}`, objectFit: "cover" }}
+        fallback={null}
+      />
       <div
         onPointerDown={teacherPress} onPointerUp={teacherRelease} onPointerLeave={teacherRelease} onPointerCancel={teacherRelease}
         style={{ textAlign: "center", fontSize: 16, color: c.lineSoft, userSelect: "none", WebkitUserSelect: "none", WebkitTouchCallout: "none", touchAction: "none", letterSpacing: 3 }}

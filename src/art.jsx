@@ -1,7 +1,7 @@
 /* ============================================================
    الرسم — خريطة عُمان، الجدّ سالم، أيقونات القصص، ومناظر مشاهدها الكرتونيّة
    ============================================================ */
-import React from "react";
+import React, { useState } from "react";
 import { c, env as envColor, shadow, font, ease } from "./theme.js";
 
 /* ── أيقونات البيئات ───────────────────────────────────── */
@@ -240,6 +240,21 @@ export function IconChip({ children, bg = c.sage, size = 56, radius }) {
   );
 }
 
+/* صورة مولَّدة مع بديل احتياطي: إن تعذّر تحميلها (لا اتصال، أو
+   الملف غير موجود) يظهر الرسم القديم بدلًا منها دون أي كسر بصري. */
+export function ImgFallback({ src, alt, fallback, width, height, style }) {
+  const [broken, setBroken] = useState(false);
+  if (broken || !src) return fallback ?? null;
+  return (
+    <img
+      src={src} alt={alt || ""} loading="lazy" draggable="false"
+      width={width} height={height}
+      onError={() => setBroken(true)}
+      style={{ display: "block", objectFit: "contain", ...style }}
+    />
+  );
+}
+
 /* ============================================================
    خلفياتُ بيئاتِ القِصَصِ — مَشْهَدٌ صَغِيرٌ يُلَمِّحُ إِلَى المَكَانِ
    بَدَلَ لَوْنٍ مُصْمَتٍ خَلْفَ الأَيْقُونَةِ
@@ -404,8 +419,19 @@ export function StoryIcon({ icon, size = 40 }) {
   );
 }
 
-export function StoryBadge({ storyId, icon, color, size = 56 }) {
-  const biome = BIOME_OF[storyId] || "mountain";
+const STORY_THUMB = {
+  falaj: "assets/img/stories/story-thumb-01-falaj.webp",
+  turtle: "assets/img/stories/story-thumb-02-salma.webp",
+  oilspill: "assets/img/stories/story-thumb-03-muscat-sea.webp",
+  mangrove: "assets/img/stories/story-thumb-04-mangrove.webp",
+  ibex: "assets/img/stories/story-thumb-05-tuti.webp",
+  falcon: "assets/img/stories/story-thumb-06-nest.webp",
+  airquality: "assets/img/stories/story-thumb-07-sky.webp",
+  frankincense: "assets/img/stories/story-thumb-08-dhofar.webp",
+  bay: "assets/img/stories/story-thumb-09-muscat-gulf.webp",
+};
+
+function StoryBadgeIcon({ biome, icon, size }) {
   return (
     <div style={{ width: size, height: size, borderRadius: size * 0.32, overflow: "hidden", flexShrink: 0, position: "relative" }}>
       <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden="true" style={{ display: "block" }}>
@@ -422,6 +448,43 @@ export function StoryBadge({ storyId, icon, color, size = 56 }) {
       </div>
     </div>
   );
+}
+
+export function StoryBadge({ storyId, icon, color, size = 56 }) {
+  const biome = BIOME_OF[storyId] || "mountain";
+  const thumb = STORY_THUMB[storyId];
+  if (!thumb) return <StoryBadgeIcon biome={biome} icon={icon} size={size} />;
+  return (
+    <ImgFallback
+      src={thumb} alt=""
+      width={size} height={size * 1.1}
+      style={{ borderRadius: size * 0.24, flexShrink: 0, objectFit: "cover", background: envColor[storyId] || c.sage }}
+      fallback={<StoryBadgeIcon biome={biome} icon={icon} size={size} />}
+    />
+  );
+}
+
+const STORY_BADGE_EARNED = {
+  falaj: "assets/img/badges/badge-story-01.webp",
+  turtle: "assets/img/badges/badge-story-02.webp",
+  oilspill: "assets/img/badges/badge-story-03.webp",
+  mangrove: "assets/img/badges/badge-story-04.webp",
+  ibex: "assets/img/badges/badge-story-05.webp",
+  falcon: "assets/img/badges/badge-story-06.webp",
+  airquality: "assets/img/badges/badge-story-07.webp",
+  frankincense: "assets/img/badges/badge-story-08.webp",
+  bay: "assets/img/badges/badge-story-09.webp",
+};
+const STORY_BADGE_EMPTY = "assets/img/badges/badge-empty.webp";
+
+/* شارة إتمام القصة في نهاية سطرها — وسام مكتسب أو مربّع فارغ منتظر */
+export function CompletionBadge({ storyId, earned, size = 30 }) {
+  const src = earned ? STORY_BADGE_EARNED[storyId] : STORY_BADGE_EMPTY;
+  const fallback = earned
+    ? <IconChip bg={c.goodSoft} size={size} radius={10}><Glyph name="check" size={size * 0.53} color={c.good} strokeWidth={2.6} /></IconChip>
+    : <span style={{ width: size, height: size, borderRadius: 10, border: `1.5px dashed ${(envColor[storyId] || c.sageDeep)}66`, display: "block" }} />;
+  if (!src) return fallback;
+  return <ImgFallback src={src} alt="" width={size} height={size} style={{ borderRadius: "50%", flexShrink: 0 }} fallback={fallback} />;
 }
 
 /* ============================================================
@@ -586,7 +649,19 @@ function EndingScene() {
 
 const SCENE_BY_BASE = { day: DayScene, dawn: DawnScene, night: NightScene, water: WaterScene, forest: ForestScene, ending: EndingScene };
 
-export function SceneBackdrop({ bg }) {
+const STORY_SCENE_IMG = {
+  falaj: { before: "assets/img/scenes/scene-01-falaj-dry.webp", after: "assets/img/scenes/scene-01-falaj-flow.webp" },
+  turtle: { before: "assets/img/scenes/scene-02-rashadd-night.webp" },
+  oilspill: { before: "assets/img/scenes/scene-03-muscat-sea.webp", after: "assets/img/scenes/scene-03-muscat-clean.webp" },
+  mangrove: { before: "assets/img/scenes/scene-04-mangrove.webp" },
+  ibex: { before: "assets/img/scenes/scene-05-huqf-dry.webp", after: "assets/img/scenes/scene-05-huqf-water.webp" },
+  falcon: { before: "assets/img/scenes/scene-06-daymaniyat.webp" },
+  airquality: { before: "assets/img/scenes/scene-07-sohar-haze.webp", after: "assets/img/scenes/scene-07-sohar-clear.webp" },
+  frankincense: { before: "assets/img/scenes/scene-08-dhofar.webp" },
+  bay: { before: "assets/img/scenes/scene-09-muscat-gulf.webp" },
+};
+
+function SceneBackdropSvg({ bg }) {
   const warn = bg.startsWith("warning");
   const base = warn ? bg.slice(7, 8).toLowerCase() + bg.slice(8) : bg;
   const Scene = SCENE_BY_BASE[base] || DayScene;
@@ -600,6 +675,61 @@ export function SceneBackdrop({ bg }) {
       {warn && <rect x="0" y="0" width="400" height="300" fill="#5B4530" opacity=".38" />}
     </svg>
   );
+}
+
+export function SceneBackdrop({ bg, storyId, isEnding }) {
+  const warn = bg.startsWith("warning");
+  const pair = STORY_SCENE_IMG[storyId];
+  const src = pair && (isEnding && pair.after ? pair.after : pair.before);
+  if (!src) return <SceneBackdropSvg bg={bg} />;
+  return (
+    <div style={{ position: "absolute", inset: 0, overflow: "hidden" }} aria-hidden="true">
+      <ImgFallback
+        src={src} alt=""
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+        fallback={<SceneBackdropSvg bg={bg} />}
+      />
+      {warn && <div style={{ position: "absolute", inset: 0, background: "#5B4530", opacity: .38 }} />}
+    </div>
+  );
+}
+
+/* أبطال القصص — صورة البطل في المربّع أعلى المشهد، تتبدّل حسب الحدث */
+const HERO_IMG = {
+  falaj: {
+    default: "assets/img/heroes/hero-salem-smile.webp",
+    scenes: {
+      start: "assets/img/heroes/hero-salem-worried.webp",
+      ignore_wrong: "assets/img/heroes/hero-salem-worried.webp",
+      ask_grandpa: "assets/img/heroes/hero-salem-ask.webp",
+      organize_right: "assets/img/heroes/hero-salem-happy.webp",
+    },
+  },
+  turtle: {
+    default: "assets/img/heroes/hero-salma-walk.webp",
+    scenes: {
+      start: "assets/img/heroes/hero-salma-moon.webp",
+      tangled: "assets/img/heroes/hero-salma-hide.webp",
+      safe_swim: "assets/img/heroes/hero-salma-swim.webp",
+    },
+  },
+  ibex: {
+    default: "assets/img/heroes/hero-tuti-proud.webp",
+    scenes: {
+      start: "assets/img/heroes/hero-tuti-thirsty.webp",
+      sea_wrong: "assets/img/heroes/hero-tuti-thirsty.webp",
+      follow_mom: "assets/img/heroes/hero-tuti-track.webp",
+      wait_right: "assets/img/heroes/hero-tuti-drink.webp",
+    },
+  },
+};
+
+export function StoryHero({ storyId, sceneId, icon, size = 46 }) {
+  const set = HERO_IMG[storyId];
+  const src = set && (set.scenes[sceneId] || set.default);
+  const fallback = <StoryIcon icon={icon} size={size} />;
+  if (!src) return fallback;
+  return <ImgFallback src={src} alt="" width={size * 1.7} height={size * 1.7} style={{ objectFit: "contain" }} fallback={fallback} />;
 }
 
 /* ============================================================

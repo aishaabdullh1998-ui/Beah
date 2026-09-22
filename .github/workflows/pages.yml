@@ -35,11 +35,10 @@ jobs:
 
       - name: تجهيز مجلد النشر
         run: |
-          mkdir -p _site/assets
+          mkdir -p _site
           cp index.html _site/
           cp .nojekyll _site/
-          cp assets/app.js assets/styles.css _site/assets/
-          cp -r assets/characters _site/assets/
+          cp -r assets _site/assets
 
       - uses: actions/upload-pages-artifact@v3
         with:
