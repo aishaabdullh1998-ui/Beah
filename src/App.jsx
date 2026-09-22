@@ -605,6 +605,16 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded }) {
 /* ============================================================
    كلمات تتحرّك
    ============================================================ */
+const WORD_ICON = {
+  recycle: "recycleBin",
+  faucet: "drop",
+  habitat: "goat",
+  warm: "baysun",
+  collect: "recycleBin",
+  palm: "tree",
+  energy: "wind",
+};
+
 function WordsList({ profile, onOpen, onOpenDoDont }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -625,7 +635,9 @@ function WordsList({ profile, onOpen, onOpenDoDont }) {
             onMouseEnter={(e) => { e.currentTarget.style.borderColor = c.sageDeep; }}
             onMouseLeave={(e) => { e.currentTarget.style.borderColor = c.line; }}
           >
-            <span style={{ width: 34, height: 4, borderRadius: 9, background: c.sageDeep, opacity: 0.55 }} />
+            <IconChip bg={c.sage} size={40} radius={14}>
+              <Glyph name={WORD_ICON[t.scene] || "star"} size={20} color={c.sageInk} strokeWidth={2.2} />
+            </IconChip>
             {t.term}
           </button>
         ))}
