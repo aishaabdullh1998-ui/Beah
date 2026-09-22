@@ -922,6 +922,8 @@ export const keyframes = `
   @keyframes slideFwd { from { opacity:0; transform: translateX(26px);} to { opacity:1; transform:none;} }
   @keyframes slideBack { from { opacity:0; transform: translateX(-26px);} to { opacity:1; transform:none;} }
   @keyframes pop { 0% { transform: scale(0);} 65% { transform: scale(1.18);} 100% { transform: scale(1);} }
+  @keyframes stageDrip { 0% { transform: translateY(0); opacity:0; } 12% { opacity:1; } 100% { transform: translateY(620%); opacity:0; } }
+  button, a, [role=button] { touch-action: manipulation; }
   @keyframes dripFall { 0% { transform: translateY(0); opacity:0; } 15% { opacity:1; } 100% { transform: translateY(46px); opacity:0; } }
   @keyframes ripple { 0% { transform: scale(.6); opacity:.55; } 100% { transform: scale(1.5); opacity:0; } }
   @keyframes drive { from { transform: translateX(0);} to { transform: translateX(-62px);} }
