@@ -10,7 +10,7 @@
    ============================================================ */
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { c, shadow, font, ease } from "./theme.js";
-import { Salim, SalimSays, Glyph, IconChip } from "./art.jsx";
+import { Salim, SalimSays, Glyph, IconChip, ImgFallback } from "./art.jsx";
 import {
   wasteBins, wasteItems, wasteTexts,
   homeRooms, homeTexts,
@@ -141,7 +141,14 @@ const shuffle = (a) => {
   return x;
 };
 
-function WasteShape({ shape, size = 84 }) {
+const WASTE_IMG = {
+  "قِشْرُ مَوْزٍ": "assets/img/sort/waste-banana-peel.webp",
+  "بَقَايَا تَمْرٍ": "assets/img/sort/waste-date-pits.webp",
+  "عُلْبَةُ عَصِيرٍ مَعْدِنِيَّةٌ": "assets/img/sort/waste-juice-can.webp",
+  "مَرْطَبَانُ عَسَلٍ زُجَاجِيٌّ": "assets/img/sort/waste-glass-jar.webp",
+};
+
+function WasteShapeArt({ shape, size }) {
   const s = { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2.2 };
   return (
     <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden="true" style={{ filter: "drop-shadow(0 6px 8px rgba(34,48,31,.22))" }}>
@@ -192,6 +199,19 @@ function WasteShape({ shape, size = 84 }) {
         </g>
       )}
     </svg>
+  );
+}
+
+function WasteShape({ shape, name, size = 84 }) {
+  const src = WASTE_IMG[name];
+  if (!src) return <WasteShapeArt shape={shape} size={size} />;
+  return (
+    <ImgFallback
+      src={src} alt={name}
+      width={size} height={size}
+      style={{ objectFit: "contain", filter: "drop-shadow(0 6px 8px rgba(34,48,31,.22))" }}
+      fallback={<WasteShapeArt shape={shape} size={size} />}
+    />
   );
 }
 
@@ -319,7 +339,7 @@ function SortingGame({ profile, onExit, onWin }) {
                   transition: `transform .6s ${ease}, opacity .6s ${ease}`,
                 }}
               >
-                <WasteShape shape={item.shape} />
+                <WasteShape shape={item.shape} name={item.name} />
               </div>
               <p style={{ margin: 0, fontFamily: font.display, fontSize: 19.5, fontWeight: 700, color: c.ink }}>{item.name}</p>
               {/* سطح المنضدة */}
@@ -1139,6 +1159,13 @@ function ProductBox({ opt, chosen, onPick, index }) {
   );
 }
 
+const MARKET_SET_IMG = {
+  groceries: "assets/img/shop/market-grocery.webp",
+  clothes: "assets/img/shop/market-clothes.webp",
+  supplies: "assets/img/shop/market-school.webp",
+  toys: "assets/img/shop/market-toys.webp",
+};
+
 function SetTile({ set, done, onClick }) {
   return (
     <button
@@ -1157,9 +1184,15 @@ function SetTile({ set, done, onClick }) {
           <Glyph name="check" size={12} color={c.good} strokeWidth={3} />
         </span>
       )}
-      <IconChip bg={c.sage} size={46} radius={16}>
-        <Glyph name={set.icon} size={22} color={c.sageDeep} />
-      </IconChip>
+      <ImgFallback
+        src={MARKET_SET_IMG[set.id]} alt={set.name}
+        width={46} height={46}
+        fallback={
+          <IconChip bg={c.sage} size={46} radius={16}>
+            <Glyph name={set.icon} size={22} color={c.sageDeep} />
+          </IconChip>
+        }
+      />
       <span style={{ fontFamily: font.display, fontSize: 15, fontWeight: 700, color: c.ink, textAlign: "center", lineHeight: 1.4 }}>
         {set.name}
       </span>
