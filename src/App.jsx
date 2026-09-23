@@ -10,9 +10,15 @@ import { c, env as envColor, shadow, font, ease, bgStyles, isWarningBg, bp } fro
 import {
   COPYRIGHT_YEAR, sections, salim as salimText, encouragements,
   stories, quizSets, dictionaryTerms, doDontCards, labels, games, mission, footerText,
+  readingTexts,
 } from "./content.js";
 import { Glyph, IconChip, ImgFallback, Salim, SalimSays, OmanMap, StoryBadge, StoryIcon, StoryHero, CompletionBadge, SceneBackdrop, keyframes } from "./art.jsx";
 import { WORD_SCENES, ActBtn, Hint } from "./scenes.jsx";
+import {
+  PreviewCard, ConnectCard, PredictCard, ReviewCard, InferenceCard,
+  OrderEvents, MainIdeaCard, WordCards, WordCheck, AchievementCard,
+  ReadingText, ReadingInline, stopSpeaking, summarize,
+} from "./reading.jsx";
 import { GAMES as BASE_GAMES } from "./games.jsx";
 import { NeedsWantsGame } from "./needsWants.jsx";
 import { DiscountCodeGame } from "./discountCode.jsx";
@@ -24,7 +30,8 @@ const GAMES = { ...BASE_GAMES, needsWants: NeedsWantsGame, discountCode: Discoun
    ============================================================ */
 const STORAGE_PREFIX = "mughamarati:student:";
 const emptyProfile = (name, gender) => ({
-  name, gender, completed: [], gamesDone: [], quizzesTaken: [], accepted: false, updatedAt: Date.now(),
+  name, gender, completed: [], gamesDone: [], quizzesTaken: [], accepted: false,
+  reading: {}, updatedAt: Date.now(),
 });
 
 async function loadProfile(name, gender) {
@@ -46,6 +53,7 @@ async function loadProfile(name, gender) {
       gamesDone: Array.isArray(p.gamesDone) ? p.gamesDone : [],
       quizzesTaken: Array.isArray(p.quizzesTaken) ? p.quizzesTaken : [],
       accepted: !!p.accepted,
+      reading: p.reading && typeof p.reading === "object" ? p.reading : {},
       updatedAt: p.updatedAt || Date.now(),
     };
   } catch (e) {
@@ -62,6 +70,23 @@ async function saveProfile(profile) {
     }
     window.localStorage.setItem(STORAGE_PREFIX + profile.name, JSON.stringify(payload));
   } catch (e) { /* تجاهل بصمت */ }
+}
+
+/* كل ملفات الأطفال المحفوظة على هذا الجهاز — لشاشة المعلمة فقط */
+function listDeviceProfiles() {
+  const out = [];
+  try {
+    if (typeof window === "undefined" || !window.localStorage) return out;
+    for (let i = 0; i < window.localStorage.length; i += 1) {
+      const key = window.localStorage.key(i);
+      if (!key || key.indexOf(STORAGE_PREFIX) !== 0) continue;
+      try {
+        const p = JSON.parse(window.localStorage.getItem(key));
+        if (p && p.name) out.push(p);
+      } catch (e) { /* تجاهل سجلًّا تالفًا */ }
+    }
+  } catch (e) { /* تجاهل */ }
+  return out;
 }
 
 /* ============================================================
@@ -512,7 +537,8 @@ function GamesScreen({ profile, onOpen, onBack }) {
 /* ============================================================
    مشغّل القصة
    ============================================================ */
-function StoryPlayer({ story, profile, onComplete, onExit, rounded }) {
+function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDone }) {
+  const R = story.reading || null;
   const [currentId, setCurrentId] = useState("start");
   const [dir, setDir] = useState("fwd");
   const scene = story.scenes[currentId];
@@ -520,7 +546,83 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded }) {
   const accent = envColor[story.id] || c.sageDeep;
   const [msgIndex] = useState(() => Math.floor(Math.random() * encouragements.length));
 
-  const go = (next, back) => { setDir(back ? "back" : "fwd"); setCurrentId(next); };
+  /* ---- حالة طبقة القراءة ---- */
+  const [phase, setPhase] = useState(R ? "preview" : "scene");     // preview → scene → summary
+  const [step, setStep] = useState("scene");                       // داخل المشهد
+  const [endStep, setEndStep] = useState("order");                 // بعد النهاية
+  const [pendingReview, setPendingReview] = useState(null);
+  const [doneConnect, setDoneConnect] = useState(false);
+  const [doneInference, setDoneInference] = useState(false);
+  const [donePredict, setDonePredict] = useState([]);              // معرّفات المشاهد
+  const [openWord, setOpenWord] = useState(null);
+  const startedAt = useRef(Date.now());
+  const metrics = useRef({
+    previewChoice: null, predictions: [], connectAnswer: null,
+    inferenceFirstTry: null, orderFirstTry: null, mainIdeaFirstTry: null,
+    wordScore: 0, wordTotal: 0, wordsOpened: 0, seconds: 0,
+  });
+
+  useEffect(() => () => stopSpeaking(), []);
+  useEffect(() => { stopSpeaking(); }, [currentId, step, endStep, phase]);
+
+  /* المحطة الفعّالة في المشهد الحالي */
+  const sceneStep = useMemo(() => {
+    if (!R) return "choices";
+    if (pendingReview) return "review";
+    if (R.connect && R.connect.after === currentId && !doneConnect) return "connect";
+    if (R.inference && R.inference.at === currentId && !doneInference) return "inference";
+    if (scene.predict && !donePredict.includes(currentId)) return "predict";
+    return "choices";
+  }, [R, pendingReview, currentId, doneConnect, doneInference, donePredict, scene]);
+
+  const go = (next, back) => {
+    const pr = scene.predict;
+    const answered = pr && (metrics.current.predictions.find((x) => x.scene === currentId) || null);
+    if (pr && answered) {
+      const tested = next === pr.about;
+      setPendingReview({
+        predictText: answered.text,
+        outcome: answered.outcome,
+        tested,
+        happened: pr.happened,
+        untested: pr.untested,
+        untestedF: pr.untestedF,
+      });
+      answered.tested = tested;
+    }
+    setDir(back ? "back" : "fwd");
+    setCurrentId(next);
+  };
+
+  const finishReading = () => {
+    metrics.current.seconds = Math.round((Date.now() - startedAt.current) / 1000);
+    if (onReadingDone) onReadingDone(story.id, { ...metrics.current });
+  };
+
+  /* إعادة القصة تبدأ دورة قراءة جديدة من أولها */
+  const replay = () => {
+    stopSpeaking();
+    setPendingReview(null);
+    setDoneConnect(false);
+    setDoneInference(false);
+    setDonePredict([]);
+    setOpenWord(null);
+    setEndStep("order");
+    startedAt.current = Date.now();
+    metrics.current = {
+      previewChoice: null, predictions: [], connectAnswer: null,
+      inferenceFirstTry: null, orderFirstTry: null, mainIdeaFirstTry: null,
+      wordScore: 0, wordTotal: 0, wordsOpened: 0, seconds: 0,
+    };
+    setDir("back");
+    setCurrentId("start");
+    setPhase(R ? "preview" : "scene");
+  };
+
+  /* إبراز الدليل يظهر فقط أثناء سؤال الاستنتاج */
+  const evidence = R && R.inference && R.inference.at === currentId && sceneStep === "inference"
+    ? R.inference.evidence : null;
+  const sceneWords = R ? (R.words || []).filter((w) => w.inScene === currentId) : [];
 
   return (
     <div
@@ -555,95 +657,365 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded }) {
       </div>
 
       <div
-        key={currentId}
+        key={phase === "preview" ? "preview" : currentId}
         className={dir === "fwd" ? "fwd" : "back"}
         style={{ padding: "0 16px 20px", display: "flex", flexDirection: "column", gap: 14, flex: 1, position: "relative", zIndex: 2 }}
       >
         <div style={{ display: "flex", justifyContent: "center", paddingTop: 4 }}>
           <div className="bob" style={{ filter: "drop-shadow(0 6px 10px rgba(0,0,0,.25))" }}>
             <IconChip bg="rgba(255,255,255,.85)" size={82} radius={28}>
-              <StoryHero storyId={story.id} sceneId={currentId} icon={story.icon} size={46} />
+              <StoryHero storyId={story.id} sceneId={phase === "preview" ? "start" : currentId} icon={story.icon} size={46} />
             </IconChip>
           </div>
         </div>
 
-        <div style={{ background: warning ? "rgba(255,244,234,.96)" : "rgba(255,250,236,.97)", borderRadius: 18, padding: 16, boxShadow: shadow.lg }}>
-          <h2 style={{ margin: 0, fontFamily: font.display, fontWeight: 700, fontSize: 21, lineHeight: 1.45, color: warning ? c.bad : accent }}>
-            {scene.title}
-          </h2>
-          <p style={{ margin: "8px 0 0", color: "#33301F", lineHeight: 2, fontSize: 14.5, fontFamily: font.body }}>{scene.text}</p>
-        </div>
-
-        {!scene.isEnding && (
+        {/* ===== قبل أن نقرأ: العنوان والصورة فقط، بلا نص القصة ===== */}
+        {phase === "preview" && (
           <>
-            {scene.isRetry && <SalimSays mood="think" text={salimText.onRetry} size={48} tone="sand" />}
-            {!scene.isRetry && scene.choices.length > 1 && (
-              <SalimSays mood="ask" text={pick(profile, salimText.onChoice, salimText.onChoiceF)} size={48} tone="sand" />
-            )}
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {scene.choices.map((ch) => {
-                const { text, icon, isGrandpa } = parseChoiceLabel(ch.label);
-                return (
-                  <button
-                    key={ch.next}
-                    type="button"
-                    onClick={() => go(ch.next, !!scene.isRetry)}
-                    style={{
-                      width: "100%", textAlign: "right", borderRadius: 14, padding: "13px 16px", border: "none",
-                      background: scene.isRetry ? accent : "#FFFFFF", color: scene.isRetry ? "#FFF" : accent,
-                      fontFamily: font.display, fontSize: 17, fontWeight: 700, cursor: "pointer",
-                      boxShadow: shadow.md, minHeight: 48, lineHeight: 1.5,
-                      transition: `transform .2s ${ease}`,
-                      display: "flex", alignItems: "center", gap: 10,
-                    }}
-                    onMouseDown={(e) => { e.currentTarget.style.transform = "scale(.98)"; }}
-                    onMouseUp={(e) => { e.currentTarget.style.transform = "none"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.transform = "none"; }}
-                  >
-                    {isGrandpa && <span style={{ flexShrink: 0 }}><Salim mood="ask" size={30} /></span>}
-                    {icon && <ImgFallback src={icon} alt="" width={26} height={26} style={{ flexShrink: 0 }} fallback={null} />}
-                    <span style={{ flex: 1 }}>{text}</span>
-                  </button>
-                );
-              })}
+            <div style={{ background: "rgba(255,250,236,.97)", borderRadius: 18, padding: 16, boxShadow: shadow.lg, textAlign: "center" }}>
+              <h2 style={{ margin: 0, fontFamily: font.display, fontWeight: 700, fontSize: 21, lineHeight: 1.45, color: accent }}>
+                {story.title}
+              </h2>
+              <p style={{ margin: "6px 0 0", color: c.inkSoft, fontSize: 13, fontFamily: font.body }}>{story.env}</p>
             </div>
+            <PreviewCard
+              story={story} profile={profile} tone={accent}
+              onDone={(idx) => { metrics.current.previewChoice = idx; setPhase("scene"); }}
+            />
           </>
         )}
 
-        {scene.isEnding && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
-            <div className="pop" style={{ background: "rgba(255,255,255,.95)", borderRadius: 18, padding: "16px 16px 18px", width: "100%", textAlign: "center", boxShadow: shadow.lg }}>
-              <div style={{ display: "flex", justifyContent: "center" }}>
-                <IconChip bg={`${accent}22`} size={62} radius={22}>
-                  <Glyph name="check" size={30} color={accent} strokeWidth={2.6} />
-                </IconChip>
-              </div>
-              <p style={{ margin: "8px 0 0", fontFamily: font.display, color: accent, fontWeight: 700, fontSize: 19 }}>{scene.badge}</p>
-              <p style={{ margin: "8px 0 0", color: "#33301F", fontSize: 13, lineHeight: 1.95, fontFamily: font.body }}>
-                {pick(profile, scene.tip.m, scene.tip.f)}
-              </p>
-              <div style={{ marginTop: 12, paddingTop: 10, borderTop: `1px dashed ${c.line}` }}>
-                <p style={{ margin: 0, color: c.accentInk, fontFamily: font.display, fontWeight: 700, fontSize: 16 }}>
-                  {pick(profile, encouragements[msgIndex].m, encouragements[msgIndex].f)(profile.name)}
-                </p>
-              </div>
+        {phase !== "preview" && (
+          <>
+            <div style={{ background: warning ? "rgba(255,244,234,.96)" : "rgba(255,250,236,.97)", borderRadius: 18, padding: 16, boxShadow: shadow.lg }}>
+              <h2 style={{ margin: 0, fontFamily: font.display, fontWeight: 700, fontSize: 21, lineHeight: 1.45, color: warning ? c.bad : accent }}>
+                {R ? (
+                  <ReadingInline
+                    text={scene.title} words={sceneWords} tone={warning ? c.bad : accent}
+                    onWord={(w) => setOpenWord(openWord && openWord.word === w.word ? null : w)}
+                  />
+                ) : scene.title}
+              </h2>
+              {R ? (
+                <ReadingText
+                  text={scene.text} words={sceneWords} evidence={evidence}
+                  tone={accent} onWord={(w) => setOpenWord(openWord && openWord.word === w.word ? null : w)}
+                />
+              ) : (
+                <p style={{ margin: "8px 0 0", color: "#33301F", lineHeight: 2, fontSize: 14.5, fontFamily: font.body }}>{scene.text}</p>
+              )}
+              {openWord && (
+                <div style={{ marginTop: 10, background: `${accent}14`, borderRadius: 12, padding: "10px 13px" }}>
+                  <p style={{ margin: 0, fontFamily: font.display, fontWeight: 700, fontSize: 14, color: accent }}>{openWord.word}</p>
+                  <p style={{ margin: "4px 0 0", fontSize: 13.5, lineHeight: 1.9, color: c.ink, fontFamily: font.body }}>{openWord.meaning}</p>
+                </div>
+              )}
             </div>
-            <div style={{ display: "flex", gap: 10, width: "100%" }}>
-              <button
-                type="button" onClick={() => go("start", true)}
-                style={{ flex: 1, borderRadius: 14, border: "none", background: c.accent, color: "#FFF", padding: "12px 10px", minHeight: 48, fontFamily: font.display, fontSize: 16, fontWeight: 700, cursor: "pointer" }}
-              >
-                {labels.replay}
-              </button>
-              <button
-                type="button" onClick={() => onComplete(story.id)}
-                style={{ flex: 1, borderRadius: 14, border: "none", background: accent, color: "#FFF", padding: "12px 10px", minHeight: 48, fontFamily: font.display, fontSize: 16, fontWeight: 700, cursor: "pointer" }}
-              >
-                {labels.backToStories2}
-              </button>
-            </div>
-          </div>
+
+            {/* ===== داخل المشهد ===== */}
+            {!scene.isEnding && sceneStep === "review" && (
+              <ReviewCard
+                review={pendingReview} profile={profile} tone={accent}
+                onDone={() => setPendingReview(null)}
+              />
+            )}
+
+            {!scene.isEnding && sceneStep === "connect" && (
+              <ConnectCard
+                connect={R.connect} profile={profile} tone={accent}
+                onDone={(a) => { metrics.current.connectAnswer = a; setDoneConnect(true); }}
+              />
+            )}
+
+            {!scene.isEnding && sceneStep === "inference" && (
+              <InferenceCard
+                inference={R.inference} profile={profile} tone={accent}
+                onReveal={(firstTry) => {
+                  if (metrics.current.inferenceFirstTry === null) metrics.current.inferenceFirstTry = !!firstTry;
+                }}
+                onDone={() => setDoneInference(true)}
+              />
+            )}
+
+            {!scene.isEnding && sceneStep === "predict" && (
+              <PredictCard
+                predict={scene.predict} profile={profile} tone={accent}
+                onDone={(opt) => {
+                  metrics.current.predictions.push({ scene: currentId, outcome: opt.outcome, text: opt.text, tested: false });
+                  setDonePredict((d) => [...d, currentId]);
+                }}
+              />
+            )}
+
+            {!scene.isEnding && sceneStep === "choices" && (
+              <>
+                {scene.isRetry && <SalimSays mood="think" text={salimText.onRetry} size={48} tone="sand" />}
+                {!scene.isRetry && scene.choices.length > 1 && (
+                  <SalimSays mood="ask" text={pick(profile, salimText.onChoice, salimText.onChoiceF)} size={48} tone="sand" />
+                )}
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {scene.choices.map((ch) => {
+                    const { text, icon, isGrandpa } = parseChoiceLabel(ch.label);
+                    return (
+                      <button
+                        key={ch.next}
+                        type="button"
+                        onClick={() => go(ch.next, !!scene.isRetry)}
+                        style={{
+                          width: "100%", textAlign: "right", borderRadius: 14, padding: "13px 16px", border: "none",
+                          background: scene.isRetry ? accent : "#FFFFFF", color: scene.isRetry ? "#FFF" : accent,
+                          fontFamily: font.display, fontSize: 17, fontWeight: 700, cursor: "pointer",
+                          boxShadow: shadow.md, minHeight: 48, lineHeight: 1.5,
+                          transition: `transform .2s ${ease}`,
+                          display: "flex", alignItems: "center", gap: 10,
+                        }}
+                        onMouseDown={(e) => { e.currentTarget.style.transform = "scale(.98)"; }}
+                        onMouseUp={(e) => { e.currentTarget.style.transform = "none"; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.transform = "none"; }}
+                      >
+                        {isGrandpa && <span style={{ flexShrink: 0 }}><Salim mood="ask" size={30} /></span>}
+                        {icon && <ImgFallback src={icon} alt="" width={26} height={26} style={{ flexShrink: 0 }} fallback={null} />}
+                        <span style={{ flex: 1 }}>{text}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+
+            {/* ===== النهاية: مراجعة أخيرة ثم التلخيص ثم الوسام ===== */}
+            {scene.isEnding && pendingReview && (
+              <ReviewCard
+                review={pendingReview} profile={profile} tone={accent}
+                onDone={() => setPendingReview(null)}
+              />
+            )}
+
+            {scene.isEnding && !pendingReview && R && endStep === "order" && (
+              <OrderEvents
+                items={R.order} profile={profile} tone={accent}
+                onDone={(res) => {
+                  if (res && metrics.current.orderFirstTry === null) metrics.current.orderFirstTry = !!res.firstTry;
+                  if (!res) setEndStep("mainIdea");
+                }}
+              />
+            )}
+
+            {scene.isEnding && !pendingReview && R && endStep === "mainIdea" && (
+              <MainIdeaCard
+                mainIdea={R.mainIdea} profile={profile} tone={accent}
+                onDone={(firstTry) => { metrics.current.mainIdeaFirstTry = !!firstTry; setEndStep("words"); }}
+              />
+            )}
+
+            {scene.isEnding && !pendingReview && R && endStep === "words" && (
+              <WordCards
+                words={R.words} story={story} profile={profile} tone={accent}
+                onDone={(seen) => { metrics.current.wordsOpened = seen; setEndStep("wordCheck"); }}
+              />
+            )}
+
+            {scene.isEnding && !pendingReview && R && endStep === "wordCheck" && (
+              <WordCheck
+                questions={R.wordCheck} profile={profile} tone={accent}
+                onDone={(res) => {
+                  metrics.current.wordScore = res.score;
+                  metrics.current.wordTotal = res.total;
+                  finishReading();
+                  setEndStep("achievement");
+                }}
+              />
+            )}
+
+            {scene.isEnding && !pendingReview && R && endStep === "achievement" && (
+              <AchievementCard
+                metrics={metrics.current} profile={profile} tone={accent}
+                onDone={() => setEndStep("badge")}
+              />
+            )}
+
+            {scene.isEnding && !pendingReview && (!R || endStep === "badge") && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
+                <div className="pop" style={{ background: "rgba(255,255,255,.95)", borderRadius: 18, padding: "16px 16px 18px", width: "100%", textAlign: "center", boxShadow: shadow.lg }}>
+                  <div style={{ display: "flex", justifyContent: "center" }}>
+                    <IconChip bg={`${accent}22`} size={62} radius={22}>
+                      <Glyph name="check" size={30} color={accent} strokeWidth={2.6} />
+                    </IconChip>
+                  </div>
+                  <p style={{ margin: "8px 0 0", fontFamily: font.display, color: accent, fontWeight: 700, fontSize: 19 }}>{scene.badge}</p>
+                  <p style={{ margin: "8px 0 0", color: "#33301F", fontSize: 13, lineHeight: 1.95, fontFamily: font.body }}>
+                    {pick(profile, scene.tip.m, scene.tip.f)}
+                  </p>
+                  <div style={{ marginTop: 12, paddingTop: 10, borderTop: `1px dashed ${c.line}` }}>
+                    <p style={{ margin: 0, color: c.accentInk, fontFamily: font.display, fontWeight: 700, fontSize: 16 }}>
+                      {pick(profile, encouragements[msgIndex].m, encouragements[msgIndex].f)(profile.name)}
+                    </p>
+                  </div>
+                </div>
+                <div style={{ display: "flex", gap: 10, width: "100%" }}>
+                  <button
+                    type="button" onClick={replay}
+                    style={{ flex: 1, borderRadius: 14, border: "none", background: c.accent, color: "#FFF", padding: "12px 10px", minHeight: 48, fontFamily: font.display, fontSize: 16, fontWeight: 700, cursor: "pointer" }}
+                  >
+                    {labels.replay}
+                  </button>
+                  <button
+                    type="button" onClick={() => onComplete(story.id)}
+                    style={{ flex: 1, borderRadius: 14, border: "none", background: accent, color: "#FFF", padding: "12px 10px", minHeight: 48, fontFamily: font.display, fontSize: 16, fontWeight: 700, cursor: "pointer" }}
+                  >
+                    {labels.backToStories2}
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         )}
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   شاشة المعلمة — ضغطة مطوّلة على شعار التطبيق
+   مؤشرات داعمة فقط، بلا ترتيب بين الطلبة
+   ============================================================ */
+function useLongPress(onLong, ms = 1500) {
+  const timer = useRef(null);
+  const clear = () => { if (timer.current) { window.clearTimeout(timer.current); timer.current = null; } };
+  useEffect(() => clear, []);
+  return {
+    onPointerDown: (e) => {
+      if (e.currentTarget.setPointerCapture && e.pointerId != null) {
+        try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) { /* تجاهل */ }
+      }
+      clear();
+      timer.current = window.setTimeout(() => { timer.current = null; onLong(); }, ms);
+    },
+    onPointerUp: clear,
+    onPointerLeave: clear,
+    onPointerCancel: clear,
+    onContextMenu: (e) => e.preventDefault(),
+    style: { touchAction: "manipulation", WebkitUserSelect: "none", userSelect: "none", WebkitTouchCallout: "none" },
+  };
+}
+
+function teacherRows() {
+  const out = [];
+  listDeviceProfiles().forEach((p) => {
+    const reading = p.reading && typeof p.reading === "object" ? p.reading : {};
+    Object.keys(reading).forEach((sId) => {
+      const attempts = Array.isArray(reading[sId]) ? reading[sId] : [];
+      if (!attempts.length) return;
+      const st = stories.find((x) => x.id === sId);
+      const m = summarize(attempts[0]);
+      out.push({
+        name: p.name,
+        story: st ? st.title : sId,
+        predict: m.predictTested ? `${m.predictMatched}/${m.predictTested}` : "—",
+        unsure: String(m.unsure),
+        inference: m.inferenceFirstTry === null ? "—" : (m.inferenceFirstTry ? "نعم" : "لا"),
+        order: m.orderFirstTry === null ? "—" : (m.orderFirstTry ? "نعم" : "لا"),
+        mainIdea: m.mainIdeaFirstTry === null ? "—" : (m.mainIdeaFirstTry ? "نعم" : "لا"),
+        words: m.wordTotal ? `${m.wordScore}/${m.wordTotal}` : "—",
+        minutes: String(m.minutes),
+        attempts: attempts.length,
+      });
+    });
+  });
+  return out.sort((a, b) => a.name.localeCompare(b.name, "ar") || a.story.localeCompare(b.story, "ar"));
+}
+
+function TeacherSheet({ onClose }) {
+  const rows = useMemo(teacherRows, []);
+  const [copied, setCopied] = useState(false);
+  const cols = readingTexts.teacherCols;
+
+  const copy = async () => {
+    const tsv = [cols.join("\t")].concat(
+      rows.map((r) => [r.name, r.story, r.predict, r.unsure, r.inference, r.order, r.mainIdea, r.words, r.minutes].join("\t"))
+    ).join("\n");
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) await navigator.clipboard.writeText(tsv);
+      else {
+        const ta = document.createElement("textarea");
+        ta.value = tsv; document.body.appendChild(ta); ta.select();
+        document.execCommand("copy"); document.body.removeChild(ta);
+      }
+      setCopied(true); window.setTimeout(() => setCopied(false), 1800);
+    } catch (e) { /* تجاهل */ }
+  };
+
+  const cell = { padding: "8px 9px", fontSize: 12, fontFamily: font.body, color: c.ink, whiteSpace: "nowrap" };
+  const head = { ...cell, fontFamily: font.display, fontWeight: 700, color: c.sageInk, background: `${c.sageInk}12` };
+
+  return (
+    <div
+      role="dialog" aria-modal="true" aria-label={readingTexts.teacherTitle}
+      onClick={onClose}
+      style={{
+        position: "fixed", inset: 0, zIndex: 90, background: "rgba(20,77,74,.42)",
+        display: "flex", alignItems: "flex-end", justifyContent: "center", padding: 12,
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="pop"
+        style={{
+          background: c.paper, borderRadius: 20, width: "100%", maxWidth: 760,
+          maxHeight: "86vh", display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: shadow.lg,
+        }}
+      >
+        <div style={{ padding: "14px 16px 10px", borderBottom: `1px solid ${c.line}` }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <h2 style={{ margin: 0, flex: 1, fontFamily: font.display, fontWeight: 700, fontSize: 18, color: c.ink }}>
+              {readingTexts.teacherTitle}
+            </h2>
+            <button type="button" onClick={onClose} style={{
+              border: "none", background: `${c.ink}12`, color: c.ink, borderRadius: 999,
+              padding: "7px 14px", minHeight: 38, fontFamily: font.body, fontSize: 13, cursor: "pointer",
+            }}>{readingTexts.teacherClose}</button>
+          </div>
+          <p style={{ margin: "6px 0 0", fontSize: 12, color: c.inkSoft, fontFamily: font.body, lineHeight: 1.8 }}>
+            {readingTexts.teacherHint}
+          </p>
+        </div>
+
+        <div style={{ flex: 1, overflow: "auto", padding: "10px 12px" }}>
+          {rows.length === 0 ? (
+            <p style={{ margin: "18px 0", textAlign: "center", color: c.inkSoft, fontSize: 13, fontFamily: font.body }}>
+              {readingTexts.teacherEmpty}
+            </p>
+          ) : (
+            <table style={{ width: "100%", borderCollapse: "collapse", direction: "rtl" }}>
+              <thead>
+                <tr>{cols.map((h) => <th key={h} style={head}>{h}</th>)}</tr>
+              </thead>
+              <tbody>
+                {rows.map((r, i) => (
+                  <tr key={i} style={{ background: i % 2 ? "transparent" : `${c.sage}44` }}>
+                    <td style={cell}>{r.name}</td>
+                    <td style={cell}>{r.story}</td>
+                    <td style={cell}>{r.predict}</td>
+                    <td style={cell}>{r.unsure}</td>
+                    <td style={cell}>{r.inference}</td>
+                    <td style={cell}>{r.order}</td>
+                    <td style={cell}>{r.mainIdea}</td>
+                    <td style={cell}>{r.words}</td>
+                    <td style={cell}>{r.minutes}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+
+        <div style={{ padding: "10px 14px 14px", borderTop: `1px solid ${c.line}` }}>
+          <button type="button" onClick={copy} disabled={!rows.length} style={{
+            width: "100%", border: "none", borderRadius: 14, background: rows.length ? c.sageInk : `${c.ink}22`,
+            color: "#FFF", padding: "12px 10px", minHeight: 48, fontFamily: font.display,
+            fontSize: 15.5, fontWeight: 700, cursor: rows.length ? "pointer" : "default",
+          }}>{copied ? readingTexts.teacherCopied : readingTexts.teacherCopy}</button>
+        </div>
       </div>
     </div>
   );
@@ -919,6 +1291,7 @@ export default function App() {
   const [gameId, setGameId] = useState(null);
   const [wordId, setWordId] = useState(null);
   const [pendingQuiz, setPendingQuiz] = useState(null);
+  const [teacher, setTeacher] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const start = async (name, gender) => {
@@ -969,6 +1342,24 @@ export default function App() {
     setView("home");
   };
 
+  /* شاشة المعلمة — ضغطة مطوّلة على شعار التطبيق */
+  const heldRef = useRef(false);
+  const holdHandlers = useLongPress(() => { heldRef.current = true; setTeacher(true); }, 1500);
+  const logoHold = {
+    ...holdHandlers,
+    onPointerDown: (e) => { heldRef.current = false; holdHandlers.onPointerDown(e); },
+  };
+
+  /* مؤشرات القراءة — تُحفظ محاولةً بعد محاولةٍ، والأولى هي المعتمدة في البحث */
+  const recordReading = async (sId, m) => {
+    if (!profile) return;
+    const prev = profile.reading && typeof profile.reading === "object" ? profile.reading : {};
+    const attempts = Array.isArray(prev[sId]) ? prev[sId] : [];
+    const next = { ...profile, reading: { ...prev, [sId]: [...attempts, { ...m, at: Date.now() }] } };
+    setProfile(next);
+    await saveProfile(next);
+  };
+
   const updateProfile = async (patch) => {
     if (!profile) return;
     const next = { ...profile, ...patch };
@@ -988,6 +1379,7 @@ export default function App() {
         <StoryPlayer
           story={story} profile={profile} rounded={vp !== "phone"}
           onComplete={completeStory} onExit={() => setView("stories")}
+          onReadingDone={recordReading}
         />
       );
     }
@@ -1046,8 +1438,9 @@ export default function App() {
       <header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "12px 2px 14px", flexWrap: "wrap" }}>
         <button
           type="button"
-          onClick={() => setView("home")}
-          style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0, background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "right" }}
+          onClick={() => { if (heldRef.current) { heldRef.current = false; return; } setView("home"); }}
+          {...logoHold}
+          style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0, background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "right", ...logoHold.style }}
         >
           <Salim mood="smile" size={40} />
           <span style={{ minWidth: 0 }}>
@@ -1083,6 +1476,7 @@ export default function App() {
       )}
 
       <Footer />
+      {teacher && <TeacherSheet onClose={() => setTeacher(false)} />}
       {loading && <Loading />}
     </Screen>
   );
