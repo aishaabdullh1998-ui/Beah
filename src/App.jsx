@@ -6,13 +6,13 @@
    هذا الملف للشاشات والتنقّل فقط.
    ============================================================ */
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { c, env as envColor, shadow, font, ease, bgStyles, isWarningBg, bp } from "./theme.js";
+import { c, env as envColor, shadow, font, ease, bgStyles, isWarningBg, isNightBg, bp } from "./theme.js";
 import {
   COPYRIGHT_YEAR, sections, salim as salimText, encouragements,
   stories, quizSets, dictionaryTerms, doDontCards, labels, games, mission, footerText,
   readingTexts,
 } from "./content.js";
-import { Glyph, IconChip, ImgFallback, Salim, SalimSays, OmanMap, StoryBadge, StoryIcon, StoryHero, CompletionBadge, SceneBackdrop, keyframes } from "./art.jsx";
+import { Glyph, IconChip, ImgFallback, Salim, SalimSays, OmanMap, StoryBadge, StoryIcon, StoryHero, CompletionBadge, keyframes } from "./art.jsx";
 import { WORD_SCENES, ActBtn, Hint } from "./scenes.jsx";
 import {
   PreviewCard, ConnectCard, PredictCard, ReviewCard, InferenceCard,
@@ -632,7 +632,13 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
         transition: `background .6s ${ease}`,
       }}
     >
-      <SceneBackdrop bg={scene.bg} storyId={story.id} isEnding={!!scene.isEnding} />
+      {isNightBg(scene.bg) && (
+        <>
+          <span className="star" aria-hidden="true" style={{ position: "absolute", top: "7%", insetInlineStart: "20%", color: "#FFD873", fontSize: 11 }}>✦</span>
+          <span className="star" aria-hidden="true" style={{ position: "absolute", top: "13%", insetInlineStart: "68%", color: "#FFD873", fontSize: 15, animationDelay: ".6s" }}>✦</span>
+          <span className="star" aria-hidden="true" style={{ position: "absolute", top: "20%", insetInlineStart: "41%", color: "#FFF3CF", fontSize: 9, animationDelay: "1.2s" }}>✦</span>
+        </>
+      )}
 
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px", gap: 10, position: "relative", zIndex: 2 }}>
         <button
