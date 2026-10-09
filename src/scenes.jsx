@@ -294,6 +294,74 @@ const F = {
       <svg viewBox="0 0 100 100" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" style={{ display: "block" }}><rect width="100" height="100" fill="#EADFB8" /><ellipse cx="50" cy="82" rx="46" ry="16" fill="#5FA6C4" /><path d="M50 70V28" stroke="#8A6A3E" strokeWidth="6" strokeLinecap="round" /><path d="M50 40q-18-4-26-18q18 0 26 18Zm0 0q18-4 26-18q-18 0-26 18Z" fill="#7C8A2F" stroke={INK} strokeWidth="2" /></svg>
     );
   },
+  beachLamp: (on) => (
+    <svg viewBox="0 0 60 120" width="100%">
+      <rect x="25" y="42" width="10" height="70" rx="3" fill="#8C8C84" stroke={INK} strokeWidth="4" />
+      <ellipse cx="30" cy="112" rx="16" ry="4" fill="#D9C29A" opacity=".6" />
+      <path d="M30 42 L8 18 H52Z" fill={on ? "#F2A41A" : "#6E7C84"} stroke={INK} strokeWidth="4" strokeLinejoin="round" />
+      {on && <circle cx="30" cy="16" r="12" fill="#FCE8A8" opacity=".55" />}
+    </svg>
+  ),
+  gate: (
+    <svg viewBox="0 0 90 100" width="100%">
+      <rect x="6" y="18" width="10" height="78" fill="#8A6A3E" stroke={INK} strokeWidth="4" />
+      <rect x="74" y="18" width="10" height="78" fill="#8A6A3E" stroke={INK} strokeWidth="4" />
+      <g stroke="#8A6A3E" strokeWidth="7" strokeLinecap="round">
+        <path d="M16 34h58M16 56h58M16 78h58" />
+      </g>
+      <g stroke={INK} strokeWidth="2" opacity=".45">
+        <path d="M16 34h58M16 56h58M16 78h58" />
+      </g>
+    </svg>
+  ),
+  oryx: (
+    <svg viewBox="0 0 160 120" width="100%">
+      <ellipse cx="68" cy="82" rx="46" ry="23" fill="#F3EEE2" stroke={INK} strokeWidth="5" />
+      <rect x="40" y="98" width="10" height="20" rx="4" fill="#DCD3BC" stroke={INK} strokeWidth="3" />
+      <rect x="64" y="100" width="10" height="18" rx="4" fill="#DCD3BC" stroke={INK} strokeWidth="3" />
+      <rect x="94" y="98" width="10" height="20" rx="4" fill="#DCD3BC" stroke={INK} strokeWidth="3" />
+      <ellipse cx="118" cy="56" rx="19" ry="16" fill="#F3EEE2" stroke={INK} strokeWidth="5" />
+      <path d="M110 46c3-18 1-30-5-36M126 46c-3-18-1-30 5-36" fill="none" stroke="#DCD3BC" strokeWidth="5" strokeLinecap="round" />
+      <path d="M110 46c3-18 1-30-5-36M126 46c-3-18-1-30 5-36" fill="none" stroke={INK} strokeWidth="2" strokeLinecap="round" />
+      <circle cx="128" cy="52" r="2.8" fill={INK} />
+    </svg>
+  ),
+  dune: (
+    <svg viewBox="0 0 140 70" width="100%">
+      <path d="M0 70 Q35 8 70 38 T140 70Z" fill="#E6C488" stroke={INK} strokeWidth="4" />
+      <path d="M20 58q10-8 20-2M90 60q10-6 20-2" stroke="#C9A565" strokeWidth="3" fill="none" strokeLinecap="round" opacity=".7" />
+    </svg>
+  ),
+  coral: (broken) => (
+    <svg viewBox="0 0 120 100" width="100%">
+      {!broken ? (
+        <g fill="none" strokeWidth="5" strokeLinecap="round">
+          <path d="M30 96V62q0-10 10-14M30 62q-14-4-14-18M44 72q10-6 10-20" stroke="#E6875C" />
+          <path d="M72 96V56q0-12 12-16M72 62q16-4 16-20M60 72q-10-8-8-24" stroke="#F0B84E" />
+          <path d="M96 96V68q0-10 8-14" stroke="#7FC8C2" />
+        </g>
+      ) : (
+        <g stroke="#B9774F" strokeWidth="5" strokeLinecap="round" opacity=".5">
+          <path d="M28 96 40 70M70 96 62 68M94 96 100 76" fill="none" />
+        </g>
+      )}
+    </svg>
+  ),
+  anchor: (
+    <svg viewBox="0 0 70 100" width="100%">
+      <circle cx="35" cy="14" r="9" fill="none" stroke={INK} strokeWidth="5" />
+      <path d="M35 23V80" stroke={INK} strokeWidth="6" strokeLinecap="round" />
+      <path d="M10 56h50" stroke={INK} strokeWidth="6" strokeLinecap="round" />
+      <path d="M35 80q-20 0-24-20M35 80q20 0 24-20" fill="none" stroke={INK} strokeWidth="6" strokeLinecap="round" />
+    </svg>
+  ),
+  fish: (
+    <svg viewBox="0 0 80 50" width="100%">
+      <path d="M18 25q18-18 40-9q7 4 7 9t-7 9q-22 9-40-9Z" fill="#F2A41A" stroke={INK} strokeWidth="4" />
+      <path d="M18 25 4 12 4 38Z" fill="#E66422" stroke={INK} strokeWidth="3" strokeLinejoin="round" />
+      <circle cx="48" cy="21" r="2.6" fill={INK} />
+    </svg>
+  ),
 };
 
 /* ============================================================
@@ -670,6 +738,147 @@ function EnergyScene({ onDone }) {
   );
 }
 
+/* ============================================================
+   ٨ — المحميات الطبيعية: السلحفاة تضع بيضها إن خفَّ النور
+   ============================================================ */
+function ReserveScene({ onDone }) {
+  const [lightOn, setLightOn] = useState(true);
+  const [nested, setNested] = useState(false);
+  const t = useRef(null);
+  useEffect(() => () => clearTimeout(t.current), []);
+
+  const turnOff = () => {
+    setLightOn(false);
+    t.current = setTimeout(() => setNested(true), 900);
+  };
+
+  return (
+    <>
+      <SceneStage sky={lightOn ? "#9FB0C2" : "#28334E"} soil="#D9C29A">
+        <Sprite alt="عَمُودُ إِنَارَةٍ" x={16} y={92} w={16} fallback={F.beachLamp(lightOn)} />
+        <Sprite alt="سُلَحْفَاةٌ" x={nested ? 56 : 74} y={94} w={30} anim={nested ? "" : "bob"} z={2} fallback={F.turtleBig} />
+        {nested && (
+          <div style={{ position: "absolute", left: "50%", top: "90%", display: "flex", gap: 5, zIndex: 3 }}>
+            {[0, 1, 2].map((i) => (
+              <span key={i} style={{ width: 8, height: 8, borderRadius: "50%", background: "#F3EEE2", border: `2px solid ${INK}` }} />
+            ))}
+          </div>
+        )}
+      </SceneStage>
+
+      {!nested && lightOn && <ActBtn onClick={turnOff}>أُطْفِئُ النُّورَ</ActBtn>}
+      {!nested && !lightOn && <Hint>السُّلَحْفَاةُ تَتَّجِهُ إِلَى الرَّمْلِ الهَادِئِ...</Hint>}
+      {nested && (
+        <>
+          <Hint tone="good">فِي الظَّلَامِ الهَادِئِ، وَضَعَتِ السُّلَحْفَاةُ بَيْضَهَا بِأَمَانٍ.</Hint>
+          <ActBtn onClick={onDone}>أُوَاصِلُ التَّعَلُّمَ</ActBtn>
+        </>
+      )}
+    </>
+  );
+}
+
+/* ============================================================
+   ٩ — الكائنات المهددة بالانقراض: المها يعود إلى الصحراء
+   ============================================================ */
+function OryxScene({ onDone }) {
+  const [released, setReleased] = useState(0);
+  const done = released >= 3;
+
+  return (
+    <>
+      <SceneStage sky="#F3E6C8" soil="#E6D0A4">
+        <Sprite alt="بَوَّابَةُ المَحْمِيَّةِ" x={86} y={94} w={16} fallback={F.gate} />
+        {Array.from({ length: released }).map((_, i) => (
+          <Sprite key={i} alt="مَها عَرَبِيٌّ" x={24 + i * 24} y={96} w={26} anim="pop" z={2} fallback={F.oryx} />
+        ))}
+      </SceneStage>
+
+      {!done && <ActBtn onClick={() => setReleased((n) => n + 1)}>أَفْتَحُ البَوَّابَةَ</ActBtn>}
+      {!done && released > 0 && <Hint>عَادَ مَهًا جَدِيدٌ إِلَى الصَّحْرَاءِ.</Hint>}
+      {done && (
+        <>
+          <Hint tone="good">عَادَ المَها إِلَى صَحْرَاءِ عُمَانَ، وَكَبِرَ قَطِيعُهُ مِنْ جَدِيدٍ.</Hint>
+          <ActBtn onClick={onDone}>أُوَاصِلُ التَّعَلُّمَ</ActBtn>
+        </>
+      )}
+    </>
+  );
+}
+
+/* ============================================================
+   ١٠ — التصحّر: صفّ الشجيرات يوقف تقدّم الرمال
+   ============================================================ */
+function DesertScene({ onDone }) {
+  const [trees, setTrees] = useState(0);
+  const advance = Math.max(0, 100 - trees * 34);
+  const stopped = trees >= 3;
+
+  return (
+    <>
+      <SceneStage sky="#F3E6C8" soil="#E6D0A4">
+        <Sprite key={trees} alt="كَثِيبٌ رَمْلِيٌّ" x={72} y={96} w={46 - trees * 10} z={1} fallback={F.dune} />
+        {[0, 1, 2].map((n) => n < trees && (
+          <Sprite key={n} alt="شُجَيْرَةٌ" x={28 + n * 14} y={96} w={16} anim="pop" z={2} fallback={F.plant(false)} />
+        ))}
+      </SceneStage>
+
+      <Meter value={advance} color={stopped ? c.good : advance > 66 ? c.bad : c.warn} label="تَقَدُّمُ الرِّمَالِ" />
+
+      {!stopped && <ActBtn onClick={() => setTrees((x) => x + 1)}>أَزْرَعُ شُجَيْرَةً</ActBtn>}
+      {stopped && (
+        <>
+          <Hint tone="good">صَفُّ الشُّجَيْرَاتِ أَوْقَفَ الرِّمَالَ، وَبَقِيَتِ الأَرْضُ خَضْرَاءَ.</Hint>
+          <ActBtn onClick={onDone}>أُوَاصِلُ التَّعَلُّمَ</ActBtn>
+        </>
+      )}
+    </>
+  );
+}
+
+/* ============================================================
+   ١١ — حماية الشعب المرجانية: المرساة تختار الرمل لا المرجان
+   ============================================================ */
+function ReefScene({ onDone }) {
+  const [choice, setChoice] = useState(null); // null | reef | sand
+  const dropped = choice !== null;
+
+  return (
+    <>
+      <SceneStage sky="#BEE3EC" soil="#2E86A8">
+        <Sprite alt="شُعَبٌ مَرْجَانِيَّةٌ" x={26} y={94} w={34} z={1} fallback={F.coral(choice === "reef")} />
+        <Sprite alt="سَمَكَةٌ" x={70} y={55} w={20} anim="bob" z={1} fallback={F.fish} style={{ opacity: choice === "reef" ? 0.25 : 1 }} />
+        <Sprite
+          alt="مِرْسَاةٌ" x={choice === "reef" ? 26 : choice === "sand" ? 78 : 50} y={dropped ? 90 : 28} w={14}
+          anim={dropped ? "pop" : "bob"} z={3} fallback={F.anchor}
+        />
+      </SceneStage>
+
+      {!dropped && (
+        <>
+          <Hint>أَيْنَ يُرْسِي القَارِبُ مِرْسَاتَهُ؟</Hint>
+          <Row>
+            <ActBtn tone="sand" onClick={() => setChoice("reef")}>عَلَى الشُّعَبِ المَرْجَانِيَّةِ</ActBtn>
+            <ActBtn onClick={() => setChoice("sand")}>عَلَى الرَّمْلِ النَّظِيفِ</ActBtn>
+          </Row>
+        </>
+      )}
+      {choice === "reef" && (
+        <>
+          <Hint tone="bad">انْكَسَرَ المَرْجَانُ، وَهَرَبَتِ الأَسْمَاكُ مِنْ بَيْتِهَا.</Hint>
+          <ActBtn tone="warm" onClick={() => setChoice(null)}>أُحَاوِلُ مَرَّةً أُخْرَى</ActBtn>
+        </>
+      )}
+      {choice === "sand" && (
+        <>
+          <Hint tone="good">رَسَتِ المِرْسَاةُ عَلَى الرَّمْلِ، وَبَقِيَ المَرْجَانُ وَالأَسْمَاكُ بِأَمَانٍ.</Hint>
+          <ActBtn onClick={onDone}>أُوَاصِلُ التَّعَلُّمَ</ActBtn>
+        </>
+      )}
+    </>
+  );
+}
+
 export const WORD_SCENES = {
   recycle: RecycleScene,
   faucet: FaucetScene,
@@ -678,4 +887,8 @@ export const WORD_SCENES = {
   collect: CollectScene,
   palm: PalmScene,
   energy: EnergyScene,
+  reserve: ReserveScene,
+  oryx: OryxScene,
+  desert: DesertScene,
+  reef: ReefScene,
 };

@@ -490,6 +490,39 @@ const DICT_ICON_SHAPES = {
       <circle cx="21" cy="40" r="3.6" fill="#5B3626" /><circle cx="33" cy="40" r="3.6" fill="#5B3626" />
     </g>
   ),
+  reserve: (
+    <g>
+      <ellipse cx="20" cy="30" rx="16" ry="12" fill="#6E9460" stroke="#4A6338" strokeWidth="1.6" />
+      <ellipse cx="34" cy="22" rx="5" ry="4" fill="#8FAE72" stroke="#4A6338" strokeWidth="1.3" />
+      <circle cx="37" cy="20" r="1.2" fill="#2E3A28" />
+      <path d="M30 10a7 7 0 108 10 6 6 0 01-8-10Z" fill="#F0ECE2" stroke="#C9863A" strokeWidth="1.1" />
+    </g>
+  ),
+  oryx: (
+    <g>
+      <ellipse cx="18" cy="32" rx="14" ry="9" fill="#F3EEE2" stroke="#8A6A45" strokeWidth="1.6" />
+      <ellipse cx="34" cy="20" rx="8" ry="6.6" fill="#F3EEE2" stroke="#8A6A45" strokeWidth="1.6" />
+      <path d="M30 14c2-9 1-15-3-18M38 14c-2-9-1-15 3-18" fill="none" stroke="#DCD3BC" strokeWidth="3" strokeLinecap="round" />
+      <path d="M30 14c2-9 1-15-3-18M38 14c-2-9-1-15 3-18" fill="none" stroke="#5B3626" strokeWidth="1" strokeLinecap="round" />
+      <circle cx="37" cy="18" r="1.3" fill="#5B3626" />
+    </g>
+  ),
+  desert: (
+    <g>
+      <path d="M4 36Q16 16 26 30T48 36Z" fill="#E6C488" stroke="#B5895A" strokeWidth="1.6" />
+      <path d="M36 36V26" stroke="#4A7A3E" strokeWidth="2.2" strokeLinecap="round" />
+      <ellipse cx="33" cy="24" rx="4.4" ry="3.2" fill="#8FAE72" stroke="#4A7A3E" strokeWidth="1.1" />
+      <ellipse cx="39" cy="23" rx="3.8" ry="3" fill="#9FB585" stroke="#4A7A3E" strokeWidth="1.1" />
+    </g>
+  ),
+  reef: (
+    <g>
+      <path d="M14 42V28q0-6 6-8M14 28q-8-2-8-10M22 32q6-4 6-12" fill="none" stroke="#E6875C" strokeWidth="3" strokeLinecap="round" />
+      <path d="M30 42V24q0-7 7-9M30 28q9-2 9-12" fill="none" stroke="#F0B84E" strokeWidth="3" strokeLinecap="round" />
+      <path d="M41 16q7-4 13-2q1 6-3 10q-7 3-13-2Z" fill="#F2A41A" stroke="#C9863A" strokeWidth="1.3" />
+      <circle cx="49" cy="15" r="1.1" fill="#5B3626" />
+    </g>
+  ),
 };
 
 export function DictIcon({ id, size = 28 }) {
