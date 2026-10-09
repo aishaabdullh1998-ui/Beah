@@ -1025,36 +1025,36 @@ export function SalimSays({ mood = "smile", text, size = 62, tone = "sage" }) {
 
 /* ============================================================
    الهوية البصرية — شعار الموقع
-   قطرة ماء (رمز الفلج) يحتضن منظرًا طبيعيًا عُمانيًا مصغَّرًا:
-   شمس وجبال ونخلة وموجة ماء، بنفس ألوان هوية التطبيق.
+   علامةٌ مُركَّبةٌ من أشكالٍ هندسيَّةٍ مُسطَّحةٍ مُتراكبةٍ (دون إطارٍ
+   خارجيٍّ) — شمسٌ وجبالٌ عن اليمين، ونخلةٌ عن اليسار، فوق شريطِ
+   ماءٍ واحدٍ يجمعهما: نفس أسلوب «الكتل الهندسيَّة» المرجعيّ، بلوحة
+   ألوانٍ عُمانيَّةٍ خاصَّةٍ بالتطبيق (ذهب التمر، فخار بهلا، سعف
+   النخيل، ماء الفلج، وردة الجبل الأخضر) بدل ألوان المرجع نفسها.
    ============================================================ */
-const BRAND_DROP = "M50 6 C50 6 12 52 12 75 A38 38 0 0 0 88 75 C88 52 50 6 50 6 Z";
+const BRAND_INK = "#5B3626";
 
 export function BrandMark({ size = 96 }) {
   return (
-    <svg viewBox="0 0 100 112" width={size} height={size * 1.12} role="img" aria-hidden="true">
-      <defs>
-        <clipPath id="brandDrop"><path d={BRAND_DROP} /></clipPath>
-        <linearGradient id="brandSky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#CFE6F2" /><stop offset="55%" stopColor="#E9DCB3" /><stop offset="100%" stopColor="#D8B27E" />
-        </linearGradient>
-      </defs>
-      <g clipPath="url(#brandDrop)">
-        <rect x="0" y="0" width="100" height="112" fill="url(#brandSky)" />
-        <circle cx="66" cy="34" r="9" fill="#F2A41A" />
-        <g stroke="#F2A41A" strokeWidth="2.4" strokeLinecap="round">
-          {[0, 45, 90, 135, 180].map((a) => <line key={a} x1="66" y1="19" x2="66" y2="24" transform={`rotate(${a} 66 34)`} />)}
-        </g>
-        <path d="M4 80 30 54 50 74 68 48 96 78 96 112 4 112Z" fill="#BC8656" />
-        <path d="M4 94 26 76 50 92 76 70 96 92 96 112 4 112Z" fill="#8C5E3A" />
-        <g transform="translate(30,66)">
-          <path d="M0 46V16" stroke="#5B3626" strokeWidth="3" strokeLinecap="round" />
-          <path d="M0 26 -11 11M0 21 11 7" stroke="#2E7D6B" strokeWidth="3.4" fill="none" strokeLinecap="round" />
-        </g>
-        <path d="M4 100q12-6 24 0t24 0 24 0 24 0v12H4Z" fill="#2E8C7A" opacity=".55" />
-      </g>
-      <path d={BRAND_DROP} fill="none" stroke="#5B3626" strokeWidth="4" strokeLinejoin="round" />
-      <ellipse cx="34" cy="30" rx="9" ry="14" fill="#FFFFFF" opacity=".22" transform="rotate(-18 34 30)" />
+    <svg viewBox="0 0 180 120" width={size * 1.5} height={size} role="img" aria-hidden="true">
+      {/* شريط الماء — يجمع النخلة والجبل في علامةٍ واحدةٍ */}
+      <rect x="8" y="86" width="164" height="24" rx="12" fill="#144D4A" stroke={BRAND_INK} strokeWidth="4" />
+      <path d="M22 86 A16 16 0 0 1 54 86Z" fill="#7FC8C2" stroke={BRAND_INK} strokeWidth="3.2" strokeLinejoin="round" />
+
+      {/* الجبل والشمس */}
+      <path d="M94 88 128 40 160 88Z" fill="#B84C16" stroke={BRAND_INK} strokeWidth="4" strokeLinejoin="round" />
+      <circle cx="146" cy="34" r="15" fill="#F2A41A" stroke={BRAND_INK} strokeWidth="3.4" />
+      <path d="M110 88 134 28 154 88Z" fill="#E66422" stroke={BRAND_INK} strokeWidth="4" strokeLinejoin="round" />
+
+      {/* النخلة */}
+      <rect x="40" y="48" width="10" height="40" rx="4" fill="#8A6A3E" stroke={BRAND_INK} strokeWidth="3.2" />
+      <path d="M23 49 A22 22 0 0 1 67 49Z" fill="#7C8A2F" stroke={BRAND_INK} strokeWidth="3.4" strokeLinejoin="round" />
+      <path d="M58 25 69 36 58 47 47 36Z" fill="#9AA84A" stroke={BRAND_INK} strokeWidth="3" strokeLinejoin="round" />
+      <circle cx="45" cy="27" r="3.4" fill={BRAND_INK} />
+
+      {/* لمسة لونٍ صغيرة تجمع الطرفين */}
+      <path d="M88 85 95 92 88 99 81 92Z" fill="#F0717A" stroke={BRAND_INK} strokeWidth="2.6" strokeLinejoin="round" />
+      <circle cx="34" cy="110" r="7" fill={BRAND_INK} />
+      <circle cx="146" cy="110" r="7" fill={BRAND_INK} />
     </svg>
   );
 }
