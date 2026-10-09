@@ -1041,14 +1041,14 @@ export function BrandMark({ size = 96 }) {
       <path d="M22 86 A16 16 0 0 1 54 86Z" fill="#7FC8C2" stroke={BRAND_INK} strokeWidth="3.2" strokeLinejoin="round" />
 
       {/* الجبل والشمس */}
-      <path d="M94 88 128 40 160 88Z" fill="#B84C16" stroke={BRAND_INK} strokeWidth="4" strokeLinejoin="round" />
+      <path d="M94 88 128 40 160 88Z" fill="#163B4A" stroke={BRAND_INK} strokeWidth="4" strokeLinejoin="round" />
       <circle cx="146" cy="34" r="15" fill="#F2A41A" stroke={BRAND_INK} strokeWidth="3.4" />
-      <path d="M110 88 134 28 154 88Z" fill="#E66422" stroke={BRAND_INK} strokeWidth="4" strokeLinejoin="round" />
+      <path d="M110 88 134 28 154 88Z" fill="#2E6E8E" stroke={BRAND_INK} strokeWidth="4" strokeLinejoin="round" />
 
       {/* النخلة */}
       <rect x="40" y="48" width="10" height="40" rx="4" fill="#8A6A3E" stroke={BRAND_INK} strokeWidth="3.2" />
-      <path d="M23 49 A22 22 0 0 1 67 49Z" fill="#7C8A2F" stroke={BRAND_INK} strokeWidth="3.4" strokeLinejoin="round" />
-      <path d="M58 25 69 36 58 47 47 36Z" fill="#9AA84A" stroke={BRAND_INK} strokeWidth="3" strokeLinejoin="round" />
+      <path d="M23 49 A22 22 0 0 1 67 49Z" fill="#D8CCF0" stroke={BRAND_INK} strokeWidth="3.4" strokeLinejoin="round" />
+      <path d="M58 25 69 36 58 47 47 36Z" fill="#B9A0E0" stroke={BRAND_INK} strokeWidth="3" strokeLinejoin="round" />
       <circle cx="45" cy="27" r="3.4" fill={BRAND_INK} />
 
       {/* لمسة لونٍ صغيرة تجمع الطرفين */}
@@ -1119,7 +1119,7 @@ export const WORD_MUGHAMARATI = ["م", "غ", "ا", "م", "ر", "ت", "ي"];
 export const WORD_BEEIYYA = ["ا", "ل", "ب", "ي", "ئ", "ي", "ة"];
 
 /* ثلاث لوحاتٍ مُقترحةٌ — كلُّ لوحةٍ خمسةُ ألوانٍ تدور على الحروف */
-export const PALETTE_OASIS = ["#F2A41A", "#E66422", "#144D4A", "#7C8A2F", "#F0717A"];      // الواحة: ذهب التمر، فخار بهلا، ماء الفلج، سعف النخيل، وردة الجبل الأخضر
+export const PALETTE_OASIS = ["#F2A41A", "#2E6E8E", "#144D4A", "#D8CCF0", "#F0717A"];      // الواحة: ذهب التمر، البحري، ماء الفلج، البنفسجي الفاتح، وردة الجبل الأخضر
 export const PALETTE_COAST = ["#2E8C7A", "#7FC8C2", "#D9A441", "#2E6E8E", "#C9633B"];      // الساحل: عمق البحر، تركواز رأس الحد، رمل الساحل، زرقة مسندم، خشب القوارب
 export const PALETTE_SUNSET = ["#8C3B6E", "#E66422", "#F2A41A", "#14405A", "#D9C29A"];     // غروب الجبل: نيلي الغروب، فخار بهلا، ذهب التمر، ليل الصحراء، رمل القمة
 
