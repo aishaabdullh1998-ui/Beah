@@ -183,6 +183,117 @@ const F = {
     <svg viewBox="0 0 140 80" width="100%"><path d="M10 56 v-14 q0 -8 8 -8 h16 l14 -18 h44 l16 18 h14 q8 0 8 8 v14Z" fill="#7C8A2F" stroke={INK} strokeWidth="4" strokeLinejoin="round" />
       <circle cx="38" cy="60" r="12" fill={INK} /><circle cx="104" cy="60" r="12" fill={INK} /></svg>
   ),
+  tap: (open) => (
+    <svg viewBox="0 0 100 90" width="100%">
+      <rect x="40" y="4" width="20" height="26" rx="4" fill="#9FB0B6" stroke={INK} strokeWidth="4" />
+      <rect x="20" y="26" width="60" height="14" rx="7" fill="#B9C6CB" stroke={INK} strokeWidth="4" />
+      <path d="M70 33 Q92 33 92 55" fill="none" stroke="#B9C6CB" strokeWidth="12" strokeLinecap="round" />
+      <path d="M70 33 Q92 33 92 55" fill="none" stroke={INK} strokeWidth="4" />
+      <g transform={`rotate(${open ? -38 : 0} 30 14)`}>
+        <rect x="8" y="8" width="44" height="12" rx="6" fill="#E66422" stroke={INK} strokeWidth="4" />
+      </g>
+    </svg>
+  ),
+  bucket: (full) => (
+    <svg viewBox="0 0 100 90" width="100%">
+      <path d="M18 24 L82 24 L72 86 L28 86 Z" fill="#CDE7E3" stroke={INK} strokeWidth="4" strokeLinejoin="round" />
+      {full && <path d="M26 50 L74 50 L72 86 L28 86Z" fill="#5FA6C4" />}
+      <path d="M18 24 Q50 36 82 24" fill="none" stroke={INK} strokeWidth="4" />
+      <path d="M24 24 Q50 2 76 24" fill="none" stroke="#8C8C84" strokeWidth="5" />
+    </svg>
+  ),
+  dropFace: (sad) => (
+    <svg viewBox="0 0 100 120" width="100%">
+      <path d="M50 6C50 6 14 58 14 80a36 36 0 0072 0C86 58 50 6 50 6Z" fill="#5FA6C4" stroke={INK} strokeWidth="4" />
+      <circle cx="38" cy="78" r="4.4" fill={INK} /><circle cx="62" cy="78" r="4.4" fill={INK} />
+      {sad
+        ? <path d="M36 98q14-12 28 0" stroke={INK} strokeWidth="4" fill="none" strokeLinecap="round" />
+        : <path d="M36 92q14 12 28 0" stroke={INK} strokeWidth="4" fill="none" strokeLinecap="round" />}
+    </svg>
+  ),
+  litter: (kind) => {
+    if (kind === "banana") return (
+      <svg viewBox="0 0 100 70" width="100%"><path d="M12 50q4-30 34-38q-6 10 2 16q-26 2-24 30q-8 0-12-8Z" fill="#E7C65A" stroke={INK} strokeWidth="4" strokeLinejoin="round" /></svg>
+    );
+    if (kind === "apple") return (
+      <svg viewBox="0 0 100 90" width="100%"><path d="M50 30c16-14 34-2 30 16c-4 20-20 34-30 34S24 66 20 46C16 28 34 16 50 30Z" fill="#E6875C" stroke={INK} strokeWidth="4" /><path d="M50 30V16" stroke="#8A6A45" strokeWidth="4" strokeLinecap="round" /></svg>
+    );
+    if (kind === "jar") return (
+      <svg viewBox="0 0 80 100" width="100%"><rect x="16" y="30" width="48" height="60" rx="8" fill="#CDE7E3" stroke={INK} strokeWidth="4" opacity=".85" /><rect x="24" y="14" width="32" height="18" rx="4" fill="#B9C6CB" stroke={INK} strokeWidth="4" /></svg>
+    );
+    if (kind === "tuna") return (
+      <svg viewBox="0 0 100 70" width="100%"><ellipse cx="50" cy="40" rx="42" ry="22" fill="#B9C6CB" stroke={INK} strokeWidth="4" /><ellipse cx="50" cy="28" rx="42" ry="12" fill="#D7E2E4" stroke={INK} strokeWidth="4" /></svg>
+    );
+    return (
+      <svg viewBox="0 0 70 100" width="100%"><rect x="10" y="10" width="50" height="80" rx="10" fill="#8C8C84" stroke={INK} strokeWidth="4" /><rect x="10" y="10" width="50" height="16" rx="8" fill="#B9C6CB" stroke={INK} strokeWidth="4" /></svg>
+    );
+  },
+  earthMound: (state) => {
+    const col = state === 2 ? "#7C8A2F" : state === 1 ? "#B79A52" : "#A85A2E";
+    return (
+      <svg viewBox="0 0 120 90" width="100%">
+        <ellipse cx="60" cy="70" rx="56" ry="20" fill={col} stroke={INK} strokeWidth="4" />
+        {state < 2 && <path d="M30 60 40 72M60 56 60 70M90 60 80 72" stroke={INK} strokeWidth="2.4" opacity=".4" strokeLinecap="round" fill="none" />}
+        {state === 2 && (
+          <>
+            <circle cx="44" cy="62" r="3.4" fill={INK} /><circle cx="76" cy="62" r="3.4" fill={INK} />
+            <path d="M44 72q16 10 32 0" stroke={INK} strokeWidth="3" fill="none" strokeLinecap="round" />
+          </>
+        )}
+      </svg>
+    );
+  },
+  kids: (
+    <svg viewBox="0 0 160 90" width="100%">
+      {[0, 1, 2, 3].map((i) => (
+        <g key={i} transform={`translate(${16 + i * 38},10)`}>
+          <circle cx="14" cy="14" r="12" fill="#EFC49A" stroke={INK} strokeWidth="3" />
+          <path d="M2 70V40q0-14 12-14t12 14v30Z" fill={["#5FA6C4", "#E66422", "#2E8C7A", "#F2A41A"][i]} stroke={INK} strokeWidth="3" />
+        </g>
+      ))}
+    </svg>
+  ),
+  ibexBig: (
+    <svg viewBox="0 0 140 130" width="100%">
+      <ellipse cx="60" cy="86" rx="40" ry="22" fill="#B5895A" stroke={INK} strokeWidth="5" />
+      <rect x="30" y="100" width="10" height="26" rx="5" fill="#8A6A3E" /><rect x="52" y="104" width="10" height="24" rx="5" fill="#8A6A3E" /><rect x="86" y="104" width="10" height="24" rx="5" fill="#8A6A3E" />
+      <ellipse cx="104" cy="58" rx="18" ry="15" fill="#C29A66" stroke={INK} strokeWidth="5" />
+      <circle cx="110" cy="54" r="3.4" fill={INK} />
+      <path d="M108 48c8-20 26-32 36-30-12 10-22 20-28 36Z" fill="#5A4326" stroke={INK} strokeWidth="3" />
+    </svg>
+  ),
+  turtleBig: (
+    <svg viewBox="0 0 140 110" width="100%">
+      <ellipse cx="66" cy="60" rx="46" ry="34" fill="#6E9460" stroke={INK} strokeWidth="5" />
+      <path d="M38 42l10 14-10 14M66 36v24M94 42l-10 14 10 14M34 60h12M98 60h-12" stroke="#4A6338" strokeWidth="3.4" fill="none" strokeLinecap="round" opacity=".6" />
+      <ellipse cx="116" cy="46" rx="13" ry="11" fill="#8FAE72" stroke={INK} strokeWidth="4" />
+      <circle cx="120" cy="43" r="2.6" fill="#2E3A28" />
+      <ellipse cx="18" cy="42" rx="11" ry="7" fill="#8FAE72" stroke={INK} strokeWidth="3.4" transform="rotate(-25 18 42)" />
+      <ellipse cx="18" cy="78" rx="11" ry="7" fill="#8FAE72" stroke={INK} strokeWidth="3.4" transform="rotate(25 18 78)" />
+      <ellipse cx="110" cy="84" rx="11" ry="7" fill="#8FAE72" stroke={INK} strokeWidth="3.4" transform="rotate(-18 110 84)" />
+    </svg>
+  ),
+  palmBig: (
+    <svg viewBox="0 0 140 160" width="100%">
+      <path d="M70 156V60" stroke="#8A6A3E" strokeWidth="11" strokeLinecap="round" />
+      <g fill="#7C8A2F" stroke={INK} strokeWidth="4">
+        <path d="M70 60q-42-8-58-34q42 0 58 34Z" /><path d="M70 60q42-8 58-34q-42 0-58 34Z" />
+        <path d="M70 56q-16-32 0-52q16 20 0 52Z" />
+      </g>
+      {Array.from({ length: 6 }).map((_, i) => <circle key={i} cx={52 + (i % 3) * 14} cy={70 + Math.floor(i / 3) * 14} r="6" fill="#E66422" stroke={INK} strokeWidth="3" />)}
+    </svg>
+  ),
+  habitatCard: (kind) => {
+    if (kind === "mountain") return (
+      <svg viewBox="0 0 100 100" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" style={{ display: "block" }}><rect width="100" height="100" fill="#D6EAF0" /><path d="M0 70 30 30 55 58 75 24 100 66V100H0Z" fill="#BC8656" /><path d="M0 84 26 60 55 82 78 54 100 82V100H0Z" fill="#8C5E3A" /></svg>
+    );
+    if (kind === "sea") return (
+      <svg viewBox="0 0 100 100" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" style={{ display: "block" }}><rect width="100" height="100" fill="#BEE3EC" /><path d="M0 60q12-8 25 0t25 0 25 0 25 0v40H0Z" fill="#2E86A8" /><path d="M0 76q12-6 25 0t25 0 25 0 25 0v24H0Z" fill="#17607F" /></svg>
+    );
+    return (
+      <svg viewBox="0 0 100 100" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" style={{ display: "block" }}><rect width="100" height="100" fill="#EADFB8" /><ellipse cx="50" cy="82" rx="46" ry="16" fill="#5FA6C4" /><path d="M50 70V28" stroke="#8A6A3E" strokeWidth="6" strokeLinecap="round" /><path d="M50 40q-18-4-26-18q18 0 26 18Zm0 0q18-4 26-18q-18 0-26 18Z" fill="#7C8A2F" stroke={INK} strokeWidth="2" /></svg>
+    );
+  },
 };
 
 /* ============================================================
@@ -204,15 +315,15 @@ function RecycleScene({ onDone }) {
 
   return (
     <>
-      <SceneStage bg="bg-recycle.webp" sky="#DCEBEF" soil="#E9D3AE">
-        <Sprite src="rec-trash-bin.webp" alt="سلة القمامة" x={18} y={96} w={26} fallback={F.bin("#8C8C84")} />
-        <Sprite src="rec-treasure-bin.webp" alt="سلة الكنوز" x={82} y={96} w={26} fallback={F.bin("#7C8A2F")} />
+      <SceneStage sky="#DCEBEF" soil="#E9D3AE">
+        <Sprite alt="سلة القمامة" x={18} y={96} w={26} fallback={F.bin("#8C8C84")} />
+        <Sprite alt="سلة الكنوز" x={82} y={96} w={26} fallback={F.bin("#7C8A2F")} />
         {phase !== "made" && phase !== "pieces" && (
-          <Sprite src="assets/img/sort/waste-juice-can.webp" alt="علبة معدنية" x={can.x} y={can.y} w={can.w}
-            anim={phase === "idle" ? "bob" : ""} style={{ opacity: can.o }} z={3} />
+          <Sprite alt="علبة معدنية" x={can.x} y={can.y} w={can.w}
+            anim={phase === "idle" ? "bob" : ""} style={{ opacity: can.o }} z={3} fallback={F.litter("can")} />
         )}
-        {phase === "pieces" && <Sprite src="rec-pieces.webp" alt="العلبة تتفكك" x={50} y={70} w={34} anim="pop" fallback={F.pieces} />}
-        {phase === "made" && <Sprite src="rec-pot.webp" alt="أصيص فيه شتلة" x={50} y={90} w={30} anim="pop" fallback={F.pot} />}
+        {phase === "pieces" && <Sprite alt="العلبة تتفكك" x={50} y={70} w={34} anim="pop" fallback={F.pieces} />}
+        {phase === "made" && <Sprite alt="أصيص فيه شتلة" x={50} y={90} w={30} anim="pop" fallback={F.pot} />}
       </SceneStage>
 
       {phase === "idle" && (
@@ -262,9 +373,8 @@ function FaucetScene({ onDone }) {
 
   return (
     <>
-      <SceneStage bg="bg-faucet.webp" sky="#D9E9EF" soil="#E6D6BC">
-        <Sprite src={open ? "water-tap-open.webp" : "water-tap-closed.webp"} alt={open ? "صنبور مفتوح" : "صنبور مغلق"}
-          x={52} y={44} w={36} fallback={<img src={IMG + "water-tap-closed.webp"} alt="" style={{ width: "100%" }} />} />
+      <SceneStage sky="#D9E9EF" soil="#E6D6BC">
+        <Sprite alt={open ? "صنبور مفتوح" : "صنبور مغلق"} x={52} y={44} w={36} fallback={F.tap(open)} />
         {open && (
           <div style={{ position: "absolute", left: "62%", top: "41%", width: "4%", height: "36%", zIndex: 1 }}>
             {[0, 1, 2].map((i) => (
@@ -275,10 +385,9 @@ function FaucetScene({ onDone }) {
             ))}
           </div>
         )}
-        <Sprite src={wasted >= 50 ? "water-bucket-full.webp" : "water-bucket-empty.webp"} alt="دلو" x={63} y={95} w={28} />
+        <Sprite alt="دلو" x={63} y={95} w={28} fallback={F.bucket(wasted >= 50)} />
         {!open && (
-          <Sprite src={lost ? "water-drop-sad.webp" : "water-drop-happy.webp"} alt={lost ? "قطرة حزينة" : "قطرة سعيدة"}
-            x={18} y={58} w={20} anim="pop" z={4} />
+          <Sprite alt={lost ? "قطرة حزينة" : "قطرة سعيدة"} x={18} y={58} w={20} anim="pop" z={4} fallback={F.dropFace(lost)} />
         )}
       </SceneStage>
 
@@ -313,16 +422,10 @@ const HABITATS = {
 };
 
 const CREATURES = [
-  { id: "ibex", name: "الوَعْلُ", home: "mountain", src: "bio-ibex.webp" },
-  { id: "turtle", name: "السُّلَحْفَاةُ", home: "sea", src: "bio-turtle.webp" },
-  { id: "palm", name: "النَّخْلَةُ", home: "oasis", src: "bio-palm.webp" },
+  { id: "ibex", name: "الوَعْلُ", home: "mountain", big: "ibexBig" },
+  { id: "turtle", name: "السُّلَحْفَاةُ", home: "sea", big: "turtleBig" },
+  { id: "palm", name: "النَّخْلَةُ", home: "oasis", big: "palmBig" },
 ];
-
-const HABITAT_CARD_IMG = {
-  mountain: "bio-card-mountain.webp",
-  sea: "bio-card-sea.webp",
-  oasis: "bio-card-oasis.webp",
-};
 
 function HabitatCard({ kind, onPick, wrong }) {
   const h = HABITATS[kind];
@@ -337,7 +440,9 @@ function HabitatCard({ kind, onPick, wrong }) {
         transform: wrong ? "translateX(-5px)" : "none",
       }}
     >
-      <img src={IMG + HABITAT_CARD_IMG[kind]} alt="" draggable="false" style={{ display: "block", width: "100%", aspectRatio: "1 / 1", objectFit: "contain" }} />
+      <div style={{ display: "block", width: "100%", aspectRatio: "1 / 1", overflow: "hidden", borderRadius: 11 }}>
+        {F.habitatCard(kind)}
+      </div>
       <span style={{ display: "block", fontSize: 15, fontWeight: 700, color: c.ink, padding: "4px 0 2px", fontFamily: font.display }}>
         {h.name}
       </span>
@@ -370,15 +475,15 @@ function HabitatScene({ onDone }) {
 
   return (
     <>
-      <SceneStage bg="bg-habitat.webp" sky="#D6EAF0" soil="#E9D6AE">
+      <SceneStage sky="#D6EAF0" soil="#E9D6AE">
         {homed.map((h) => (
-          <Sprite key={h.id} src={h.src} alt={h.name} x={HABITATS[h.home].x} y={94} w={20} z={2} />
+          <Sprite key={h.id} alt={h.name} x={HABITATS[h.home].x} y={94} w={20} z={2} fallback={F[h.big]} />
         ))}
         <Sprite
-          key={cur.id} src={cur.src} alt={cur.name}
+          key={cur.id} alt={cur.name}
           x={placed ? target : 50} y={placed ? 94 : 62} w={placed ? 20 : 34} z={3}
           anim={placed ? "" : "bob"}
-          fallback={<img src={IMG + "bio-ibex.webp"} alt="" style={{ width: "100%" }} />}
+          fallback={F[cur.big]}
         />
       </SceneStage>
 
@@ -406,7 +511,7 @@ function WarmScene({ onDone }) {
   const [trees, setTrees] = useState(0);
   const heat = 100 - trees * 32;
   const cool = trees >= 3;
-  const earth = cool ? "warm-earth-happy.webp" : trees >= 1 ? "warm-earth-better.webp" : "warm-earth-hot.webp";
+  const earthState = cool ? 2 : trees >= 1 ? 1 : 0;
   const heatLayer = (
     <div aria-hidden="true" style={{
       position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none",
@@ -417,11 +522,11 @@ function WarmScene({ onDone }) {
 
   return (
     <>
-      <SceneStage bg="bg-warm.webp" sky="#F6E3CF" soil="#DDBB8C" overlay={heatLayer}>
-        <Sprite src={cool ? "warm-sun-calm.webp" : "warm-sun-hot.webp"} alt="الشمس" x={80} y={40} w={24} fallback={F.sun(!cool)} />
-        <Sprite src={earth} alt="حالة الأرض" x={30} y={58} w={34} anim="bob" z={3} />
+      <SceneStage sky="#F6E3CF" soil="#DDBB8C" overlay={heatLayer}>
+        <Sprite alt="الشمس" x={80} y={40} w={24} fallback={F.sun(!cool)} />
+        <Sprite alt="حالة الأرض" x={30} y={58} w={34} anim="bob" z={3} fallback={F.earthMound(earthState)} />
         {[0, 1, 2].map((n) => n < trees && (
-          <Sprite key={n} src={cool ? "warm-plant-4.webp" : "warm-plant-2.webp"} alt="شتلة"
+          <Sprite key={n} alt="شتلة"
             x={58 + n * 15} y={95} w={cool ? 18 : 13} anim="pop" fallback={F.plant(cool)} />
         ))}
       </SceneStage>
@@ -443,11 +548,11 @@ function WarmScene({ onDone }) {
    ٥ — التلوّث: الساحة تُنظَّف فتصفو السماء
    ============================================================ */
 const LITTER = [
-  { src: "assets/img/sort/waste-juice-can.webp", x: 16, y: 90, w: 9, r: -14 },
-  { src: "assets/img/sort/waste-banana-peel.webp", x: 34, y: 96, w: 14, r: 8 },
-  { src: "assets/img/sort/waste-tuna-can.webp", x: 52, y: 88, w: 11, r: -6 },
-  { src: "assets/img/sort/waste-apple-core.webp", x: 70, y: 95, w: 9, r: 12 },
-  { src: "assets/img/sort/waste-glass-jar.webp", x: 86, y: 90, w: 9, r: -18 },
+  { kind: "can", x: 16, y: 90, w: 9, r: -14 },
+  { kind: "banana", x: 34, y: 96, w: 14, r: 8 },
+  { kind: "tuna", x: 52, y: 88, w: 11, r: -6 },
+  { kind: "apple", x: 70, y: 95, w: 9, r: 12 },
+  { kind: "jar", x: 86, y: 90, w: 9, r: -18 },
 ];
 
 function CollectScene({ onDone }) {
@@ -463,12 +568,12 @@ function CollectScene({ onDone }) {
 
   return (
     <>
-      <SceneStage bg="bg-collect.webp" sky="#D6E8EE" soil="#E5D2AC" overlay={smog}>
+      <SceneStage sky="#D6E8EE" soil="#E5D2AC" overlay={smog}>
         {LITTER.map((p, i) => left.includes(i) && (
-          <Sprite key={i} src={p.src} alt="قمامة" label="أجمع هذه القطعة" x={p.x} y={p.y} w={p.w} z={3}
-            style={{ rotate: `${p.r}deg` }} onClick={() => setLeft((l) => l.filter((x) => x !== i))} />
+          <Sprite key={i} alt="قمامة" label="أجمع هذه القطعة" x={p.x} y={p.y} w={p.w} z={3}
+            style={{ rotate: `${p.r}deg` }} onClick={() => setLeft((l) => l.filter((x) => x !== i))} fallback={F.litter(p.kind)} />
         ))}
-        {left.length === 0 && <Sprite src="collect-bird.webp" alt="عصفور" x={66} y={40} w={18} anim="pop" fallback={F.bird} />}
+        {left.length === 0 && <Sprite alt="عصفور" x={66} y={40} w={18} anim="pop" fallback={F.bird} />}
       </SceneStage>
 
       {left.length > 0 && <Hint>بَقِيَتْ {left.length} قِطَعٍ. اُنْقُرْ عَلَيْهَا لِتَجْمَعَهَا.</Hint>}
@@ -490,15 +595,14 @@ function PalmScene({ onDone }) {
   const [season, setSeason] = useState(0);
 
   const dates = choice === null ? 8 : choice === "all" ? 0 : season === 0 ? 6 : 8;
-  const palm = dates === 8 ? "palm-full.webp" : dates === 6 ? "palm-half.webp" : "palm-empty.webp";
 
   return (
     <>
-      <SceneStage bg="bg-palm.webp" sky="#DDEBE6" soil="#E6D0A4">
-        <Sprite key={palm} src={palm} alt="نخلة" x={52} y={97} w={50} fallback={F.palm(dates)} />
-        <Sprite src="palm-kids.webp" alt="أربعة أطفال" x={17} y={98} w={30} z={3} fallback={null} />
+      <SceneStage sky="#DDEBE6" soil="#E6D0A4">
+        <Sprite key={dates} alt="نخلة" x={52} y={97} w={50} fallback={F.palm(dates)} />
+        <Sprite alt="أربعة أطفال" x={17} y={98} w={30} z={3} fallback={F.kids} />
         {choice && season === 0 && (
-          <Sprite src={choice === "all" ? "basket-full.webp" : "basket-some.webp"} alt="سلة الرطب"
+          <Sprite alt="سلة الرطب"
             x={85} y={97} w={20} anim="pop" z={3} fallback={F.basket(choice === "all" ? 8 : 2)} />
         )}
       </SceneStage>
@@ -542,15 +646,15 @@ function EnergyScene({ onDone }) {
 
   return (
     <>
-      <SceneStage bg="bg-energy.webp" sky="#D9EBF1" soil="#E8D5AE">
-        <Sprite src={step >= 1 ? "h2-sun-on.webp" : "h2-sun-off.webp"} alt="الشمس" x={84} y={34} w={20} fallback={F.sun(false)}
+      <SceneStage sky="#D9EBF1" soil="#E8D5AE">
+        <Sprite alt="الشمس" x={84} y={34} w={20} fallback={F.sun(false)}
           style={{ opacity: step >= 1 ? 1 : 0.55 }} />
-        <Sprite src={step >= 1 ? "h2-panel-on.webp" : "h2-panel-off.webp"} alt="لوح شمسي" x={76} y={86} w={24} fallback={F.panel(step >= 1)} />
-        <Sprite src="h2-seawater.webp" alt="خزان ماء البحر" x={52} y={86} w={17} fallback={F.tank("#7FC8C2")}
+        <Sprite alt="لوح شمسي" x={76} y={86} w={24} fallback={F.panel(step >= 1)} />
+        <Sprite alt="خزان ماء البحر" x={52} y={86} w={17} fallback={F.tank("#7FC8C2")}
           style={{ opacity: step >= 2 ? 1 : 0.6 }} />
-        <Sprite src="h2-tank.webp" alt="خزان الهيدروجين" x={33} y={86} w={14} fallback={F.tank("#D7EDE6")}
+        <Sprite alt="خزان الهيدروجين" x={33} y={86} w={14} fallback={F.tank("#D7EDE6")}
           anim={step === 2 ? "pop" : ""} style={{ opacity: step >= 2 ? 1 : 0.45 }} />
-        <Sprite src={step >= 3 ? "h2-car-go.webp" : "h2-car-stop.webp"} alt="سيارة" x={step >= 3 ? 8 : 16} y={98} w={30} z={3} fallback={F.car} />
+        <Sprite alt="سيارة" x={step >= 3 ? 8 : 16} y={98} w={30} z={3} fallback={F.car} />
       </SceneStage>
 
       {step === 0 && (<><Hint>اِبْدَأْ بِالشَّمْسِ لِتُشَغِّلَ اللَّوْحَ.</Hint><ActBtn tone="sand" onClick={() => setStep(1)}>أَلْمِسُ الشَّمْسَ</ActBtn></>)}

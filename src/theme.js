@@ -93,7 +93,9 @@ export const shadow = {
 /* ── الخطوط ────────────────────────────────────────────── */
 export const font = {
   display: "'Baloo Bhaijaan 2', 'Segoe UI', sans-serif",
-  body: "'Noto Naskh Arabic', 'Segoe UI', Tahoma, serif",
+  /* نفس تدرّج خط موقع رفوف: Manchette أولًا (قد لا تتوفر ملفاتها)
+     فتتراجع تلقائيًا إلى Readex Pro، وهو ما يظهر فعليًا في رفوف اليوم. */
+  body: "'Manchette', 'Readex Pro', 'Segoe UI', Tahoma, sans-serif",
 };
 
 /* ── الحركة ────────────────────────────────────────────── */

@@ -12,7 +12,7 @@ import {
   stories, quizSets, dictionaryTerms, doDontCards, labels, games, mission, footerText,
   readingTexts,
 } from "./content.js";
-import { Glyph, IconChip, ImgFallback, Salim, SalimSays, OmanMap, StoryBadge, StoryIcon, StoryHero, CompletionBadge, PlayerAvatar, keyframes } from "./art.jsx";
+import { Glyph, IconChip, ImgFallback, Salim, SalimSays, OmanMap, StoryBadge, StoryIcon, StoryHero, CompletionBadge, PlayerAvatar, BrandLogo, DictIcon, keyframes } from "./art.jsx";
 import { WORD_SCENES, ActBtn, Hint } from "./scenes.jsx";
 import {
   PreviewCard, ConnectCard, PredictCard, ReviewCard, InferenceCard,
@@ -245,9 +245,7 @@ function Welcome({ onStart }) {
   return (
     <div style={{ width: "100%", maxWidth: 420, margin: "0 auto", display: "flex", flexDirection: "column", gap: 18 }}>
       <div style={{ textAlign: "center" }}>
-        <div className="bob" style={{ display: "inline-block" }}><Salim mood="smile" size={104} /></div>
-        <h1 style={{ margin: "6px 0 0", fontFamily: font.display, color: c.ink, fontWeight: 700, fontSize: 34, lineHeight: 1.25 }}>مُغَامَرَتِي</h1>
-        <h1 style={{ margin: "-6px 0 0", fontFamily: font.display, color: c.sageDeep, fontWeight: 700, fontSize: 34, lineHeight: 1.25 }}>البَيْئِيَّةُ</h1>
+        <div className="bob" style={{ display: "inline-block" }}><BrandLogo size={100} /></div>
         <p style={{ margin: "10px 0 0", color: c.inkSoft, fontSize: 13.5, lineHeight: 1.9, fontFamily: font.body }}>
           قِصَصٌ وَأَلْعَابٌ وَكَلِمَاتٌ مِنْ قَلْبِ بِيئَةِ سَلْطَنَةِ عُمَانَ
         </p>
@@ -1033,26 +1031,6 @@ function TeacherSheet({ onClose }) {
 /* ============================================================
    كلمات تتحرّك
    ============================================================ */
-const WORD_ICON = {
-  recycle: "recycleBin",
-  faucet: "drop",
-  habitat: "goat",
-  warm: "baysun",
-  collect: "recycleBin",
-  palm: "tree",
-  energy: "wind",
-};
-
-const WORD_IMG = {
-  recycle: "assets/img/dictionary/dict-recycling.webp",
-  conserve: "assets/img/dictionary/dict-water.webp",
-  biodiversity: "assets/img/dictionary/dict-biodiversity.webp",
-  warming: "assets/img/dictionary/dict-warming.webp",
-  pollution: "assets/img/dictionary/dict-pollution.webp",
-  sustainability: "assets/img/dictionary/dict-sustainability.webp",
-  greenh2: "assets/img/dictionary/dict-hydrogen.webp",
-};
-
 function WordsList({ profile, onOpen, onOpenDoDont }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -1073,22 +1051,15 @@ function WordsList({ profile, onOpen, onOpenDoDont }) {
             onMouseEnter={(e) => { e.currentTarget.style.borderColor = c.sageDeep; }}
             onMouseLeave={(e) => { e.currentTarget.style.borderColor = c.line; }}
           >
-            <ImgFallback
-              src={WORD_IMG[t.id]} alt={t.term}
-              width={44} height={44}
-              fallback={
-                <IconChip bg={c.sage} size={40} radius={14}>
-                  <Glyph name={WORD_ICON[t.scene] || "star"} size={20} color={c.sageInk} strokeWidth={2.2} />
-                </IconChip>
-              }
-            />
+            <IconChip bg={c.sage} size={48} radius={16}>
+              <DictIcon id={t.id} size={30} />
+            </IconChip>
             {t.term}
           </button>
         ))}
       </div>
       <BigButton
         title={labels.doDont} sub="أُصَنِّفُ السُّلُوكَ بِنَفْسِي" icon="check"
-        image="assets/img/dictionary/dict-dodont.webp" imageAlt="بطاقات افعل ولا تفعل"
         bg={c.sageDeep} fg={c.onDark} onClick={onOpenDoDont}
       />
     </div>
@@ -1451,14 +1422,13 @@ export default function App() {
           {...logoHold}
           style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0, background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "right", ...logoHold.style }}
         >
-          <Salim mood="smile" size={40} />
+          <PlayerAvatar gender={profile.gender} size={44} />
           <span style={{ minWidth: 0 }}>
             <span style={{ display: "block", fontSize: 11.5, color: c.inkFaint, fontFamily: font.body }}>أَهْلًا بِكَ</span>
             <span style={{ display: "block", fontFamily: font.display, fontWeight: 700, fontSize: 19, color: c.ink, lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               {profile.name}
             </span>
           </span>
-          <PlayerAvatar gender={profile.gender} size={34} />
         </button>
         <ProgressPill done={done.length} total={stories.length} />
       </header>

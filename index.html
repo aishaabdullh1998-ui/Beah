@@ -19,15 +19,27 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@500;600;700;800&family=Noto+Naskh+Arabic:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@500;600;700;800&family=Readex+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="assets/styles.css">
 <style>
+  /* نفس خط النص في موقع رفوف — إن وُجدت ملفات Manchette تُستخدم،
+     وإلا يتراجع المتصفح تلقائيًا إلى Readex Pro المحمَّل من Google Fonts. */
+  @font-face {
+    font-family: "Manchette";
+    src: url("fonts/Manchette-Regular.woff2") format("woff2");
+    font-weight: 400; font-display: swap;
+  }
+  @font-face {
+    font-family: "Manchette";
+    src: url("fonts/Manchette-Bold.woff2") format("woff2");
+    font-weight: 700; font-display: swap;
+  }
   html { height: 100%; }
   html, body, #root { min-height: 100%; }
   html, body { margin: 0; padding: 0; background: #FBF0DF; }
   body {
-    font-family: 'Noto Naskh Arabic', system-ui, serif;
+    font-family: 'Manchette', 'Readex Pro', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     color: #5B3626;
     position: relative;

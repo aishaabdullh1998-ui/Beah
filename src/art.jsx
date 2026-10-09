@@ -419,6 +419,87 @@ export function StoryIcon({ icon, size = 40 }) {
   );
 }
 
+/* ============================================================
+   أَيْقُونَاتُ المُصْطَلَحَاتِ فِي المُعْجَمِ — رَسْمٌ مُلَوَّنٌ مُفَصَّلٌ
+   بَدَلَ صُوَرِ جِيمِينَاي، بِنَفْسِ أُسْلُوبِ أَيْقُونَاتِ القِصَصِ أَعْلَاه.
+   ============================================================ */
+const DICT_ICON_SHAPES = {
+  recycle: (
+    <g>
+      <g fill="#8FAE72" stroke="#4A7A3E" strokeWidth="1.6" strokeLinejoin="round">
+        <path d="M24 6 33 20 15 20Z" />
+        <path d="M24 6 33 20 15 20Z" transform="rotate(120 24 24)" />
+        <path d="M24 6 33 20 15 20Z" transform="rotate(240 24 24)" />
+      </g>
+      <circle cx="24" cy="24" r="4.4" fill="#F0B84E" stroke="#C9863A" strokeWidth="1.4" />
+    </g>
+  ),
+  conserve: (
+    <g>
+      <path d="M22 6C22 6 8 24 8 33a14 14 0 0028 0C36 24 22 6 22 6Z" fill="#5FA6C4" stroke="#2E6E8E" strokeWidth="1.6" />
+      <path d="M15 30a8 10 0 007 9c-6-1-10-5-10-9.6Z" fill="#BEE3EC" opacity=".75" />
+      <rect x="30" y="4" width="10" height="8" rx="2" fill="#9FB0B6" stroke="#5B3626" strokeWidth="1.3" />
+      <path d="M40 10q8 0 8 10" fill="none" stroke="#9FB0B6" strokeWidth="4" strokeLinecap="round" />
+    </g>
+  ),
+  biodiversity: (
+    <g>
+      <ellipse cx="14" cy="34" rx="9" ry="6" fill="#B5895A" stroke="#7A5A2E" strokeWidth="1.4" />
+      <path d="M8 29c1.4-5 6-8 10-7-2 2-3 4-3 6Z" fill="#C29A66" stroke="#7A5A2E" strokeWidth="1.1" />
+      <ellipse cx="34" cy="20" rx="10" ry="7.4" fill="#6E9460" stroke="#4A6338" strokeWidth="1.4" />
+      <ellipse cx="43.4" cy="16.4" rx="3.2" ry="2.6" fill="#8FAE72" stroke="#4A6338" strokeWidth="1" />
+      <path d="M22 44V34c-2-1.4-3.4-3.4-2.8-6" stroke="#8A6A45" strokeWidth="2" fill="none" strokeLinecap="round" />
+      <ellipse cx="17" cy="26" rx="6" ry="5" fill="#9FB585" stroke="#6E8A58" strokeWidth="1.1" />
+    </g>
+  ),
+  warming: (
+    <g>
+      <rect x="20" y="6" width="8" height="26" rx="4" fill="#F0ECE2" stroke="#5B3626" strokeWidth="1.6" />
+      <rect x="21.6" y="16" width="4.8" height="16" rx="2.4" fill="#E66422" />
+      <circle cx="24" cy="37" r="7" fill="#E66422" stroke="#5B3626" strokeWidth="1.6" />
+      <circle cx="38" cy="12" r="6.4" fill="#F0B84E" stroke="#C9863A" strokeWidth="1.4" />
+      <path d="M38 2.6v3M46.4 12h-3M31.6 12h3" stroke="#F0B84E" strokeWidth="2" strokeLinecap="round" />
+    </g>
+  ),
+  pollution: (
+    <g>
+      <path d="M10 34q-6 0-6-6.4 0-5.6 5-6.2.6-6.4 7.4-6.4 5 0 7 4 2-1.6 5-.4 3.2 1.4 3 5 4.6.6 4.6 5.6 0 4.8-5 4.8Z" fill="#AEB4AC" stroke="#6E756E" strokeWidth="1.4" opacity=".92" />
+      <rect x="18" y="34" width="6" height="12" fill="#8B96A0" stroke="#5B3626" strokeWidth="1.3" />
+      <path d="M21 20c3 3 1 6 3 9M30 22c3 3 1 6 3 9" stroke="#C7C2B0" strokeWidth="2.2" fill="none" strokeLinecap="round" opacity=".8" />
+    </g>
+  ),
+  sustainability: (
+    <g>
+      <path d="M24 44V22" stroke="#8A6A3E" strokeWidth="3" strokeLinecap="round" />
+      <g fill="#7C8A2F" stroke="#4A6338" strokeWidth="1.4">
+        <path d="M24 22q-15-3-20-13q15 0 20 13Z" /><path d="M24 22q15-3 20-13q-15 0-20 13Z" />
+      </g>
+      <path d="M8 40h28l-3 6H11Z" fill="#D9C29A" stroke="#5B3626" strokeWidth="1.4" strokeLinejoin="round" />
+      {[0, 1, 2].map((i) => <circle key={i} cx={16 + i * 6} cy="38" r="2.6" fill="#E66422" stroke="#5B3626" strokeWidth="1" />)}
+    </g>
+  ),
+  greenh2: (
+    <g>
+      <rect x="6" y="8" width="24" height="15" rx="2.4" fill="#7FC8C2" stroke="#5B3626" strokeWidth="1.6" />
+      <path d="M10 8V23M16 8V23M22 8V23M28 8V23" stroke="#5B3626" strokeWidth=".8" opacity=".5" />
+      <circle cx="38" cy="12" r="5.4" fill="#F0B84E" stroke="#C9863A" strokeWidth="1.3" />
+      <circle cx="34" cy="34" r="4.2" fill="#D7EDE6" stroke="#2E7D6B" strokeWidth="1.4" />
+      <circle cx="42" cy="34" r="4.2" fill="#D7EDE6" stroke="#2E7D6B" strokeWidth="1.4" />
+      <path d="M38 34h0" stroke="#2E7D6B" strokeWidth="1.4" />
+      <path d="M18 30h20l-4 7H14Z" fill="#8A6A45" stroke="#5B3626" strokeWidth="1.4" strokeLinejoin="round" />
+      <circle cx="21" cy="40" r="3.6" fill="#5B3626" /><circle cx="33" cy="40" r="3.6" fill="#5B3626" />
+    </g>
+  ),
+};
+
+export function DictIcon({ id, size = 28 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden="true" style={{ display: "block" }}>
+      {DICT_ICON_SHAPES[id] || STORY_ICON_SHAPES.drop}
+    </svg>
+  );
+}
+
 const STORY_THUMB = {
   falaj: "assets/img/stories/story-thumb-01-falaj.webp",
   turtle: "assets/img/stories/story-thumb-02-salma.webp",
@@ -742,25 +823,72 @@ const AVATAR_IMG = {
   f: "assets/img/avatar/avatar-girl.webp",
 };
 
-function AvatarGlyph({ gender }) {
-  const girl = gender === "f";
-  const skin = "#E8B98A";
-  const ring = girl ? "#F6D9E4" : "#D7EAE1";
+/* كمّة مطرّزة مشتركة — بيضاء كريمية بشريط ذهبي ونقاط فيروزية، كما في
+   الصور المرجعية للشخصيات. */
+function KummaCap() {
   return (
-    <svg viewBox="0 0 64 64" width="100%" height="100%" role="img" aria-hidden="true">
-      <circle cx="32" cy="32" r="31" fill={ring} />
-      {girl ? (
-        <path d="M13 33c0-11 8.5-19 19-19s19 8 19 19c0 3-.6 5-1.2 6.4-.9-9.4-5.6-16.6-12-18.4 1 1.6 1.6 3 1.6 4-3-1.6-5.6-2.4-7.4-2.4s-4.4.8-7.4 2.4c0-1 .6-2.4 1.6-4-6.4 1.8-11.1 9-12 18.4-.6-1.4-1.2-3.4-1.2-6.4Z" fill="#6B4A32" />
-      ) : (
-        <path d="M15 27c0-9.4 7.6-17 17-17s17 7.6 17 17c-2.8-2.2-6-3.4-9.4-3.4-1.8 2-4.6 3.4-7.6 3.4s-5.8-1.4-7.6-3.4c-3.4 0-6.6 1.2-9.4 3.4Z" fill="#2E7D6B" />
-      )}
-      <circle cx="32" cy="37" r="15.5" fill={skin} />
-      <circle cx="26.3" cy="37" r="1.9" fill="#3A2A1D" />
-      <circle cx="37.7" cy="37" r="1.9" fill="#3A2A1D" />
-      <path d="M25 43.5c3.2 3 10.8 3 14 0" stroke="#8A5A36" strokeWidth="2.1" fill="none" strokeLinecap="round" />
-      {!girl && <circle cx="32" cy="12.4" r="2.3" fill="#2E7D6B" />}
+    <g>
+      <path d="M26 42 Q60 16 94 42 L94 50 Q60 34 26 50 Z" fill="#F6ECCF" stroke={AV_INK} strokeWidth="3" strokeLinejoin="round" />
+      <rect x="26" y="42" width="68" height="9" rx="4" fill="#E7C65A" stroke={AV_INK} strokeWidth="2" />
+      {[40, 52, 68, 80].map((x) => <circle key={x} cx={x} cy="46.5" r="1.8" fill="#2E8C7A" />)}
+    </g>
+  );
+}
+
+const AV_INK = "#5B3626";
+
+/* أفاتار الولد — دشداشة بيضاء بياقة وزرّين، وكمّة مطرّزة، مستوحاة من
+   الشخصية المرجعية للتطبيق. */
+function BoyAvatar() {
+  return (
+    <svg viewBox="0 0 120 130" width="100%" height="100%" role="img" aria-hidden="true">
+      <path d="M14 130 Q14 96 60 92 Q106 96 106 130 Z" fill="#FFFFFF" stroke={AV_INK} strokeWidth="3" />
+      <path d="M60 94 L60 124" stroke={AV_INK} strokeWidth="1.6" />
+      <circle cx="60" cy="118" r="3" fill="#D9CBA3" stroke={AV_INK} strokeWidth="1.3" />
+      <rect x="52" y="78" width="16" height="18" rx="6" fill="#E8B98A" />
+      <ellipse cx="30" cy="70" rx="7" ry="9" fill="#E8B98A" stroke={AV_INK} strokeWidth="2" />
+      <ellipse cx="90" cy="70" rx="7" ry="9" fill="#E8B98A" stroke={AV_INK} strokeWidth="2" />
+      <circle cx="60" cy="62" r="34" fill="#EFC49A" stroke={AV_INK} strokeWidth="3" />
+      <path d="M30 56 Q28 44 38 38" fill="none" stroke="#3B2A1D" strokeWidth="5" strokeLinecap="round" />
+      <path d="M90 56 Q92 44 82 38" fill="none" stroke="#3B2A1D" strokeWidth="5" strokeLinecap="round" />
+      <KummaCap />
+      <ellipse cx="42" cy="70" rx="8" ry="5" fill="#F2A98B" opacity=".55" />
+      <ellipse cx="78" cy="70" rx="8" ry="5" fill="#F2A98B" opacity=".55" />
+      <path d="M44 56 q8 -4 14 0" stroke={AV_INK} strokeWidth="3" fill="none" strokeLinecap="round" />
+      <path d="M62 56 q8 -4 14 0" stroke={AV_INK} strokeWidth="3" fill="none" strokeLinecap="round" />
+      <circle cx="50" cy="64" r="3.4" fill="#3B2A1D" />
+      <circle cx="70" cy="64" r="3.4" fill="#3B2A1D" />
+      <path d="M50 78 Q60 87 70 78" stroke={AV_INK} strokeWidth="3" fill="none" strokeLinecap="round" />
     </svg>
   );
+}
+
+/* أفاتار البنت — ثوب فيروزي بخيوط ذهبية، ولحاف كريمي بزينة ذهبية
+   على الجبين، مستوحاة من الشخصية المرجعية للتطبيق. */
+function GirlAvatar() {
+  return (
+    <svg viewBox="0 0 120 130" width="100%" height="100%" role="img" aria-hidden="true">
+      <path d="M10 130 Q10 94 60 90 Q110 94 110 130 Z" fill="#2E8C7A" stroke={AV_INK} strokeWidth="3" />
+      <path d="M30 128 Q36 108 60 104 Q84 108 90 128" fill="none" stroke="#E7C65A" strokeWidth="2.2" strokeDasharray="4 4" />
+      <rect x="52" y="80" width="16" height="16" rx="6" fill="#EFC49A" />
+      <path d="M16 96 Q14 50 60 30 Q106 50 104 96 Q104 120 86 118 Q92 90 60 84 Q28 90 34 118 Q16 120 16 96Z" fill="#F7EEDA" stroke={AV_INK} strokeWidth="3" />
+      <ellipse cx="60" cy="68" rx="28" ry="30" fill="#EFC49A" stroke={AV_INK} strokeWidth="3" />
+      <path d="M32 58 Q60 42 88 58" fill="none" stroke={AV_INK} strokeWidth="2.6" />
+      <path d="M38 52 Q60 62 82 52" fill="none" stroke="#E7C65A" strokeWidth="2.2" />
+      <circle cx="60" cy="60" r="3.4" fill="#E7C65A" stroke={AV_INK} strokeWidth="1.3" />
+      <ellipse cx="42" cy="76" rx="8" ry="5" fill="#F2A98B" opacity=".55" />
+      <ellipse cx="78" cy="76" rx="8" ry="5" fill="#F2A98B" opacity=".55" />
+      <path d="M44 64 q8 -4 14 0" stroke={AV_INK} strokeWidth="3" fill="none" strokeLinecap="round" />
+      <path d="M62 64 q8 -4 14 0" stroke={AV_INK} strokeWidth="3" fill="none" strokeLinecap="round" />
+      <circle cx="50" cy="72" r="3.4" fill="#3B2A1D" />
+      <circle cx="70" cy="72" r="3.4" fill="#3B2A1D" />
+      <path d="M50 86 Q60 94 70 86" stroke={AV_INK} strokeWidth="3" fill="none" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function AvatarGlyph({ gender }) {
+  return gender === "f" ? <GirlAvatar /> : <BoyAvatar />;
 }
 
 export function PlayerAvatar({ gender, size = 40 }) {
@@ -779,25 +907,66 @@ export function PlayerAvatar({ gender, size = 40 }) {
 /* ============================================================
    الجدّ سالم — الشخصية التي توجّه التطبيق
    الحالات: ask | think | agree | warn | smile
-   صور بملمس مرسوم، بخلفية شفّافة، بدل رسم SVG مكوَّد.
+   رسم SVG مكوَّد بالدشداشة البيضاء الجديدة والكمّة المطرّزة واللحية
+   البيضاء، بنفس أسلوب رسم بقية التطبيق (خطوط حبر، ألوان دافئة).
    ============================================================ */
-const SALIM_FACE_RATIO = 361 / 263; // ارتفاع/عرض صور الوجه
-const SALIM_IMG = {
-  ask:   "assets/characters/salim-ask.webp",
-  think: "assets/characters/salim-think.webp",
-  warn:  "assets/characters/salim-warn.webp",
-  smile: "assets/characters/salim-smile.webp",
-  agree: "assets/characters/salim-agree.webp",
+const SALIM_FACE_RATIO = 130 / 120; // ارتفاع/عرض الرسم
+
+/* تفاصيل الوجه المتغيّرة حسب الحالة النفسية — كل العناصر الثابتة
+   (الرأس، اللحية، الكمّة، الياقة) تبقى واحدة، وتتغيّر الحواجب
+   والعينان والفم فقط لتروي الانفعال. */
+const SALIM_MOOD = {
+  smile: {
+    brows: <><path d="M44 54 q8 -3 14 0" stroke={AV_INK} strokeWidth="3" fill="none" strokeLinecap="round" /><path d="M62 54 q8 -3 14 0" stroke={AV_INK} strokeWidth="3" fill="none" strokeLinecap="round" /></>,
+    eyes: <><circle cx="50" cy="61" r="3.2" fill="#3B2A1D" /><circle cx="70" cy="61" r="3.2" fill="#3B2A1D" /></>,
+    mouth: <path d="M50 73 Q60 80 70 73" stroke={AV_INK} strokeWidth="3" fill="none" strokeLinecap="round" />,
+  },
+  ask: {
+    brows: <><path d="M44 50 q8 -6 14 -1" stroke={AV_INK} strokeWidth="3" fill="none" strokeLinecap="round" /><path d="M62 50 q8 -6 14 -1" stroke={AV_INK} strokeWidth="3" fill="none" strokeLinecap="round" /></>,
+    eyes: <><circle cx="50" cy="61" r="4" fill="#3B2A1D" /><circle cx="70" cy="61" r="4" fill="#3B2A1D" /></>,
+    mouth: <ellipse cx="60" cy="75" rx="6.5" ry="7" fill="#7A4A36" stroke={AV_INK} strokeWidth="2" />,
+  },
+  think: {
+    brows: <><path d="M44 52 q8 -2 14 0" stroke={AV_INK} strokeWidth="3" fill="none" strokeLinecap="round" /><path d="M62 49 q8 -5 14 -1" stroke={AV_INK} strokeWidth="3" fill="none" strokeLinecap="round" /></>,
+    eyes: <><ellipse cx="48" cy="62" rx="3" ry="2.2" fill="#3B2A1D" /><ellipse cx="72" cy="61" rx="3" ry="2.2" fill="#3B2A1D" /></>,
+    mouth: <path d="M53 75 Q60 72 68 75" stroke={AV_INK} strokeWidth="3" fill="none" strokeLinecap="round" />,
+  },
+  warn: {
+    brows: <><path d="M44 52 L58 56" stroke={AV_INK} strokeWidth="3.4" fill="none" strokeLinecap="round" /><path d="M76 52 L62 56" stroke={AV_INK} strokeWidth="3.4" fill="none" strokeLinecap="round" /></>,
+    eyes: <><circle cx="50" cy="62" r="3.2" fill="#3B2A1D" /><circle cx="70" cy="62" r="3.2" fill="#3B2A1D" /></>,
+    mouth: <path d="M51 76 H69" stroke={AV_INK} strokeWidth="3.2" fill="none" strokeLinecap="round" />,
+  },
+  agree: {
+    brows: <><path d="M44 53 q8 -3 14 0" stroke={AV_INK} strokeWidth="3" fill="none" strokeLinecap="round" /><path d="M62 53 q8 -3 14 0" stroke={AV_INK} strokeWidth="3" fill="none" strokeLinecap="round" /></>,
+    eyes: <><path d="M46 61 q4 -3 8 0" stroke="#3B2A1D" strokeWidth="2.6" fill="none" strokeLinecap="round" /><path d="M66 61 q4 -3 8 0" stroke="#3B2A1D" strokeWidth="2.6" fill="none" strokeLinecap="round" /></>,
+    mouth: <path d="M48 72 Q60 86 72 72 Q60 80 48 72Z" fill="#7A4A36" stroke={AV_INK} strokeWidth="2.4" />,
+  },
 };
 
 export function Salim({ mood = "smile", size = 96 }) {
-  const src = SALIM_IMG[mood] || SALIM_IMG.smile;
+  const m = SALIM_MOOD[mood] || SALIM_MOOD.smile;
   return (
-    <img
-      src={src} alt="" aria-hidden="true" draggable="false"
-      width={size} height={Math.round(size * SALIM_FACE_RATIO)}
-      style={{ display: "block", width: size, height: Math.round(size * SALIM_FACE_RATIO), objectFit: "contain" }}
-    />
+    <svg
+      viewBox="0 0 120 130" width={size} height={Math.round(size * SALIM_FACE_RATIO)}
+      style={{ display: "block" }} role="img" aria-hidden="true"
+    >
+      <path d="M14 130 Q14 96 60 92 Q106 96 106 130 Z" fill="#FFFFFF" stroke={AV_INK} strokeWidth="3" />
+      <path d="M54 93 L50 122 M66 93 L70 122" stroke={AV_INK} strokeWidth="1.5" />
+      <circle cx="50" cy="124" r="2.6" fill="#D9CBA3" stroke={AV_INK} strokeWidth="1.2" />
+      <circle cx="70" cy="124" r="2.6" fill="#D9CBA3" stroke={AV_INK} strokeWidth="1.2" />
+      <rect x="52" y="78" width="16" height="18" rx="6" fill="#C9935F" />
+      <ellipse cx="30" cy="70" rx="7" ry="9" fill="#C9935F" stroke={AV_INK} strokeWidth="2" />
+      <ellipse cx="90" cy="70" rx="7" ry="9" fill="#C9935F" stroke={AV_INK} strokeWidth="2" />
+      <circle cx="60" cy="62" r="34" fill="#D9A36C" stroke={AV_INK} strokeWidth="3" />
+      <path d="M28 64 Q26 94 60 100 Q94 94 92 64 Q93 87 79 93 Q87 78 83 65 L82 80 Q74 91 60 93 Q46 91 38 80 L37 65 Q33 78 41 93 Q27 87 28 64Z" fill="#F2EFE8" stroke={AV_INK} strokeWidth="2.6" strokeLinejoin="round" />
+      <KummaCap />
+      <path d="M44 58 q16 -3 32 0" stroke="#B5794A" strokeWidth="1.4" fill="none" opacity=".6" />
+      <ellipse cx="42" cy="68" rx="7" ry="4.4" fill="#E6875C" opacity=".4" />
+      <ellipse cx="78" cy="68" rx="7" ry="4.4" fill="#E6875C" opacity=".4" />
+      {m.brows}
+      {m.eyes}
+      {m.mouth}
+    </svg>
   );
 }
 
@@ -816,6 +985,65 @@ export function SalimSays({ mood = "smile", text, size = 62, tone = "sage" }) {
         }}
       >
         <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.95, color: c.ink, fontFamily: font.body }}>{text}</p>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   الهوية البصرية — شعار الموقع
+   قطرة ماء (رمز الفلج) يحتضن منظرًا طبيعيًا عُمانيًا مصغَّرًا:
+   شمس وجبال ونخلة وموجة ماء، بنفس ألوان هوية التطبيق.
+   ============================================================ */
+const BRAND_DROP = "M50 6 C50 6 12 52 12 75 A38 38 0 0 0 88 75 C88 52 50 6 50 6 Z";
+
+export function BrandMark({ size = 96 }) {
+  return (
+    <svg viewBox="0 0 100 112" width={size} height={size * 1.12} role="img" aria-hidden="true">
+      <defs>
+        <clipPath id="brandDrop"><path d={BRAND_DROP} /></clipPath>
+        <linearGradient id="brandSky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#CFE6F2" /><stop offset="55%" stopColor="#E9DCB3" /><stop offset="100%" stopColor="#D8B27E" />
+        </linearGradient>
+      </defs>
+      <g clipPath="url(#brandDrop)">
+        <rect x="0" y="0" width="100" height="112" fill="url(#brandSky)" />
+        <circle cx="66" cy="34" r="9" fill="#F2A41A" />
+        <g stroke="#F2A41A" strokeWidth="2.4" strokeLinecap="round">
+          {[0, 45, 90, 135, 180].map((a) => <line key={a} x1="66" y1="19" x2="66" y2="24" transform={`rotate(${a} 66 34)`} />)}
+        </g>
+        <path d="M4 80 30 54 50 74 68 48 96 78 96 112 4 112Z" fill="#BC8656" />
+        <path d="M4 94 26 76 50 92 76 70 96 92 96 112 4 112Z" fill="#8C5E3A" />
+        <g transform="translate(30,66)">
+          <path d="M0 46V16" stroke="#5B3626" strokeWidth="3" strokeLinecap="round" />
+          <path d="M0 26 -11 11M0 21 11 7" stroke="#2E7D6B" strokeWidth="3.4" fill="none" strokeLinecap="round" />
+        </g>
+        <path d="M4 100q12-6 24 0t24 0 24 0 24 0v12H4Z" fill="#2E8C7A" opacity=".55" />
+      </g>
+      <path d={BRAND_DROP} fill="none" stroke="#5B3626" strokeWidth="4" strokeLinejoin="round" />
+      <ellipse cx="34" cy="30" rx="9" ry="14" fill="#FFFFFF" opacity=".22" transform="rotate(-18 34 30)" />
+    </svg>
+  );
+}
+
+/* شعار كامل: العلامة + اسم الموقع بتصميم مزدوج اللون وخط فاصل مزخرف،
+   بدل عنوان نصّي عادي — يصلح لواجهة الترحيب وللترويج. */
+export function BrandLogo({ size = 96, align = "center" }) {
+  const centered = align === "center";
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: centered ? "center" : "flex-end", gap: 0 }}>
+      <BrandMark size={size} />
+      <div style={{ textAlign: centered ? "center" : "right", marginTop: 2 }}>
+        <div style={{ fontFamily: font.display, fontWeight: 800, fontSize: size * 0.355, lineHeight: 1.15, color: c.ink }}>
+          مُغَامَرَتِي
+        </div>
+        <div style={{ fontFamily: font.display, fontWeight: 800, fontSize: size * 0.355, lineHeight: 1.15, color: c.sageDeep }}>
+          البَيْئِيَّةُ
+        </div>
+        <svg width={size * 0.92} height="13" viewBox="0 0 96 13" style={{ display: "block", margin: centered ? "4px auto 0" : "4px 0 0 auto" }} aria-hidden="true">
+          <path d="M2 6.5 Q24 1 48 6.5 T94 6.5" stroke={c.sageDeep} strokeWidth="2.2" fill="none" strokeLinecap="round" />
+          <circle cx="48" cy="7" r="3" fill={c.sageInk} />
+        </svg>
       </div>
     </div>
   );
