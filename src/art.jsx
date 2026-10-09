@@ -1148,26 +1148,58 @@ export function GeoWord({ word, palette = PALETTE_OASIS, size = 44, gap = 4 }) {
   );
 }
 
-/* شعار كامل: العلامة + اسم الموقع بتصميم مزدوج اللون وخط فاصل مزخرف،
-   بدل عنوان نصّي عادي — يصلح لواجهة الترحيب وللترويج.
-   (نسخة الكتل الهندسيَّة للعنوان — GeoWord أعلاه — جاهزةٌ وتنتظر
-   اختيار الباليت واتجاه وضوح الحروف قبل اعتمادها هنا). */
+/* شعار كامل — حلٌّ هجينٌ: العنوان نصٌّ عربيٌّ حقيقيٌّ وواضحٌ تمامًا
+   (لا بلاطات حروفٍ قد تتشابه)، لكن بمعالجةٍ لونيَّةٍ بأسلوب «الكتل
+   الهندسيَّة» المرجعيّ — تعبئةٌ لونيَّةٌ زاهيةٌ وخطُّ حَبرٍ غليظٌ محيطٌ
+   بكلّ حرفٍ (كما في الصورة المرجعيَّة ذات الخطوط السميكة) — ثمّ شريطُ
+   أشكالٍ هندسيَّةٍ صغيرةٍ ملوَّنةٍ بلوحة «الواحة» بدل الخطّ المتموّج
+   البسيط، ليتردّد صدى العلامة والعنوان معًا بنفس المفردات البصريَّة. */
+const TITLE_STROKE = `${BRAND_INK}`;
+
+function AccentShape({ color, type, size }) {
+  const border = Math.max(1.4, size * 0.12);
+  if (type === "circle")
+    return <span style={{ width: size, height: size, borderRadius: "50%", background: color, border: `${border}px solid ${BRAND_INK}`, display: "inline-block", flexShrink: 0 }} />;
+  if (type === "diamond")
+    return <span style={{ width: size * 0.86, height: size * 0.86, background: color, border: `${border}px solid ${BRAND_INK}`, borderRadius: 2, display: "inline-block", transform: "rotate(45deg)", flexShrink: 0 }} />;
+  return (
+    <svg width={size} height={size} viewBox="0 0 20 20" aria-hidden="true" style={{ flexShrink: 0 }}>
+      <path d="M10 2 18 18 2 18Z" fill={color} stroke={BRAND_INK} strokeWidth="2" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function TitleAccentStrip({ size, align }) {
+  const centered = align === "center";
+  const shapes = [
+    { color: PALETTE_OASIS[0], type: "triangle" },
+    { color: PALETTE_OASIS[1], type: "circle" },
+    { color: PALETTE_OASIS[2], type: "diamond" },
+    { color: PALETTE_OASIS[3], type: "circle" },
+    { color: PALETTE_OASIS[4], type: "triangle" },
+  ];
+  const s = Math.max(7, size * 0.08);
+  return (
+    <div style={{ display: "flex", direction: "rtl", gap: s * 0.5, alignItems: "center", justifyContent: centered ? "center" : "flex-end", marginTop: size * 0.06 }}>
+      {shapes.map((sh, i) => <AccentShape key={i} {...sh} size={s} />)}
+    </div>
+  );
+}
+
 export function BrandLogo({ size = 96, align = "center" }) {
   const centered = align === "center";
+  const strokeW = Math.max(1, size * 0.0145);
+  const titleStyle = (fill) => ({
+    fontFamily: font.display, fontWeight: 800, fontSize: size * 0.37, lineHeight: 1.18,
+    color: fill, WebkitTextStroke: `${strokeW}px ${TITLE_STROKE}`, textShadow: "1.5px 1.5px 0 rgba(91,54,38,.18)",
+  });
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: centered ? "center" : "flex-end", gap: 0 }}>
       <BrandMark size={size} />
-      <div style={{ textAlign: centered ? "center" : "right", marginTop: 2 }}>
-        <div style={{ fontFamily: font.display, fontWeight: 800, fontSize: size * 0.355, lineHeight: 1.15, color: c.ink }}>
-          مُغَامَرَتِي
-        </div>
-        <div style={{ fontFamily: font.display, fontWeight: 800, fontSize: size * 0.355, lineHeight: 1.15, color: c.sageDeep }}>
-          البَيْئِيَّةُ
-        </div>
-        <svg width={size * 0.92} height="13" viewBox="0 0 96 13" style={{ display: "block", margin: centered ? "4px auto 0" : "4px 0 0 auto" }} aria-hidden="true">
-          <path d="M2 6.5 Q24 1 48 6.5 T94 6.5" stroke={c.sageDeep} strokeWidth="2.2" fill="none" strokeLinecap="round" />
-          <circle cx="48" cy="7" r="3" fill={c.sageInk} />
-        </svg>
+      <div style={{ textAlign: centered ? "center" : "right", marginTop: 4 }}>
+        <div style={titleStyle(PALETTE_OASIS[0])}>مُغَامَرَتِي</div>
+        <div style={titleStyle(PALETTE_OASIS[1])}>البَيْئِيَّةُ</div>
+        <TitleAccentStrip size={size} align={align} />
       </div>
     </div>
   );
