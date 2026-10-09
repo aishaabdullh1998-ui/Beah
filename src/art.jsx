@@ -1059,8 +1059,99 @@ export function BrandMark({ size = 96 }) {
   );
 }
 
+/* ============================================================
+   عنوان الموقع بأسلوب «الكتل الهندسيَّة» — كلُّ حرفٍ بلاطةٌ مُفردةٌ
+   ملوَّنةٌ، وشكلُ الحرفِ مبنيٌّ من خطوطٍ ودوائرَ هندسيَّةٍ مبسَّطةٍ
+   (لا خطَّ حقيقيًّا)، تمامًا بروح الصورتين المرجعيَّتين.
+   ============================================================ */
+const GEO_LETTERS = {
+  "ا": (L) => <rect x="20" y="6" width="8" height="36" rx="4" fill={L} />,
+  "ل": (L) => (
+    <g fill="none" stroke={L} strokeWidth="8" strokeLinecap="round">
+      <path d="M24 6V28" /><path d="M24 28Q24 40 13 40" />
+    </g>
+  ),
+  "ب": (L) => (
+    <g>
+      <path d="M8 27Q24 40 40 27" stroke={L} strokeWidth="7" strokeLinecap="round" fill="none" />
+      <circle cx="24" cy="41" r="3.4" fill={L} />
+    </g>
+  ),
+  "ت": (L) => (
+    <g>
+      <path d="M8 27Q24 40 40 27" stroke={L} strokeWidth="7" strokeLinecap="round" fill="none" />
+      <circle cx="18" cy="13" r="3" fill={L} /><circle cx="30" cy="13" r="3" fill={L} />
+    </g>
+  ),
+  "ة": (L) => (
+    <g>
+      <ellipse cx="24" cy="29" rx="14" ry="10" stroke={L} strokeWidth="6" fill="none" />
+      <circle cx="18" cy="13" r="3" fill={L} /><circle cx="30" cy="13" r="3" fill={L} />
+    </g>
+  ),
+  "ر": (L) => <path d="M31 9Q31 29 16 34" stroke={L} strokeWidth="7" strokeLinecap="round" fill="none" />,
+  "م": (L) => (
+    <g fill="none" stroke={L} strokeWidth="6" strokeLinecap="round">
+      <circle cx="23" cy="17" r="9" /><path d="M23 26V41" />
+    </g>
+  ),
+  "غ": (L) => (
+    <g>
+      <path d="M34 14Q13 14 13 27Q13 39 28 37" stroke={L} strokeWidth="7" strokeLinecap="round" fill="none" />
+      <circle cx="30" cy="7" r="3" fill={L} />
+    </g>
+  ),
+  "ي": (L) => (
+    <g>
+      <path d="M8 19Q24 35 40 19" stroke={L} strokeWidth="7" strokeLinecap="round" fill="none" />
+      <circle cx="17" cy="38" r="3" fill={L} /><circle cx="29" cy="38" r="3" fill={L} />
+    </g>
+  ),
+  "ئ": (L) => (
+    <g>
+      <path d="M8 27Q24 40 40 27" stroke={L} strokeWidth="7" strokeLinecap="round" fill="none" />
+      <path d="M24 10 29 15 24 20 19 15Z" fill={L} />
+    </g>
+  ),
+};
+
+export const WORD_MUGHAMARATI = ["م", "غ", "ا", "م", "ر", "ت", "ي"];
+export const WORD_BEEIYYA = ["ا", "ل", "ب", "ي", "ئ", "ي", "ة"];
+
+/* ثلاث لوحاتٍ مُقترحةٌ — كلُّ لوحةٍ خمسةُ ألوانٍ تدور على الحروف */
+export const PALETTE_OASIS = ["#F2A41A", "#E66422", "#144D4A", "#7C8A2F", "#F0717A"];      // الواحة: ذهب التمر، فخار بهلا، ماء الفلج، سعف النخيل، وردة الجبل الأخضر
+export const PALETTE_COAST = ["#2E8C7A", "#7FC8C2", "#D9A441", "#2E6E8E", "#C9633B"];      // الساحل: عمق البحر، تركواز رأس الحد، رمل الساحل، زرقة مسندم، خشب القوارب
+export const PALETTE_SUNSET = ["#8C3B6E", "#E66422", "#F2A41A", "#14405A", "#D9C29A"];     // غروب الجبل: نيلي الغروب، فخار بهلا، ذهب التمر، ليل الصحراء، رمل القمة
+
+function GeoLetterTile({ letter, color, size = 44 }) {
+  const glyph = GEO_LETTERS[letter];
+  return (
+    <div style={{
+      width: size, height: size, borderRadius: size * 0.24, background: color,
+      border: `3px solid ${BRAND_INK}`, boxShadow: `0 3px 0 rgba(91,54,38,.3)`,
+      display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+    }}>
+      <svg viewBox="0 0 48 48" width={size * 0.76} height={size * 0.76} aria-hidden="true">
+        {glyph ? glyph(BRAND_INK) : null}
+      </svg>
+    </div>
+  );
+}
+
+export function GeoWord({ word, palette = PALETTE_OASIS, size = 44, gap = 4 }) {
+  return (
+    <div style={{ display: "flex", direction: "rtl", gap, justifyContent: "center" }}>
+      {word.map((letter, i) => (
+        <GeoLetterTile key={i} letter={letter} color={palette[i % palette.length]} size={size} />
+      ))}
+    </div>
+  );
+}
+
 /* شعار كامل: العلامة + اسم الموقع بتصميم مزدوج اللون وخط فاصل مزخرف،
-   بدل عنوان نصّي عادي — يصلح لواجهة الترحيب وللترويج. */
+   بدل عنوان نصّي عادي — يصلح لواجهة الترحيب وللترويج.
+   (نسخة الكتل الهندسيَّة للعنوان — GeoWord أعلاه — جاهزةٌ وتنتظر
+   اختيار الباليت واتجاه وضوح الحروف قبل اعتمادها هنا). */
 export function BrandLogo({ size = 96, align = "center" }) {
   const centered = align === "center";
   return (
@@ -1220,7 +1311,6 @@ export function Medal({ storyId, icon, earned = false, size = 66 }) {
    الأنماط المشتركة للحركة
    ============================================================ */
 export const keyframes = `
-  @keyframes bob { 0%,100% { transform: translateY(0) rotate(-2deg);} 50% { transform: translateY(-9px) rotate(2deg);} }
   @keyframes twinkle { 0%,100% { opacity:.3;} 50% { opacity:1;} }
   @keyframes rise { from { opacity:0; transform: translateY(14px);} to { opacity:1; transform:none;} }
   @keyframes fade { from { opacity:0;} to { opacity:1;} }
@@ -1238,7 +1328,7 @@ export const keyframes = `
   @keyframes tvPlay { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
   @keyframes spinFan { to { transform: rotate(360deg); } }
 
-  .bob { animation: bob 3.2s ease-in-out infinite; display:inline-block; }
+  .bob { display:inline-block; }
   .star { animation: twinkle 2.4s ease-in-out infinite; }
   .fwd { animation: slideFwd .38s ${ease} both; }
   .back { animation: slideBack .38s ${ease} both; }
