@@ -733,6 +733,50 @@ export function StoryHero({ storyId, sceneId, icon, size = 46 }) {
 }
 
 /* ============================================================
+   أَفَاتَارُ الطِّفْلِ — أَيْقُونَةٌ خَاصَّةٌ لِلْوَلَدِ وَلِلْبِنْتِ، تَظْهَرُ بَعْدَ التَّسْجِيلِ
+   تُحَاوِلُ عَرْضَ صُورَةٍ مُولَّدَةٍ (لَمْ تُرْفَعْ بَعْدُ)، وَإِلَّا رَسْمٌ مَرْسُومٌ باليد
+   بَدَلَ ذَلِكَ دُونَ أَيِّ كَسْرٍ بَصَرِيٍّ.
+   ============================================================ */
+const AVATAR_IMG = {
+  m: "assets/img/avatar/avatar-boy.webp",
+  f: "assets/img/avatar/avatar-girl.webp",
+};
+
+function AvatarGlyph({ gender }) {
+  const girl = gender === "f";
+  const skin = "#E8B98A";
+  const ring = girl ? "#F6D9E4" : "#D7EAE1";
+  return (
+    <svg viewBox="0 0 64 64" width="100%" height="100%" role="img" aria-hidden="true">
+      <circle cx="32" cy="32" r="31" fill={ring} />
+      {girl ? (
+        <path d="M13 33c0-11 8.5-19 19-19s19 8 19 19c0 3-.6 5-1.2 6.4-.9-9.4-5.6-16.6-12-18.4 1 1.6 1.6 3 1.6 4-3-1.6-5.6-2.4-7.4-2.4s-4.4.8-7.4 2.4c0-1 .6-2.4 1.6-4-6.4 1.8-11.1 9-12 18.4-.6-1.4-1.2-3.4-1.2-6.4Z" fill="#6B4A32" />
+      ) : (
+        <path d="M15 27c0-9.4 7.6-17 17-17s17 7.6 17 17c-2.8-2.2-6-3.4-9.4-3.4-1.8 2-4.6 3.4-7.6 3.4s-5.8-1.4-7.6-3.4c-3.4 0-6.6 1.2-9.4 3.4Z" fill="#2E7D6B" />
+      )}
+      <circle cx="32" cy="37" r="15.5" fill={skin} />
+      <circle cx="26.3" cy="37" r="1.9" fill="#3A2A1D" />
+      <circle cx="37.7" cy="37" r="1.9" fill="#3A2A1D" />
+      <path d="M25 43.5c3.2 3 10.8 3 14 0" stroke="#8A5A36" strokeWidth="2.1" fill="none" strokeLinecap="round" />
+      {!girl && <circle cx="32" cy="12.4" r="2.3" fill="#2E7D6B" />}
+    </svg>
+  );
+}
+
+export function PlayerAvatar({ gender, size = 40 }) {
+  const g = gender === "f" ? "f" : "m";
+  return (
+    <div style={{ width: size, height: size, borderRadius: "50%", overflow: "hidden", flexShrink: 0, boxShadow: shadow.sm }}>
+      <ImgFallback
+        src={AVATAR_IMG[g]} alt="" width={size} height={size}
+        style={{ borderRadius: "50%", width: size, height: size }}
+        fallback={<AvatarGlyph gender={g} />}
+      />
+    </div>
+  );
+}
+
+/* ============================================================
    الجدّ سالم — الشخصية التي توجّه التطبيق
    الحالات: ask | think | agree | warn | smile
    صور بملمس مرسوم، بخلفية شفّافة، بدل رسم SVG مكوَّد.

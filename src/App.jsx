@@ -12,7 +12,7 @@ import {
   stories, quizSets, dictionaryTerms, doDontCards, labels, games, mission, footerText,
   readingTexts,
 } from "./content.js";
-import { Glyph, IconChip, ImgFallback, Salim, SalimSays, OmanMap, StoryBadge, StoryIcon, StoryHero, CompletionBadge, keyframes } from "./art.jsx";
+import { Glyph, IconChip, ImgFallback, Salim, SalimSays, OmanMap, StoryBadge, StoryIcon, StoryHero, CompletionBadge, PlayerAvatar, keyframes } from "./art.jsx";
 import { WORD_SCENES, ActBtn, Hint } from "./scenes.jsx";
 import {
   PreviewCard, ConnectCard, PredictCard, ReviewCard, InferenceCard,
@@ -337,9 +337,12 @@ function MissionLetter({ profile, onAccept }) {
           marginTop: 16, padding: "18px 16px", borderRadius: 14,
           background: c.sage, border: `2px dashed ${c.sageDeep}55`,
         }}>
-          <p style={{ margin: 0, fontFamily: font.display, fontSize: 19, fontWeight: 700, color: c.ink, lineHeight: 1.9 }}>
-            {mission.salute} {profile.name}،
-          </p>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
+            <PlayerAvatar gender={profile.gender} size={40} />
+            <p style={{ margin: 0, fontFamily: font.display, fontSize: 19, fontWeight: 700, color: c.ink, lineHeight: 1.9 }}>
+              {mission.salute} {profile.name}،
+            </p>
+          </div>
           {body.map((line, idx) => (
             <p key={idx} style={{
               margin: "10px 0 0", fontSize: idx === 1 ? 18 : 14.5, lineHeight: 2.05,
@@ -1455,6 +1458,7 @@ export default function App() {
               {profile.name}
             </span>
           </span>
+          <PlayerAvatar gender={profile.gender} size={34} />
         </button>
         <ProgressPill done={done.length} total={stories.length} />
       </header>
