@@ -39,7 +39,6 @@ jobs:
           cp index.html _site/
           cp .nojekyll _site/
           cp -r assets _site/assets
-          cp -r salma _site/salma
 
       - uses: actions/upload-pages-artifact@v3
         with:
