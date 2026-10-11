@@ -3,6 +3,7 @@
    ============================================================ */
 import React, { useState } from "react";
 import { c, env as envColor, shadow, font, ease } from "./theme.js";
+import { MAP_VIEWBOX, LAND, LAND_ORDER, LAND_BORDER, NEIGHBOURS, GRATICULE, project } from "./omanGeo.js";
 
 /* ── أيقونات البيئات ───────────────────────────────────── */
 const SHAPES = {
@@ -1207,19 +1208,15 @@ export function BrandLogo({ size = 96, align = "center" }) {
 
 /* ============================================================
    خريطة عُمان — الشاشة الرئيسية
-   الإحداثيات في content.js داخل mapPos لكل قصة
-   ============================================================ */
-const OMAN_MAIN =
-  "M150 58 L168 78 L182 108 L200 120 L208 124 L215 138 L228 160 L232 166 L226 184 " +
-  "L214 208 L204 228 L196 248 L186 270 L175 292 L163 312 L150 332 L138 352 L125 372 " +
-  "L110 390 L96 405 L82 416 L70 424 L55 432 L50 416 L48 400 L43 370 L40 340 L43 310 " +
-  "L48 280 L53 248 L60 215 L68 190 L78 168 L86 146 L95 125 L104 95 L118 72 Z";
-const MUSANDAM = "M152 18 L178 26 L183 42 L168 50 L152 40 L146 28 Z";
 
+   الحدود مرسومة من بيانات Natural Earth 10m الحقيقيّة (omanGeo.js)،
+   ومواقع القصص إحداثيّات lat/lon في content.js تُسقَط هنا.
+   ============================================================ */
 export function OmanMap({ stories, completed = [], onPick, activeId }) {
+  const { w: VW, h: VH } = MAP_VIEWBOX;
   return (
     <svg
-      viewBox="0 0 300 500"
+      viewBox={`0 0 ${VW} ${VH}`}
       role="img"
       aria-label="خريطة سلطنة عُمان، وعليها مواقع المغامرات"
       style={{ width: "auto", height: "min(56vh, 520px)", maxWidth: "100%", display: "block", margin: "0 auto" }}
@@ -1236,77 +1233,77 @@ export function OmanMap({ stories, completed = [], onPick, activeId }) {
         </linearGradient>
       </defs>
 
-      <rect x="0" y="0" width="300" height="500" fill="url(#seaGrad)" />
+      <rect x="0" y="0" width={VW} height={VH} fill="url(#seaGrad)" />
 
-      {/* موج خفيف في البحر */}
-      <g fill="none" stroke="#FFFFFF" strokeWidth="1.6" strokeLinecap="round" opacity=".55">
-        <path d="M238 210 q7 -5 14 0 t14 0" />
-        <path d="M246 244 q7 -5 14 0 t14 0" />
-        <path d="M206 330 q7 -5 14 0 t14 0" />
-        <path d="M172 424 q7 -5 14 0 t14 0" />
-        <path d="M30 150 q7 -5 14 0 t14 0" />
+      {/* خطوط الطول والعرض */}
+      <g stroke="#9DC2CC" strokeWidth=".5" opacity=".65">
+        {GRATICULE.lon.map((l) => <line key={`n${l.label}`} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} />)}
+        {GRATICULE.lat.map((l) => <line key={`t${l.label}`} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} />)}
       </g>
 
-      {/* اليابسة */}
-      <path d={OMAN_MAIN} fill="url(#landGrad)" stroke="#C6B995" strokeWidth="2.4" strokeLinejoin="round" />
-      <path d={MUSANDAM} fill="url(#landGrad)" stroke="#C6B995" strokeWidth="2.4" strokeLinejoin="round" />
+      {/* يابسة الجيران — باهتة، كي لا تبدو عُمان جزيرة */}
+      <path d={NEIGHBOURS} fill="#E7E0D0" stroke="#D3C9B4" strokeWidth=".8" opacity=".9" />
 
-      {/* جزر الديمانيّات */}
-      <g fill="url(#landGrad)" stroke="#C6B995" strokeWidth="1.6">
-        <ellipse cx="176" cy="84" rx="7" ry="4" />
-        <ellipse cx="190" cy="94" rx="5" ry="3" />
-        <ellipse cx="185" cy="75" rx="4.5" ry="2.8" />
+      {/* اليابسة — ستّة مضلّعات حقيقيّة */}
+      <g fill="url(#landGrad)" stroke="#C6B995" strokeWidth="1.6" strokeLinejoin="round">
+        {LAND_ORDER.map((k) => <path key={k} d={LAND[k]} />)}
       </g>
 
-      {/* تضاريس: جبال الحجر وجبال ظفار */}
-      <g fill="none" stroke="#C9B98F" strokeWidth="2.4" strokeLinecap="round" opacity=".8">
-        <path d="M118 140 l10 -11 10 11M140 130 l10 -11 10 11M162 148 l9 -10 9 10" />
-        <path d="M80 396 l10 -11 10 11M102 386 l9 -10 9 10" />
-      </g>
-      {/* كثبان الوسطى */}
-      <g fill="none" stroke="#D5C7A2" strokeWidth="2" strokeLinecap="round" opacity=".75">
-        <path d="M76 252 q12 -7 24 0M70 292 q12 -7 24 0M92 326 q12 -7 24 0" />
-      </g>
+      {/* الحدّ البرّي مع الجيران — مقطّع كما في الخرائط الرسميّة */}
+      <path d={LAND_BORDER} fill="none" stroke="#A08E63" strokeWidth="1.6"
+            strokeDasharray="5 2.5 1 2.5" strokeLinecap="round" opacity=".9" />
 
       {/* المؤشّرات */}
-      {stories.map((s) => {
-        const col = envColor[s.id] || c.sageDeep;
-        const done = completed.includes(s.id);
-        const active = activeId === s.id;
+      {stories.map((st) => {
+        const col = envColor[st.id] || c.sageDeep;
+        const done = completed.includes(st.id);
+        const active = activeId === st.id;
+        const at = project(st.place.lat, st.place.lon);
+        const px = at.x + (st.place.dx || 0);
+        const py = at.y + (st.place.dy || 0);
+        const moved = !!(st.place.dx || st.place.dy);
         return (
-          <g
-            key={s.id}
-            transform={`translate(${s.mapPos.x} ${s.mapPos.y})`}
-            style={{ cursor: "pointer" }}
-            onClick={() => onPick(s.id)}
-            role="button"
-            tabIndex={0}
-            aria-label={`${s.title} — ${s.env}${done ? "، مكتملة" : ""}`}
-            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onPick(s.id); } }}
-          >
-            {/* مساحة لمس أوسع من الدائرة المرئية */}
-            <circle r="17" fill="transparent" />
-            {active && <circle r="16" fill={col} opacity=".22" />}
-            <circle r="12" fill={done ? col : c.paper} stroke={col} strokeWidth="2.4" />
-            <g transform="translate(-6.5 -6.5)">
-              <svg width="13" height="13" viewBox="0 0 24 24" style={{ overflow: "visible" }}>
-                <g
-                  fill="none"
-                  stroke={done ? c.onDark : col}
-                  strokeWidth="2.4"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  {SHAPES[s.icon] || SHAPES.drop}
-                </g>
-              </svg>
-            </g>
-            {done && (
-              <g transform="translate(8.5 -12)">
-                <circle r="5.5" fill={c.medal} stroke={c.paper} strokeWidth="1.8" />
-                <path d="M-2.6 0.2 L-0.6 2.2 L2.8 -1.6" fill="none" stroke="#FFF" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-              </g>
+          <g key={st.id}>
+            {/* خيط يصل المؤشّر المُزاح بموضعه الحقيقيّ */}
+            {moved && (
+              <>
+                <line x1={at.x} y1={at.y} x2={px} y2={py} stroke={col} strokeWidth="1" opacity=".55" />
+                <circle cx={at.x} cy={at.y} r="1.6" fill={col} opacity=".75" />
+              </>
             )}
+            <g
+              transform={`translate(${px} ${py})`}
+              style={{ cursor: "pointer" }}
+              onClick={() => onPick(st.id)}
+              role="button"
+              tabIndex={0}
+              aria-label={`${st.title} — ${st.env}${done ? "، مكتملة" : ""}`}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onPick(st.id); } }}
+            >
+              {/* مساحة لمس أوسع من الدائرة المرئية */}
+              <circle r="15" fill="transparent" />
+              {active && <circle r="14" fill={col} opacity=".22" />}
+              <circle r="10" fill={done ? col : c.paper} stroke={col} strokeWidth="2.2" />
+              <g transform="translate(-5.5 -5.5)">
+                <svg width="11" height="11" viewBox="0 0 24 24" style={{ overflow: "visible" }}>
+                  <g
+                    fill="none"
+                    stroke={done ? c.onDark : col}
+                    strokeWidth="2.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    {SHAPES[st.icon] || SHAPES.drop}
+                  </g>
+                </svg>
+              </g>
+              {done && (
+                <g transform="translate(7.5 -10)">
+                  <circle r="4.8" fill={c.medal} stroke={c.paper} strokeWidth="1.6" />
+                  <path d="M-2.2 0.2 L-0.5 1.9 L2.4 -1.4" fill="none" stroke="#FFF" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+                </g>
+              )}
+            </g>
           </g>
         );
       })}
