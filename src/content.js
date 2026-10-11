@@ -1183,8 +1183,6 @@ export const labels = {
   backToMap: "أَعُودُ لِلرَّئِيسَةِ",
   backToGames: "أَعُودُ لِلْأَلْعَابِ",
   backToStories2: "أَعُودُ لِلْقِصَصِ",
-  showMap: "عَلَى الخَرِيطَةِ",
-  showList: "قَائِمَةُ القِصَصِ",
   backToStories: "قِصَصِي",
   continueQuiz: "أُتَابِعُ المُغَامَرَةَ",
   thinkAgain: "أُفَكِّرُ مَرَّةً أُخْرَى",

@@ -405,99 +405,44 @@ function HomePanel({ profile, go, compact }) {
 }
 
 /* ============================================================
-   القصص — قائمة أزرار، والخريطة اختيارية
+   القصص — خريطة عُمان وحدها، تُنقر العلامة فتفتح القصة
    ============================================================ */
 function StoriesScreen({ profile, onOpenStory, onBack }) {
-  const [mode, setMode] = useState("list");
   const [sel, setSel] = useState(null);
   const done = profile.completed || [];
   const story = stories.find((s) => s.id === sel);
 
-  const Toggle = (
-    <div style={{ display: "flex", background: c.sage, borderRadius: 12, padding: 3, gap: 3 }}>
-      {[["list", labels.showList], ["map", labels.showMap]].map(([m, txt]) => (
-        <button
-          key={m} type="button" onClick={() => { setMode(m); setSel(null); }}
-          aria-pressed={mode === m}
-          style={{
-            border: "none", borderRadius: 10, padding: "8px 12px", cursor: "pointer", minHeight: 40,
-            background: mode === m ? c.surface : "transparent",
-            color: mode === m ? c.sageInk : c.inkSoft,
-            fontFamily: font.body, fontWeight: 700, fontSize: 12.5,
-            boxShadow: mode === m ? shadow.sm : "none", transition: `all .2s ${ease}`,
-          }}
-        >
-          {txt}
-        </button>
-      ))}
-    </div>
-  );
-
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 13 }}>
-      <ScreenHead title={sections.stories} onBack={onBack} backText={labels.backToMap} extra={Toggle} />
+      <ScreenHead title={sections.stories} onBack={onBack} backText={labels.backToMap} />
 
-      {mode === "list" ? (
-        <div style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))" }}>
-          {stories.map((s) => {
-            const col = envColor[s.id];
-            const isDone = done.includes(s.id);
-            return (
-              <button
-                key={s.id}
-                type="button"
-                onClick={() => onOpenStory(s.id)}
-                style={{
-                  display: "flex", alignItems: "center", gap: 12, textAlign: "right", width: "100%",
-                  background: c.paper, border: `1px solid ${c.line}`, borderInlineStart: `4px solid ${col}`,
-                  borderRadius: 16, padding: "13px 14px", cursor: "pointer", minHeight: 74,
-                  boxShadow: shadow.sm, transition: `transform .2s ${ease}, border-color .2s`,
-                }}
-                onMouseDown={(e) => { e.currentTarget.style.transform = "scale(.99)"; }}
-                onMouseUp={(e) => { e.currentTarget.style.transform = "none"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.transform = "none"; }}
-              >
-                <StoryBadge storyId={s.id} icon={s.icon} color={col} size={52} />
-                <span style={{ flex: 1, minWidth: 0 }}>
-                  <span style={{ display: "block", fontFamily: font.display, fontSize: 18.5, fontWeight: 700, color: c.ink, lineHeight: 1.45 }}>
-                    {s.title}
-                  </span>
-                  <span style={{ display: "block", fontSize: 11.5, color: c.inkFaint, marginTop: 1, fontFamily: font.body }}>{s.env}</span>
-                </span>
-                <CompletionBadge storyId={s.id} earned={isDone} size={30} />
-              </button>
-            );
-          })}
-        </div>
+      <Card pad={10} style={{ background: "#D7E6EA" }}>
+        <OmanMap stories={stories} completed={done} onPick={setSel} activeId={sel} />
+      </Card>
+
+      {story ? (
+        <Card pad={16} style={{ borderInlineStart: `4px solid ${envColor[story.id]}` }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <StoryBadge storyId={story.id} icon={story.icon} color={envColor[story.id]} size={52} />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <h3 style={{ margin: 0, fontFamily: font.display, fontSize: 19, fontWeight: 700, color: c.ink, lineHeight: 1.4 }}>{story.title}</h3>
+              <p style={{ margin: "2px 0 0", fontSize: 12, color: c.inkFaint, fontFamily: font.body }}>{story.env}</p>
+            </div>
+            <CompletionBadge storyId={story.id} earned={done.includes(story.id)} size={30} />
+          </div>
+          <p style={{ margin: "10px 0 12px", fontSize: 13.5, color: c.inkSoft, lineHeight: 1.9, fontFamily: font.body }}>{story.teaser}</p>
+          <ActBtn onClick={() => onOpenStory(story.id)}>
+            {done.includes(story.id) ? "أُعِيدُ هَذِهِ القِصَّةَ" : "أَبْدَأُ هَذِهِ القِصَّةَ"}
+          </ActBtn>
+        </Card>
       ) : (
-        <>
-          <Card pad={10} style={{ background: "#D7E6EA" }}>
-            <OmanMap stories={stories} completed={done} onPick={setSel} activeId={sel} />
-          </Card>
-          {story ? (
-            <Card pad={16} style={{ borderInlineStart: `4px solid ${envColor[story.id]}` }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <StoryBadge storyId={story.id} icon={story.icon} color={envColor[story.id]} size={52} />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <h3 style={{ margin: 0, fontFamily: font.display, fontSize: 19, fontWeight: 700, color: c.ink, lineHeight: 1.4 }}>{story.title}</h3>
-                  <p style={{ margin: "2px 0 0", fontSize: 12, color: c.inkFaint, fontFamily: font.body }}>{story.env}</p>
-                </div>
-              </div>
-              <p style={{ margin: "10px 0 12px", fontSize: 13.5, color: c.inkSoft, lineHeight: 1.9, fontFamily: font.body }}>{story.teaser}</p>
-              <ActBtn onClick={() => onOpenStory(story.id)}>
-                {done.includes(story.id) ? "أُعِيدُ هَذِهِ القِصَّةَ" : "أَبْدَأُ هَذِهِ القِصَّةَ"}
-              </ActBtn>
-            </Card>
-          ) : (
-            <Card pad={14}>
-              <p style={{ margin: 0, fontSize: 13.5, color: c.inkSoft, textAlign: "center", lineHeight: 1.9, fontFamily: font.body }}>
-                {isF(profile)
-                  ? "اُنْقُرِي عَلَى أَيِّ عَلَامَةٍ فِي الخَرِيطَةِ."
-                  : "اُنْقُرْ عَلَى أَيِّ عَلَامَةٍ فِي الخَرِيطَةِ."}
-              </p>
-            </Card>
-          )}
-        </>
+        <Card pad={14}>
+          <p style={{ margin: 0, fontSize: 13.5, color: c.inkSoft, textAlign: "center", lineHeight: 1.9, fontFamily: font.body }}>
+            {isF(profile)
+              ? "اُنْقُرِي عَلَى أَيِّ عَلَامَةٍ فِي الخَرِيطَةِ."
+              : "اُنْقُرْ عَلَى أَيِّ عَلَامَةٍ فِي الخَرِيطَةِ."}
+          </p>
+        </Card>
       )}
     </div>
   );

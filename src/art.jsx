@@ -1149,59 +1149,194 @@ export function GeoWord({ word, palette = PALETTE_OASIS, size = 44, gap = 4 }) {
   );
 }
 
-/* شعار كامل — حلٌّ هجينٌ: العنوان نصٌّ عربيٌّ حقيقيٌّ وواضحٌ تمامًا
-   (لا بلاطات حروفٍ قد تتشابه)، لكن بمعالجةٍ لونيَّةٍ بأسلوب «الكتل
-   الهندسيَّة» المرجعيّ — تعبئةٌ لونيَّةٌ زاهيةٌ وخطُّ حَبرٍ غليظٌ محيطٌ
-   بكلّ حرفٍ (كما في الصورة المرجعيَّة ذات الخطوط السميكة) — ثمّ شريطُ
-   أشكالٍ هندسيَّةٍ صغيرةٍ ملوَّنةٍ بلوحة «الواحة» بدل الخطّ المتموّج
-   البسيط، ليتردّد صدى العلامة والعنوان معًا بنفس المفردات البصريَّة. */
-const TITLE_STROKE = `${BRAND_INK}`;
+/* ============================================================
+   الشِّعار — العنوانُ في سطرٍ واحدٍ، وحروفُ «البَيْئِيَّة» تمتزجُ
+   بشكلٍ من البيئةِ العُمانيّةِ نفسِها.
 
-function AccentShape({ color, type, size }) {
-  const border = Math.max(1.4, size * 0.12);
-  if (type === "circle")
-    return <span style={{ width: size, height: size, borderRadius: "50%", background: color, border: `${border}px solid ${BRAND_INK}`, display: "inline-block", flexShrink: 0 }} />;
-  if (type === "diamond")
-    return <span style={{ width: size * 0.86, height: size * 0.86, background: color, border: `${border}px solid ${BRAND_INK}`, borderRadius: 2, display: "inline-block", transform: "rotate(45deg)", flexShrink: 0 }} />;
+   ستّةُ اقتراحاتٍ جاهزةٌ، يُبدَّلُ بينها بتغييرِ LOGO_VARIANT وحدَه:
+     ١ وَرَقَةُ القُرْم   · الكلمةُ داخلَ ورقةٍ مدبَّبةِ الطرفين
+     ٢ مَوْجَةُ الفَلَج  · قطرةٌ تفتتحُها وموجةٌ تجري تحتَ حروفِها
+     ٣ سَعَفُ النَّخِيل · نخلةٌ تفصلُ الكلمتين وسعفٌ يُظلِّلُها
+     ٤ الجَبَلُ وَالشَّمْس · شمسٌ خلفَها وقِممٌ تحملُها
+     ٥ القَطْرَة        · كبسولةُ ماءٍ تحتضنُها وقطرةٌ ملتحمةٌ بطرفِها
+     ٦ الشَّجَرَة        · شجرةٌ تنبتُ من طرفِ الكلمة
+   ============================================================ */
+export const LOGO_VARIANT = 5;
+
+const PALM = "#7C8A2F";      // سعف النخيل
+const PALM_SOFT = "#95A33C";
+const FALAJ = "#144D4A";     // ماء الفلج
+const TEAL = "#7FC8C2";
+const GOLD = "#F2A41A";      // ذهب التمر
+const CLAY = "#E66422";      // فخار بهلا
+
+const WORD_ONE = "مُغَامَرَاتِي";
+const WORD_TWO = "البَيْئِيَّةُ";
+
+/* ورقةُ القُرْم */
+function LeafBg() {
   return (
-    <svg width={size} height={size} viewBox="0 0 20 20" aria-hidden="true" style={{ flexShrink: 0 }}>
-      <path d="M10 2 18 18 2 18Z" fill={color} stroke={BRAND_INK} strokeWidth="2" strokeLinejoin="round" />
+    <svg viewBox="0 0 300 120" preserveAspectRatio="none" aria-hidden="true"
+         style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}>
+      <path d="M4 60C50 10 110 4 150 4s100 6 146 56c-46 50-106 56-146 56S50 110 4 60Z"
+            fill={PALM} stroke={BRAND_INK} strokeWidth="6" strokeLinejoin="round" />
+      <path d="M30 60H270" stroke={c.paper} strokeWidth="3" opacity=".5"
+            strokeDasharray="2 14" strokeLinecap="round" />
     </svg>
   );
 }
 
-function TitleAccentStrip({ size, align }) {
-  const centered = align === "center";
-  const shapes = [
-    { color: PALETTE_OASIS[0], type: "triangle" },
-    { color: PALETTE_OASIS[1], type: "circle" },
-    { color: PALETTE_OASIS[2], type: "diamond" },
-    { color: PALETTE_OASIS[3], type: "circle" },
-    { color: PALETTE_OASIS[4], type: "triangle" },
-  ];
-  const s = Math.max(7, size * 0.08);
+/* قطرةُ ماء */
+function WaterDrop({ h }) {
   return (
-    <div style={{ display: "flex", direction: "rtl", gap: s * 0.5, alignItems: "center", justifyContent: centered ? "center" : "flex-end", marginTop: size * 0.06 }}>
-      {shapes.map((sh, i) => <AccentShape key={i} {...sh} size={s} />)}
+    <svg viewBox="0 0 40 54" aria-hidden="true" style={{ width: `calc(${h} * 0.74)`, height: h, flex: "none" }}>
+      <path d="M20 3c11 16 17 23 17 32a17 17 0 1 1-34 0c0-9 6-16 17-32Z"
+            fill={TEAL} stroke={BRAND_INK} strokeWidth="4.4" strokeLinejoin="round" />
+      <circle cx="14" cy="38" r="4" fill={c.paper} opacity=".9" />
+    </svg>
+  );
+}
+
+/* نخلةٌ قائمة */
+function PalmTree({ h }) {
+  return (
+    <svg viewBox="0 0 54 120" aria-hidden="true" style={{ width: `calc(${h} * 0.45)`, height: h, flex: "none" }}>
+      <rect x="22" y="52" width="11" height="64" rx="5" fill="#8A6A3E" stroke={BRAND_INK} strokeWidth="4" />
+      <path d="M27 54C27 32 14 20 4 14c14 0 24 10 27 24" fill={PALM} stroke={BRAND_INK} strokeWidth="4" strokeLinejoin="round" />
+      <path d="M28 54C28 32 41 20 51 14c-14 0-24 10-27 24" fill={PALM} stroke={BRAND_INK} strokeWidth="4" strokeLinejoin="round" />
+      <path d="M27 56C20 40 10 36 2 36c10 6 15 12 18 21" fill={PALM_SOFT} stroke={BRAND_INK} strokeWidth="3.6" strokeLinejoin="round" />
+      <path d="M28 56c7-16 17-20 25-20-10 6-15 12-18 21" fill={PALM_SOFT} stroke={BRAND_INK} strokeWidth="3.6" strokeLinejoin="round" />
+      <circle cx="27" cy="50" r="5" fill={GOLD} stroke={BRAND_INK} strokeWidth="3.2" />
+    </svg>
+  );
+}
+
+/* شجرةٌ صغيرة */
+function LittleTree({ h }) {
+  return (
+    <svg viewBox="0 0 96 120" aria-hidden="true" style={{ width: `calc(${h} * 0.6)`, height: h, flex: "none", marginInlineEnd: `calc(${h} * -0.06)` }}>
+      <rect x="41" y="66" width="12" height="50" rx="5" fill="#8A6A3E" stroke={BRAND_INK} strokeWidth="4" />
+      <path d="M47 86 28 72" stroke="#8A6A3E" strokeWidth="7" strokeLinecap="round" />
+      <circle cx="48" cy="40" r="28" fill={PALM} stroke={BRAND_INK} strokeWidth="5" />
+      <circle cx="22" cy="52" r="18" fill={PALM_SOFT} stroke={BRAND_INK} strokeWidth="4.6" />
+      <circle cx="74" cy="52" r="18" fill={PALM_SOFT} stroke={BRAND_INK} strokeWidth="4.6" />
+      <circle cx="39" cy="31" r="5.4" fill={GOLD} stroke={BRAND_INK} strokeWidth="3.2" />
+      <circle cx="60" cy="46" r="4.8" fill={CLAY} stroke={BRAND_INK} strokeWidth="3.2" />
+    </svg>
+  );
+}
+
+export function BrandTitle({ size = 96, variant = LOGO_VARIANT }) {
+  /* العنوانُ سطرٌ واحدٌ لا ينكسر، فيضيقُ حرفُه مع ضيقِ الشاشة.
+     وكلُّ القياساتِ بوحدةِ em فتتبعُ الحرفَ من تلقاءِ نفسِها. */
+  const fs = `min(${size * 0.4}px, 9.4vw)`;
+  const word = { fontFamily: font.display, fontWeight: 800, fontSize: fs, lineHeight: 1.5 };
+  const first = { ...word, color: BRAND_INK };
+  const line = {
+    display: "flex", alignItems: "center", justifyContent: "center",
+    gap: "0.3em", whiteSpace: "nowrap", direction: "rtl",
+    fontSize: fs, maxWidth: "100%",
+  };
+  const col = { display: "inline-flex", flexDirection: "column", alignItems: "center", position: "relative" };
+
+  if (variant === 1) {
+    return (
+      <div style={line}>
+        <span style={first}>{WORD_ONE}</span>
+        <span style={{ position: "relative", display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "0.15em 0.75em" }}>
+          <LeafBg />
+          <span style={{ ...word, position: "relative", color: c.paper }}>{WORD_TWO}</span>
+        </span>
+      </div>
+    );
+  }
+
+  if (variant === 2) {
+    return (
+      <div style={line}>
+        <span style={first}>{WORD_ONE}</span>
+        <WaterDrop h="1em" />
+        <span style={col}>
+          <span style={{ ...word, color: FALAJ }}>{WORD_TWO}</span>
+          <svg viewBox="0 0 240 20" preserveAspectRatio="none" aria-hidden="true"
+               style={{ width: "100%", height: "0.37em", marginTop: "-0.15em" }}>
+            <path d="M5 13q17-11 34 0t34 0 34 0 34 0 34 0 34 0" fill="none"
+                  stroke={FALAJ} strokeWidth="6" strokeLinecap="round" />
+          </svg>
+        </span>
+      </div>
+    );
+  }
+
+  if (variant === 3) {
+    return (
+      <div style={line}>
+        <span style={first}>{WORD_ONE}</span>
+        <PalmTree h="2.5em" />
+        <span style={col}>
+          <svg viewBox="0 0 240 24" preserveAspectRatio="none" aria-hidden="true"
+               style={{ width: "100%", height: "0.45em", marginBottom: 2 }}>
+            <path d="M14 20q26-20 52 0M94 20q26-20 52 0M174 20q26-20 52 0" fill="none"
+                  stroke={PALM} strokeWidth="6.5" strokeLinecap="round" />
+          </svg>
+          <span style={{ ...word, color: PALM, lineHeight: 1.35 }}>{WORD_TWO}</span>
+        </span>
+      </div>
+    );
+  }
+
+  if (variant === 4) {
+    return (
+      <div style={line}>
+        <span style={first}>{WORD_ONE}</span>
+        <span style={{ ...col, paddingTop: 4 }}>
+          <svg viewBox="0 0 70 70" aria-hidden="true"
+               style={{ position: "absolute", top: "-0.5em", width: "1.35em", height: "1.35em", zIndex: 0 }}>
+            <circle cx="35" cy="35" r="27" fill={GOLD} stroke={BRAND_INK} strokeWidth="5" />
+          </svg>
+          <span style={{ ...word, color: FALAJ, position: "relative", zIndex: 1 }}>{WORD_TWO}</span>
+          <svg viewBox="0 0 240 42" preserveAspectRatio="none" aria-hidden="true"
+               style={{ width: "calc(100% + 16px)", height: "0.7em", marginTop: "-0.2em" }}>
+            <path d="M0 40 44 10 76 30 120 2 168 32 212 12 240 34v6Z"
+                  fill={FALAJ} stroke={BRAND_INK} strokeWidth="5" strokeLinejoin="round" />
+          </svg>
+        </span>
+      </div>
+    );
+  }
+
+  if (variant === 6) {
+    return (
+      <div style={line}>
+        <span style={first}>{WORD_ONE}</span>
+        <LittleTree h="2.5em" />
+        <span style={{ ...word, color: FALAJ }}>{WORD_TWO}</span>
+      </div>
+    );
+  }
+
+  /* ٥ · القَطْرَة — الافتراضيّ */
+  return (
+    <div style={line}>
+      <span style={first}>{WORD_ONE}</span>
+      <span style={{ position: "relative", display: "inline-flex", alignItems: "center" }}>
+        <span style={{
+          ...word, fontSize: "0.95em", color: c.paper, background: FALAJ,
+          border: "0.1em solid " + BRAND_INK, borderRadius: 999,
+          padding: "0.15em 0.6em 0.25em 1.05em", lineHeight: 1.4,
+        }}>{WORD_TWO}</span>
+        <WaterDrop h="1.3em" />
+      </span>
     </div>
   );
 }
 
-export function BrandLogo({ size = 96, align = "center" }) {
+export function BrandLogo({ size = 96, align = "center", variant = LOGO_VARIANT, mark = true }) {
   const centered = align === "center";
-  const strokeW = Math.max(1, size * 0.0145);
-  const titleStyle = (fill) => ({
-    fontFamily: font.display, fontWeight: 800, fontSize: size * 0.37, lineHeight: 1.18,
-    color: fill, WebkitTextStroke: `${strokeW}px ${TITLE_STROKE}`, textShadow: "1.5px 1.5px 0 rgba(91,54,38,.18)",
-  });
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: centered ? "center" : "flex-end", gap: 0 }}>
-      <BrandMark size={size} />
-      <div style={{ textAlign: centered ? "center" : "right", marginTop: 4 }}>
-        <div style={titleStyle(PALETTE_OASIS[0])}>مُغَامَرَتِي</div>
-        <div style={titleStyle(PALETTE_OASIS[1])}>البَيْئِيَّةُ</div>
-        <TitleAccentStrip size={size} align={align} />
-      </div>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: centered ? "center" : "flex-end", gap: 2 }}>
+      {mark && <BrandMark size={size} />}
+      <BrandTitle size={size} variant={variant} />
     </div>
   );
 }
