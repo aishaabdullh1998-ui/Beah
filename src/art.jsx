@@ -776,10 +776,197 @@ const STORY_SCENE_IMG = {
   bay: { before: "assets/img/scenes/scene-09-muscat-gulf.webp" },
 };
 
-function SceneBackdropSvg({ bg }) {
+/* ============================================================
+   عَنَاصِرُ مَشَاهِدَ قَابِلَةٌ لِإِعَادَةِ الِاسْتِعْمَالِ — كُلُّ عُنْصُرٍ يُجَسِّدُ
+   نَتِيجَةَ قَرَارٍ بَصَرِيًّا (أَضْوَاءُ فُنْدُقٍ، سَرَطَانُ شَبَحٍ، كِيسٌ عَائِمٌ،
+   حَبْلُ صَيْدٍ قَدِيمٌ، عَلَامَاتُ انْزِعَاجٍ أَوِ انْحِبَاسٍ، فُقَّاعَاتُ سِبَاحَةٍ)
+   ============================================================ */
+function HotelGlow({ x, y, scale = 1 }) {
+  return (
+    <g transform={`translate(${x},${y}) scale(${scale})`}>
+      <circle cx="0" cy="0" r="46" fill="#FFD873" opacity=".16" />
+      <rect x="-26" y="-6" width="14" height="30" fill="#1B2A45" />
+      <rect x="-8" y="-16" width="16" height="40" fill="#1B2A45" />
+      <rect x="12" y="-2" width="14" height="26" fill="#1B2A45" />
+      {[[-21, 2], [-21, 12], [-21, 22], [0, -8], [0, 2], [0, 12], [0, 22], [17, 4], [17, 14]].map(([dx, dy], i) => (
+        <rect key={i} x={dx} y={dy} width="4" height="4" fill="#FFE9A8" opacity={0.5 + ((i * 37) % 45) / 100} />
+      ))}
+    </g>
+  );
+}
+
+function GhostCrab({ x, y, scale = 1 }) {
+  return (
+    <g transform={`translate(${x},${y}) scale(${scale})`} fill="#E3D4B8">
+      <ellipse cx="0" cy="0" rx="9" ry="6" />
+      <circle cx="-4" cy="-5" r="2" fill="#5B3626" /><circle cx="4" cy="-5" r="2" fill="#5B3626" />
+      <path d="M-9 1 -16 -3M-9 3 -17 3M9 1 16 -3M9 3 17 3" stroke="#C9B590" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+      <path d="M-5 5 -7 10M0 6 0 11M5 5 7 10" stroke="#C9B590" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+    </g>
+  );
+}
+
+/* كيسٌ شَفَّافٌ طَافٍ — يُشْبِهُ قِنْدِيلَ البَحْرِ عَنْ بُعْدٍ، لَكِنَّ حَلْقَةَ المَقْبَضِ
+   وَخُطُوطَ التَّجَعُّدِ تُمَيِّزَانِهِ، تَمَامًا كَمَا تُلَاحِظُ سَلْمَى فِي نَصِّ القِصَّةِ */
+function FloatingBag({ x, y, scale = 1 }) {
+  return (
+    <g transform={`translate(${x},${y}) scale(${scale})`}>
+      <ellipse cx="0" cy="10" rx="2" ry="8" stroke="#D7E7E2" strokeWidth="2.4" fill="none" opacity=".8" />
+      <path d="M-14 8Q-16 24 -6 30Q4 36 12 26Q18 16 10 6Q2 -2 -14 8Z" fill="#EAF4F0" opacity=".55" stroke="#BFDAD2" strokeWidth="1.6" />
+      <path d="M-8 12Q-4 18 0 14M2 18Q6 24 10 19" stroke="#BFDAD2" strokeWidth="1.3" fill="none" strokeLinecap="round" opacity=".8" />
+    </g>
+  );
+}
+
+function OldRope({ x, y, scale = 1 }) {
+  return (
+    <g transform={`translate(${x},${y}) scale(${scale})`}>
+      <ellipse cx="10" cy="18" rx="22" ry="9" fill="#7A6A52" opacity=".5" />
+      <path d="M-16 4Q-6 -6 4 4Q14 14 24 4Q30 -2 34 4" stroke="#8A6A4A" strokeWidth="6" fill="none" strokeLinecap="round" />
+      <path d="M-16 4Q-6 -6 4 4Q14 14 24 4Q30 -2 34 4" stroke="#6B4E34" strokeWidth="2" fill="none" strokeLinecap="round" strokeDasharray="1 5" />
+      <path d="M-16 4 -22 -2M-16 4 -20 9" stroke="#6B4E34" strokeWidth="2" strokeLinecap="round" />
+    </g>
+  );
+}
+
+function SnagMarks({ x, y }) {
+  return (
+    <g transform={`translate(${x},${y})`} stroke="#C0392B" strokeWidth="2" strokeLinecap="round">
+      <path d="M0 0 7 -6M0 0 9 2M0 0 4 9" />
+    </g>
+  );
+}
+
+function WinceMarks({ x, y }) {
+  return (
+    <g transform={`translate(${x},${y})`} stroke="#C0392B" strokeWidth="2" fill="none" strokeLinecap="round">
+      <path d="M-6 0q6 -8 12 0" /><path d="M-9 7q9 -10 18 0" />
+    </g>
+  );
+}
+
+function BubbleTrail({ x, y }) {
+  return (
+    <g fill="#FFFFFF">
+      {[...Array(5)].map((_, i) => (
+        <circle key={i} cx={x + (i % 2) * 9} cy={y - i * 16} r={2.6 - i * 0.3} opacity={.55 - i * 0.08} />
+      ))}
+    </g>
+  );
+}
+
+function SwimStreaks({ x, y }) {
+  return (
+    <g stroke="#CDEFF2" strokeWidth="2.4" fill="none" strokeLinecap="round" opacity=".5">
+      <path d={`M${x} ${y}q-18 -3 -30 2`} /><path d={`M${x} ${y + 10}q-14 -2 -24 3`} />
+    </g>
+  );
+}
+
+/* مَاءٌ عَمِيقٌ مَفْتُوحٌ — خَاصٌّ بِنِهَايَةِ قِصَّةِ سَلْمَى، لَا شَاطِئَ فِيهِ وَلَا خَطَرَ،
+   بِخِلَافِ EndingScene العَامَّةِ (بَرِّيَّةٌ وَلَا تُنَاسِبُ سُلَحْفَاةً بَحْرِيَّةً) */
+function OceanDeepScene() {
+  return (
+    <>
+      <rect x="0" y="0" width="400" height="300" fill="url(#skyWater)" />
+      {[0, 1, 2, 3].map((i) => (
+        <path key={i} d={`M${30 + i * 110} -10 L${70 + i * 110} 300`} stroke="#BEE9F2" strokeWidth="18" opacity=".12" />
+      ))}
+      {[...Array(10)].map((_, i) => (
+        <circle key={i} cx={30 + (i * 41) % 370} cy={290 - (i * 53) % 260} r={2 + (i % 3)} fill="#FFFFFF" opacity=".3" />
+      ))}
+    </>
+  );
+}
+
+/* ============================================================
+   قِصَّةُ سَلْمَى — تِسْعَةُ مَشَاهِدَ، لِكُلِّ قَرَارٍ نَتِيجَتُهُ البَصَرِيَّةُ الخَاصَّةُ بِهِ
+   ============================================================ */
+const TURTLE_SCENES = {
+  start: () => (
+    <>
+      <NightScene />
+      <HotelGlow x={338} y={128} scale={.6} />
+    </>
+  ),
+  lights_wrong: () => (
+    <>
+      <rect x="0" y="0" width="400" height="300" fill="url(#skyNight)" />
+      {[...Array(10)].map((_, i) => (
+        <circle key={i} cx={20 + (i * 37) % 380} cy={20 + ((i * 53) % 110)} r={i % 3 === 0 ? 1.8 : 1.1} fill="#F3E6B8" opacity={0.5 + (i % 4) * 0.12} />
+      ))}
+      <path d="M0 215h400v85H0Z" fill="#6B5C3E" />
+      <path d="M40 300C50 270 46 252 60 232M300 300C296 268 304 250 292 230" stroke="#584B32" strokeWidth="2" fill="none" strokeLinecap="round" />
+      <HotelGlow x={215} y={150} scale={1.35} />
+      <TurtleMark x={210} y={238} rotate={14} color="#4A3B28" />
+    </>
+  ),
+  waves_right: () => (
+    <>
+      <NightScene />
+      <GhostCrab x={185} y={214} scale={1.1} />
+    </>
+  ),
+  plastic_scene: () => (
+    <>
+      <DawnScene />
+      <FloatingBag x={205} y={178} scale={1} />
+    </>
+  ),
+  eat_plastic: () => (
+    <>
+      <DawnScene />
+      <FloatingBag x={158} y={200} scale={.85} />
+      <WinceMarks x={128} y={214} />
+    </>
+  ),
+  avoid_plastic: () => (
+    <>
+      <rect x="0" y="0" width="400" height="300" fill="url(#skyDawn)" />
+      <circle cx="200" cy="130" r="40" fill="#FFCB7A" opacity=".95" /><circle cx="200" cy="130" r="68" fill="#FFCB7A" opacity=".24" />
+      <path d="M0 175h400v40H0Z" fill="#3E86A8" />
+      <path d="M0 210h400v90H0Z" fill="#EAD9B0" />
+      <path d="M70 300C82 262 92 250 124 216" stroke="#D8C293" strokeWidth="11" fill="none" strokeLinecap="round" />
+      <FloatingBag x={330} y={186} scale={.55} />
+      <TurtleMark x={150} y={208} rotate={-10} />
+    </>
+  ),
+  reach_sea: () => (
+    <>
+      <WaterScene />
+      <OldRope x={250} y={225} scale={.9} />
+      <TurtleMark x={185} y={238} rotate={6} />
+    </>
+  ),
+  tangled: () => (
+    <>
+      <WaterScene />
+      <OldRope x={210} y={232} scale={.9} />
+      <TurtleMark x={222} y={236} rotate={10} />
+      <SnagMarks x={234} y={222} />
+    </>
+  ),
+  safe_swim: () => (
+    <>
+      <OceanDeepScene />
+      <SwimStreaks x={240} y={150} />
+      <BubbleTrail x={150} y={210} />
+      <TurtleMark x={200} y={150} scale={1.3} rotate={-8} color="#3E8A66" />
+    </>
+  ),
+};
+
+/* سُجِّلَتْ هُنَا كُلُّ قِصَّةٍ بُنِيَتْ لَهَا مَشَاهِدُ خَاصَّةٌ بِكُلِّ قَرَارٍ — القِصَصُ
+   غَيْرُ المُدْرَجَةِ تَبْقَى عَلَى نِظَامِهَا القَدِيمِ (صُورَةٌ وَاحِدَةٌ أَوْ تَدَرُّجٌ عَامٌّ)
+   حَتَّى يُعْمَّمَ عَلَيْهَا نَفْسُ الأُسْلُوبِ. */
+const STORY_SCENE_OVERRIDES = { turtle: TURTLE_SCENES };
+export const STORIES_WITH_SCENE_ART = new Set(Object.keys(STORY_SCENE_OVERRIDES));
+
+function SceneBackdropSvg({ bg, storyId, sceneId }) {
   const warn = bg.startsWith("warning");
   const base = warn ? bg.slice(7, 8).toLowerCase() + bg.slice(8) : bg;
-  const Scene = SCENE_BY_BASE[base] || DayScene;
+  const overrideSet = storyId && STORY_SCENE_OVERRIDES[storyId];
+  const Scene = (overrideSet && sceneId && overrideSet[sceneId]) || SCENE_BY_BASE[base] || DayScene;
   return (
     <svg
       viewBox="0 0 400 300" preserveAspectRatio="xMidYMax slice" width="100%" height="100%"
@@ -792,8 +979,16 @@ function SceneBackdropSvg({ bg }) {
   );
 }
 
-export function SceneBackdrop({ bg, storyId, isEnding }) {
+export function SceneBackdrop({ bg, storyId, sceneId, isEnding }) {
   const warn = bg.startsWith("warning");
+  const overrideSet = STORY_SCENE_OVERRIDES[storyId];
+  if (overrideSet && sceneId && overrideSet[sceneId]) {
+    return (
+      <div style={{ position: "absolute", inset: 0, overflow: "hidden" }} aria-hidden="true">
+        <SceneBackdropSvg bg={bg} storyId={storyId} sceneId={sceneId} />
+      </div>
+    );
+  }
   const pair = STORY_SCENE_IMG[storyId];
   const src = pair && (isEnding && pair.after ? pair.after : pair.before);
   if (!src) return <SceneBackdropSvg bg={bg} />;

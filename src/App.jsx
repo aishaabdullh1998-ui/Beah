@@ -12,7 +12,7 @@ import {
   stories, quizSets, dictionaryTerms, doDontCards, labels, games, mission, footerText,
   readingTexts,
 } from "./content.js";
-import { Glyph, IconChip, ImgFallback, Salim, SalimSays, OmanMap, StoryBadge, StoryIcon, StoryHero, CompletionBadge, PlayerAvatar, BrandLogo, DictIcon, keyframes } from "./art.jsx";
+import { Glyph, IconChip, ImgFallback, Salim, SalimSays, OmanMap, StoryBadge, StoryIcon, StoryHero, SceneBackdrop, STORIES_WITH_SCENE_ART, CompletionBadge, PlayerAvatar, BrandLogo, DictIcon, keyframes } from "./art.jsx";
 import { WORD_SCENES, ActBtn, Hint } from "./scenes.jsx";
 import {
   PreviewCard, ConnectCard, PredictCard, ReviewCard, InferenceCard,
@@ -569,6 +569,8 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
   const evidence = R && R.inference && R.inference.at === currentId && sceneStep === "inference"
     ? R.inference.evidence : null;
   const sceneWords = R ? (R.words || []).filter((w) => w.inScene === currentId) : [];
+  const hasSceneArt = STORIES_WITH_SCENE_ART.has(story.id);
+  const sceneIdForArt = phase === "preview" ? "start" : currentId;
 
   return (
     <div
@@ -578,7 +580,14 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
         transition: `background .6s ${ease}`,
       }}
     >
-      {isNightBg(scene.bg) && (
+      {hasSceneArt && (
+        <div style={{ position: "absolute", inset: 0, zIndex: 1, overflow: "hidden" }}>
+          <div key={sceneIdForArt} className="rise" style={{ position: "absolute", inset: 0 }}>
+            <SceneBackdrop bg={scene.bg} storyId={story.id} sceneId={sceneIdForArt} isEnding={!!scene.isEnding} />
+          </div>
+        </div>
+      )}
+      {!hasSceneArt && isNightBg(scene.bg) && (
         <>
           <span className="star" aria-hidden="true" style={{ position: "absolute", top: "7%", insetInlineStart: "20%", color: "#FFD873", fontSize: 11 }}>✦</span>
           <span className="star" aria-hidden="true" style={{ position: "absolute", top: "13%", insetInlineStart: "68%", color: "#FFD873", fontSize: 15, animationDelay: ".6s" }}>✦</span>
