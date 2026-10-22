@@ -962,6 +962,21 @@ const TURTLE_SCENES = {
 const STORY_SCENE_OVERRIDES = { turtle: TURTLE_SCENES };
 export const STORIES_WITH_SCENE_ART = new Set(Object.keys(STORY_SCENE_OVERRIDES));
 
+/* صورٌ سينمائيَّةٌ مولَّدة لكُلِّ مشهدٍ من قِصَّةِ سَلْمَى — تحلّ محلَّ الرَّسمِ
+   المتجهِّ حين تتوفَّر، وتتراجع تلقائيًّا إلى الرَّسمِ القديمِ إن تعذَّر تحميلُها. */
+const TURTLE_SCENE_PHOTOS = {
+  start: "assets/scenes/turtle/start.png",
+  lights_wrong: "assets/scenes/turtle/lights_wrong.png",
+  waves_right: "assets/scenes/turtle/waves_right.png",
+  plastic_scene: "assets/scenes/turtle/plastic_scene.png",
+  eat_plastic: "assets/scenes/turtle/eat_plastic.png",
+  avoid_plastic: "assets/scenes/turtle/avoid_plastic.png",
+  reach_sea: "assets/scenes/turtle/reach_sea.png",
+  tangled: "assets/scenes/turtle/tangled.png",
+  safe_swim: "assets/scenes/turtle/safe_swim.png",
+};
+const STORY_SCENE_PHOTOS = { turtle: TURTLE_SCENE_PHOTOS };
+
 function SceneBackdropSvg({ bg, storyId, sceneId }) {
   const warn = bg.startsWith("warning");
   const base = warn ? bg.slice(7, 8).toLowerCase() + bg.slice(8) : bg;
@@ -982,6 +997,20 @@ function SceneBackdropSvg({ bg, storyId, sceneId }) {
 export function SceneBackdrop({ bg, storyId, sceneId, isEnding }) {
   const warn = bg.startsWith("warning");
   const overrideSet = STORY_SCENE_OVERRIDES[storyId];
+  const photoSet = STORY_SCENE_PHOTOS[storyId];
+  const photoSrc = photoSet && sceneId && photoSet[sceneId];
+  if (photoSrc) {
+    return (
+      <div style={{ position: "absolute", inset: 0, overflow: "hidden" }} aria-hidden="true">
+        <ImgFallback
+          src={photoSrc} alt=""
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+          fallback={overrideSet && sceneId && overrideSet[sceneId] ? <SceneBackdropSvg bg={bg} storyId={storyId} sceneId={sceneId} /> : <SceneBackdropSvg bg={bg} />}
+        />
+        {warn && <div style={{ position: "absolute", inset: 0, background: "#5B4530", opacity: .3 }} />}
+      </div>
+    );
+  }
   if (overrideSet && sceneId && overrideSet[sceneId]) {
     return (
       <div style={{ position: "absolute", inset: 0, overflow: "hidden" }} aria-hidden="true">

@@ -501,6 +501,7 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
   const [doneInference, setDoneInference] = useState(false);
   const [donePredict, setDonePredict] = useState([]);              // معرّفات المشاهد
   const [openWord, setOpenWord] = useState(null);
+  const [beatAdvanced, setBeatAdvanced] = useState(false);          // في الوضع السينمائي: هل تجاوز القارئ نصّ المشهد؟
   const startedAt = useRef(Date.now());
   const metrics = useRef({
     previewChoice: null, predictions: [], connectAnswer: null,
@@ -510,6 +511,7 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
 
   useEffect(() => () => stopSpeaking(), []);
   useEffect(() => { stopSpeaking(); }, [currentId, step, endStep, phase]);
+  useEffect(() => { setBeatAdvanced(false); }, [currentId, phase]);
 
   /* المحطة الفعّالة في المشهد الحالي */
   const sceneStep = useMemo(() => {
@@ -571,6 +573,7 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
   const sceneWords = R ? (R.words || []).filter((w) => w.inScene === currentId) : [];
   const hasSceneArt = STORIES_WITH_SCENE_ART.has(story.id);
   const sceneIdForArt = phase === "preview" ? "start" : currentId;
+  const cinematic = hasSceneArt;        // وضع العرض السينمائي: الصورة مِلء الشاشة والنص جزء منها
 
   return (
     <div
@@ -587,6 +590,12 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
           </div>
         </div>
       )}
+      {cinematic && (
+        <div aria-hidden="true" style={{
+          position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none",
+          background: "linear-gradient(to top, rgba(12,9,5,.93) 0%, rgba(12,9,5,.88) 8%, rgba(12,9,5,.5) 34%, rgba(12,9,5,0) 62%)",
+        }} />
+      )}
       {!hasSceneArt && isNightBg(scene.bg) && (
         <>
           <span className="star" aria-hidden="true" style={{ position: "absolute", top: "7%", insetInlineStart: "20%", color: "#FFD873", fontSize: 11 }}>✦</span>
@@ -599,8 +608,11 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
         <button
           type="button" onClick={onExit}
           style={{
-            display: "inline-flex", alignItems: "center", gap: 6, border: "none", borderRadius: 999,
-            background: "rgba(255,255,255,.88)", color: c.ink, padding: "8px 14px", minHeight: 40,
+            display: "inline-flex", alignItems: "center", gap: 6, border: cinematic ? "1px solid rgba(255,233,190,.3)" : "none",
+            borderRadius: 999,
+            background: cinematic ? "rgba(20,14,8,.46)" : "rgba(255,255,255,.88)",
+            backdropFilter: cinematic ? "blur(6px)" : undefined, WebkitBackdropFilter: cinematic ? "blur(6px)" : undefined,
+            color: cinematic ? "#FBF3E3" : c.ink, padding: "8px 14px", minHeight: 40,
             fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: font.body,
           }}
         >
@@ -611,6 +623,7 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
             <span key={i} style={{
               width: 9, height: 9, borderRadius: "50%",
               background: i + 1 <= scene.stage ? "#FFD873" : "rgba(255,255,255,.34)",
+              boxShadow: cinematic ? "0 1px 4px rgba(0,0,0,.4)" : "none",
               transition: `background .4s ${ease}`,
             }} />
           ))}
@@ -620,25 +633,39 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
       <div
         key={phase === "preview" ? "preview" : currentId}
         className={dir === "fwd" ? "fwd" : "back"}
-        style={{ padding: "0 16px 20px", display: "flex", flexDirection: "column", gap: 14, flex: 1, position: "relative", zIndex: 2 }}
+        style={{
+          padding: "0 16px 20px", display: "flex", flexDirection: "column", gap: 14, flex: 1, position: "relative", zIndex: 2,
+          justifyContent: cinematic ? "flex-end" : "flex-start",
+        }}
       >
-        <div style={{ display: "flex", justifyContent: "center", paddingTop: 4 }}>
-          <div className="bob" style={{ filter: "drop-shadow(0 6px 10px rgba(0,0,0,.25))" }}>
-            <IconChip bg="rgba(255,255,255,.85)" size={82} radius={28}>
-              <StoryHero storyId={story.id} sceneId={phase === "preview" ? "start" : currentId} icon={story.icon} size={46} />
-            </IconChip>
+        {!cinematic && (
+          <div style={{ display: "flex", justifyContent: "center", paddingTop: 4 }}>
+            <div className="bob" style={{ filter: "drop-shadow(0 6px 10px rgba(0,0,0,.25))" }}>
+              <IconChip bg="rgba(255,255,255,.85)" size={82} radius={28}>
+                <StoryHero storyId={story.id} sceneId={phase === "preview" ? "start" : currentId} icon={story.icon} size={46} />
+              </IconChip>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* ===== قبل أن نقرأ: العنوان والصورة فقط، بلا نص القصة ===== */}
         {phase === "preview" && (
           <>
-            <div style={{ background: "rgba(255,250,236,.97)", borderRadius: 18, padding: 16, boxShadow: shadow.lg, textAlign: "center" }}>
-              <h2 style={{ margin: 0, fontFamily: font.display, fontWeight: 700, fontSize: 21, lineHeight: 1.45, color: accent }}>
-                {story.title}
-              </h2>
-              <p style={{ margin: "6px 0 0", color: c.inkSoft, fontSize: 13, fontFamily: font.body }}>{story.env}</p>
-            </div>
+            {cinematic ? (
+              <div style={{ textAlign: "center", padding: "0 4px" }}>
+                <h2 style={{ margin: 0, fontFamily: font.display, fontWeight: 700, fontSize: 22, lineHeight: 1.45, color: "#FBF3E3", textShadow: "0 2px 14px rgba(0,0,0,.6)" }}>
+                  {story.title}
+                </h2>
+                <p style={{ margin: "6px 0 0", color: "#E7D9BC", fontSize: 13, fontFamily: font.body, textShadow: "0 2px 10px rgba(0,0,0,.6)" }}>{story.env}</p>
+              </div>
+            ) : (
+              <div style={{ background: "rgba(255,250,236,.97)", borderRadius: 18, padding: 16, boxShadow: shadow.lg, textAlign: "center" }}>
+                <h2 style={{ margin: 0, fontFamily: font.display, fontWeight: 700, fontSize: 21, lineHeight: 1.45, color: accent }}>
+                  {story.title}
+                </h2>
+                <p style={{ margin: "6px 0 0", color: c.inkSoft, fontSize: 13, fontFamily: font.body }}>{story.env}</p>
+              </div>
+            )}
             <PreviewCard
               story={story} profile={profile} tone={accent}
               onDone={(idx) => { metrics.current.previewChoice = idx; setPhase("scene"); }}
@@ -648,31 +675,61 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
 
         {phase !== "preview" && (
           <>
-            <div style={{ background: warning ? "rgba(255,244,234,.96)" : "rgba(255,250,236,.97)", borderRadius: 18, padding: 16, boxShadow: shadow.lg }}>
-              <h2 style={{ margin: 0, fontFamily: font.display, fontWeight: 700, fontSize: 21, lineHeight: 1.45, color: warning ? c.bad : accent }}>
+            <div style={cinematic ? { padding: "0 2px" } : { background: warning ? "rgba(255,244,234,.96)" : "rgba(255,250,236,.97)", borderRadius: 18, padding: 16, boxShadow: shadow.lg }}>
+              <h2 style={{
+                margin: 0, fontFamily: font.display, fontWeight: 700, fontSize: 21, lineHeight: 1.45,
+                color: cinematic ? "#FBF3E3" : (warning ? c.bad : accent),
+                textShadow: cinematic ? "0 2px 14px rgba(0,0,0,.6)" : "none",
+              }}>
                 {R ? (
                   <ReadingInline
-                    text={scene.title} words={sceneWords} tone={warning ? c.bad : accent}
+                    text={scene.title} words={sceneWords} tone={cinematic ? "#FFD873" : (warning ? c.bad : accent)}
                     onWord={(w) => setOpenWord(openWord && openWord.word === w.word ? null : w)}
                   />
                 ) : scene.title}
               </h2>
               {R ? (
-                <ReadingText
-                  text={scene.text} words={sceneWords} evidence={evidence}
-                  tone={accent} onWord={(w) => setOpenWord(openWord && openWord.word === w.word ? null : w)}
-                />
+                <div style={{ color: cinematic ? "#E7D9BC" : "#33301F", textShadow: cinematic ? "0 2px 10px rgba(0,0,0,.6)" : "none" }}>
+                  <ReadingText
+                    text={scene.text} words={sceneWords} evidence={evidence}
+                    tone={cinematic ? "#FFD873" : accent} onWord={(w) => setOpenWord(openWord && openWord.word === w.word ? null : w)}
+                  />
+                </div>
               ) : (
-                <p style={{ margin: "8px 0 0", color: "#33301F", lineHeight: 2, fontSize: 14.5, fontFamily: font.body }}>{scene.text}</p>
+                <p style={{ margin: "8px 0 0", color: cinematic ? "#E7D9BC" : "#33301F", textShadow: cinematic ? "0 2px 10px rgba(0,0,0,.6)" : "none", lineHeight: 2, fontSize: 14.5, fontFamily: font.body }}>{scene.text}</p>
               )}
               {openWord && (
-                <div style={{ marginTop: 10, background: `${accent}14`, borderRadius: 12, padding: "10px 13px" }}>
-                  <p style={{ margin: 0, fontFamily: font.display, fontWeight: 700, fontSize: 14, color: accent }}>{openWord.word}</p>
-                  <p style={{ margin: "4px 0 0", fontSize: 13.5, lineHeight: 1.9, color: c.ink, fontFamily: font.body }}>{openWord.meaning}</p>
+                <div style={{
+                  marginTop: 10, borderRadius: 12, padding: "10px 13px",
+                  background: cinematic ? "rgba(20,14,8,.55)" : `${accent}14`,
+                  backdropFilter: cinematic ? "blur(6px)" : undefined, WebkitBackdropFilter: cinematic ? "blur(6px)" : undefined,
+                  border: cinematic ? "1px solid rgba(255,233,190,.22)" : "none",
+                }}>
+                  <p style={{ margin: 0, fontFamily: font.display, fontWeight: 700, fontSize: 14, color: cinematic ? "#FFD873" : accent }}>{openWord.word}</p>
+                  <p style={{ margin: "4px 0 0", fontSize: 13.5, lineHeight: 1.9, color: cinematic ? "#FBF3E3" : c.ink, fontFamily: font.body }}>{openWord.meaning}</p>
                 </div>
               )}
             </div>
 
+            {cinematic && !beatAdvanced ? (
+              <div style={{ display: "flex", justifyContent: "flex-start" }}>
+                <button
+                  type="button" onClick={() => setBeatAdvanced(true)}
+                  style={{
+                    display: "inline-flex", alignItems: "center", gap: 8, border: "none", cursor: "pointer",
+                    background: "#F2A41A", color: "#2A1A05", fontFamily: font.display, fontWeight: 700,
+                    fontSize: 14, padding: "11px 18px 11px 14px", borderRadius: 999,
+                    boxShadow: "0 6px 18px rgba(0,0,0,.35)",
+                  }}
+                >
+                  {labels.next || "التالي"}
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" style={{ transform: "scaleX(-1)" }} aria-hidden="true">
+                    <path d="M9 6l6 6-6 6" />
+                  </svg>
+                </button>
+              </div>
+            ) : (
+              <>
             {/* ===== داخل المشهد ===== */}
             {!scene.isEnding && sceneStep === "review" && (
               <ReviewCard
@@ -722,7 +779,16 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
                         key={ch.next}
                         type="button"
                         onClick={() => go(ch.next, !!scene.isRetry)}
-                        style={{
+                        style={cinematic ? {
+                          width: "100%", textAlign: "right", borderRadius: 18, padding: "15px 16px", cursor: "pointer",
+                          border: "1px solid rgba(255,233,190,.28)",
+                          background: scene.isRetry ? "rgba(242,164,26,.82)" : "rgba(20,14,8,.46)",
+                          backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)",
+                          color: "#FBF3E3", fontFamily: font.body, fontSize: 15, fontWeight: 600, lineHeight: 1.5,
+                          boxShadow: "0 8px 22px rgba(0,0,0,.3)", minHeight: 50,
+                          transition: `transform .2s ${ease}`,
+                          display: "flex", alignItems: "center", gap: 12,
+                        } : {
                           width: "100%", textAlign: "right", borderRadius: 14, padding: "13px 16px", border: "none",
                           background: scene.isRetry ? accent : "#FFFFFF", color: scene.isRetry ? "#FFF" : accent,
                           fontFamily: font.display, fontSize: 17, fontWeight: 700, cursor: "pointer",
@@ -828,6 +894,8 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
                   </button>
                 </div>
               </div>
+            )}
+              </>
             )}
           </>
         )}
