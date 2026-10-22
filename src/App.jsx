@@ -614,7 +614,11 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
       {cinematic && (
         <div aria-hidden="true" style={{
           position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none",
-          background: "linear-gradient(to top, rgba(12,9,5,.72) 0%, rgba(12,9,5,.6) 10%, rgba(12,9,5,.28) 30%, rgba(12,9,5,0) 46%, rgba(12,9,5,0) 66%, rgba(12,9,5,.22) 86%, rgba(12,9,5,.4) 100%)",
+          /* تعتيمٌ خفيفٌ عند الطَّرَفين فقط (لأجل وضوح النصّ أعلى، وأزرار
+             الخيارات أسفل)، ويبقى وسط الصورة صافيًا دائمًا — مهما طال
+             ارتفاع البطاقة على الهاتف — فلا تتحوّل المسافة بين الصندوقين
+             إلى كتلةٍ داكنةٍ فارغة. */
+          background: "linear-gradient(to top, rgba(12,9,5,.58) 0%, rgba(12,9,5,.4) 10%, rgba(12,9,5,.1) 24%, rgba(12,9,5,0) 38%, rgba(12,9,5,0) 80%, rgba(12,9,5,.16) 93%, rgba(12,9,5,.3) 100%)",
         }} />
       )}
       {!hasSceneArt && isNightBg(scene.bg) && (
@@ -656,7 +660,14 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
         className={dir === "fwd" ? "fwd" : "back"}
         style={{
           padding: "16px 16px 20px", display: "flex", flexDirection: "column", gap: 14, flex: 1, position: "relative", zIndex: 2,
-          justifyContent: cinematic ? "space-between" : "flex-start",
+          /* ملاحظة: في الوضع السينمائي أصبح صندوق النصّ (أو العنوان في شاشة
+             المعاينة) مموضعًا بذاته بعيدًا عن هذا التدفّق (absolute، أعلى
+             البطاقة)، فلم يعُد هذا الحاوي يحتاج إلى "space-between" ليفرّق
+             بينه وبين عناصر التحكّم السفلية — وهذا تمامًا ما كان يُولّد
+             الفراغ الدّاكن الكبير على الهاتف. الآن تلتصق عناصر التحكّم
+             بأسفل البطاقة بشكل طبيعي دون تمديد قسري للمسافة بينها وبين
+             النصّ العائم فوقها. */
+          justifyContent: cinematic ? "flex-end" : "flex-start",
         }}
       >
         {!cinematic && (
@@ -673,7 +684,7 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
         {phase === "preview" && (
           <>
             {cinematic ? (
-              <div style={{ textAlign: "center", padding: "0 4px" }}>
+              <div style={{ position: "absolute", top: 16, insetInlineStart: 16, insetInlineEnd: 16, zIndex: 3, textAlign: "center", padding: "0 4px" }}>
                 <h2 style={{ margin: 0, fontFamily: font.display, fontWeight: 700, fontSize: 22, lineHeight: 1.45, color: "#FBF3E3", textShadow: "0 2px 14px rgba(0,0,0,.6)" }}>
                   {story.title}
                 </h2>
@@ -696,6 +707,7 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
 
         {phase !== "preview" && (
           <>
+            <div style={cinematic ? { position: "absolute", top: 16, insetInlineStart: 16, insetInlineEnd: 16, zIndex: 3 } : undefined}>
             <div style={cinematic ? {
               position: "relative",
               background: "rgba(255,250,236,.62)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
@@ -753,6 +765,7 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
                   <p style={{ margin: "4px 0 0", fontSize: 13.5, lineHeight: 1.9, color: c.ink, fontFamily: font.body }}>{openWord.meaning}</p>
                 </div>
               )}
+            </div>
             </div>
 
             {cinematic && !beatAdvanced ? (
