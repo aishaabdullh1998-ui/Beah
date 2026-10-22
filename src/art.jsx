@@ -982,7 +982,28 @@ const FALAJ_SCENE_PHOTOS = {
   half_fix_wrong: "assets/scenes/falaj/half_fix_wrong.webp",
   organize_right: "assets/scenes/falaj/organize_right.webp",
 };
-const STORY_SCENE_PHOTOS = { turtle: TURTLE_SCENE_PHOTOS, falaj: FALAJ_SCENE_PHOTOS };
+const OILSPILL_SCENE_PHOTOS = {
+  start: "assets/scenes/oilspill/start.webp",
+  touch_wrong: "assets/scenes/oilspill/touch_wrong.webp",
+  tell_dad: "assets/scenes/oilspill/tell_dad.webp",
+  watch_team: "assets/scenes/oilspill/watch_team.webp",
+  nothing_wrong: "assets/scenes/oilspill/nothing_wrong.webp",
+  poster_right: "assets/scenes/oilspill/poster_right.webp",
+};
+const FRANKINCENSE_SCENE_PHOTOS = {
+  start: "assets/scenes/frankincense/start.webp",
+  nothing_wrong2: "assets/scenes/frankincense/nothing_wrong2.webp",
+  explore: "assets/scenes/frankincense/explore.webp",
+  how_help: "assets/scenes/frankincense/how_help.webp",
+  wait_wrong2: "assets/scenes/frankincense/wait_wrong2.webp",
+  plant_seedlings: "assets/scenes/frankincense/plant_seedlings.webp",
+};
+const STORY_SCENE_PHOTOS = {
+  turtle: TURTLE_SCENE_PHOTOS,
+  falaj: FALAJ_SCENE_PHOTOS,
+  oilspill: OILSPILL_SCENE_PHOTOS,
+  frankincense: FRANKINCENSE_SCENE_PHOTOS,
+};
 export const STORIES_WITH_SCENE_ART = new Set([
   ...Object.keys(STORY_SCENE_OVERRIDES),
   ...Object.keys(STORY_SCENE_PHOTOS),
