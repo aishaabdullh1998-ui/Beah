@@ -107,6 +107,19 @@ function useViewport() {
   return vp;
 }
 
+/* هاتفٌ بوضعيَّة عموديّة — القصّة مصمَّمة عَرْضِيًّا، فنقترح على صاحبه إدارته */
+function usePortraitPhone() {
+  const read = () => typeof window !== "undefined" && window.innerWidth < bp.tablet && window.innerHeight > window.innerWidth;
+  const [portrait, setPortrait] = useState(read);
+  useEffect(() => {
+    const on = () => setPortrait(read());
+    window.addEventListener("resize", on);
+    window.addEventListener("orientationchange", on);
+    return () => { window.removeEventListener("resize", on); window.removeEventListener("orientationchange", on); };
+  }, []);
+  return portrait;
+}
+
 const isF = (p) => !!p && p.gender === "f";
 const pick = (p, m, f) => (isF(p) ? (f || m) : m);
 const ed = (n) => String(n).replace(/[0-9]/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]);
@@ -502,6 +515,8 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
   const [donePredict, setDonePredict] = useState([]);              // معرّفات المشاهد
   const [openWord, setOpenWord] = useState(null);
   const [beatAdvanced, setBeatAdvanced] = useState(false);          // في الوضع السينمائي: هل تجاوز القارئ نصّ المشهد؟
+  const isPortraitPhone = usePortraitPhone();
+  const [rotateDismissed, setRotateDismissed] = useState(false);
   const startedAt = useRef(Date.now());
   const metrics = useRef({
     previewChoice: null, predictions: [], connectAnswer: null,
@@ -579,10 +594,43 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
     <div
       style={{
         background: bgStyles[scene.bg], borderRadius: rounded ? 22 : 18, overflow: "hidden",
-        display: "flex", flexDirection: "column", minHeight: 600, position: "relative",
-        transition: `background .6s ${ease}`,
+        display: "flex", flexDirection: "column", position: "relative", transition: `background .6s ${ease}`,
+        /* على هاتفٍ بوضعيَّةٍ عموديّة نترك البطاقة تملأ ارتفاعًا مريحًا بدل أن تُحشَر
+           في شكلٍ عَرْضيٍّ ضيّق؛ وعلى كلّ شاشةٍ أُخرى (أفقيّة، حاسوب، سبّورة) تكون
+           المسرحيّة عَرْضِيّةً حقًّا 16:9. */
+        ...(isPortraitPhone
+          ? { minHeight: "78vh" }
+          : { aspectRatio: "16 / 9", minHeight: 320, maxHeight: "86vh" }),
       }}
     >
+      {isPortraitPhone && !rotateDismissed && (
+        <div
+          role="status"
+          style={{
+            position: "absolute", inset: 0, zIndex: 20, display: "flex", flexDirection: "column",
+            alignItems: "center", justifyContent: "center", gap: 14, textAlign: "center", padding: "0 28px",
+            background: "rgba(12,9,5,.92)", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)",
+          }}
+        >
+          <svg viewBox="0 0 24 24" width="46" height="46" fill="none" stroke="#FBF3E3" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ animation: "rotateHint 1.8s ease-in-out infinite" }} aria-hidden="true">
+            <rect x="7" y="2" width="10" height="16" rx="2" />
+            <path d="M12 22v-2M9 21h6" />
+            <path d="M20 9a8 8 0 00-2.5-4.9M4 15a8 8 0 002.5 4.9" strokeDasharray="3 3" />
+          </svg>
+          <p style={{ margin: 0, color: "#FBF3E3", fontFamily: font.display, fontWeight: 700, fontSize: 16 }}>
+            {labels.rotateTitle || "أديري جهازَكِ لتشاهدي القصّة بأفضل شكلٍ"}
+          </p>
+          <button
+            type="button" onClick={() => setRotateDismissed(true)}
+            style={{
+              border: "1px solid rgba(255,233,190,.35)", borderRadius: 999, background: "rgba(255,255,255,.12)",
+              color: "#FBF3E3", padding: "9px 18px", fontFamily: font.body, fontSize: 13, fontWeight: 600, cursor: "pointer",
+            }}
+          >
+            {labels.rotateContinue || "متابعة بهذا الوضع"}
+          </button>
+        </div>
+      )}
       {hasSceneArt && (
         <div style={{ position: "absolute", inset: 0, zIndex: 1, overflow: "hidden" }}>
           <div key={sceneIdForArt} className="rise" style={{ position: "absolute", inset: 0 }}>
@@ -675,35 +723,57 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
 
         {phase !== "preview" && (
           <>
-            <div style={cinematic ? { padding: "0 2px" } : { background: warning ? "rgba(255,244,234,.96)" : "rgba(255,250,236,.97)", borderRadius: 18, padding: 16, boxShadow: shadow.lg }}>
-              <h2 style={{
-                margin: 0, fontFamily: font.display, fontWeight: 700, fontSize: 21, lineHeight: 1.45,
-                color: cinematic ? "#FBF3E3" : (warning ? c.bad : accent),
-                textShadow: cinematic ? "0 2px 14px rgba(0,0,0,.6)" : "none",
-              }}>
-                {R ? (
-                  <ReadingInline
-                    text={scene.title} words={sceneWords} tone={cinematic ? "#FFD873" : (warning ? c.bad : accent)}
-                    onWord={(w) => setOpenWord(openWord && openWord.word === w.word ? null : w)}
-                  />
-                ) : scene.title}
-              </h2>
+            <div style={cinematic ? {
+              position: "relative", marginTop: 16,
+              background: "rgba(15,11,6,.74)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
+              border: "1px solid rgba(255,217,140,.26)", borderRadius: 20,
+              padding: "20px 18px 16px", boxShadow: "0 16px 38px rgba(0,0,0,.4)",
+            } : { background: warning ? "rgba(255,244,234,.96)" : "rgba(255,250,236,.97)", borderRadius: 18, padding: 16, boxShadow: shadow.lg }}>
+              {cinematic && (
+                <span style={{
+                  position: "absolute", top: -15, insetInlineStart: 18,
+                  display: "inline-flex", alignItems: "center",
+                  background: "#F2A41A", color: "#2A1A05", fontFamily: font.display, fontWeight: 700, fontSize: 12.5,
+                  padding: "6px 15px", borderRadius: 999, boxShadow: "0 5px 12px rgba(0,0,0,.32)",
+                  border: "1px solid rgba(255,255,255,.3)", maxWidth: "calc(100% - 36px)",
+                  overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                }}>
+                  {R ? (
+                    <ReadingInline
+                      text={scene.title} words={sceneWords} tone="#2A1A05"
+                      onWord={(w) => setOpenWord(openWord && openWord.word === w.word ? null : w)}
+                    />
+                  ) : scene.title}
+                </span>
+              )}
+              {!cinematic && (
+                <h2 style={{
+                  margin: 0, fontFamily: font.display, fontWeight: 700, fontSize: 21, lineHeight: 1.45,
+                  color: warning ? c.bad : accent,
+                }}>
+                  {R ? (
+                    <ReadingInline
+                      text={scene.title} words={sceneWords} tone={warning ? c.bad : accent}
+                      onWord={(w) => setOpenWord(openWord && openWord.word === w.word ? null : w)}
+                    />
+                  ) : scene.title}
+                </h2>
+              )}
               {R ? (
                 <ReadingText
                   text={scene.text} words={sceneWords} evidence={evidence}
                   tone={cinematic ? "#FFD873" : accent}
                   color={cinematic ? "#F5ECD8" : "#33301F"}
-                  shadowCss={cinematic ? "0 2px 10px rgba(0,0,0,.75)" : "none"}
+                  shadowCss="none"
                   onWord={(w) => setOpenWord(openWord && openWord.word === w.word ? null : w)}
                 />
               ) : (
-                <p style={{ margin: "8px 0 0", color: cinematic ? "#E7D9BC" : "#33301F", textShadow: cinematic ? "0 2px 10px rgba(0,0,0,.6)" : "none", lineHeight: 2, fontSize: 14.5, fontFamily: font.body }}>{scene.text}</p>
+                <p style={{ margin: cinematic ? 0 : "8px 0 0", color: cinematic ? "#F5ECD8" : "#33301F", lineHeight: cinematic ? 1.85 : 2, fontSize: 14.5, fontFamily: font.body }}>{scene.text}</p>
               )}
               {openWord && (
                 <div style={{
                   marginTop: 10, borderRadius: 12, padding: "10px 13px",
-                  background: cinematic ? "rgba(20,14,8,.55)" : `${accent}14`,
-                  backdropFilter: cinematic ? "blur(6px)" : undefined, WebkitBackdropFilter: cinematic ? "blur(6px)" : undefined,
+                  background: cinematic ? "rgba(0,0,0,.28)" : `${accent}14`,
                   border: cinematic ? "1px solid rgba(255,233,190,.22)" : "none",
                 }}>
                   <p style={{ margin: 0, fontFamily: font.display, fontWeight: 700, fontSize: 14, color: cinematic ? "#FFD873" : accent }}>{openWord.word}</p>
@@ -713,14 +783,17 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
             </div>
 
             {cinematic && !beatAdvanced ? (
-              <div style={{ display: "flex", justifyContent: "flex-start" }}>
+              <div style={{ display: "flex", justifyContent: "flex-end", marginTop: -10 }}>
                 <button
                   type="button" onClick={() => setBeatAdvanced(true)}
+                  className="bob"
                   style={{
-                    display: "inline-flex", alignItems: "center", gap: 8, border: "none", cursor: "pointer",
-                    background: "#F2A41A", color: "#2A1A05", fontFamily: font.display, fontWeight: 700,
-                    fontSize: 14, padding: "11px 18px 11px 14px", borderRadius: 999,
-                    boxShadow: "0 6px 18px rgba(0,0,0,.35)",
+                    display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer",
+                    background: "rgba(15,11,6,.74)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
+                    border: "1px solid rgba(255,217,140,.4)",
+                    color: "#FFD873", fontFamily: font.display, fontWeight: 700,
+                    fontSize: 14, padding: "11px 18px 11px 16px", borderRadius: 999,
+                    boxShadow: "0 10px 24px rgba(0,0,0,.4)",
                   }}
                 >
                   {labels.next || "التالي"}
@@ -1248,7 +1321,7 @@ function Quiz({ setIndex, profile, onFinish }) {
 /* ============================================================
    الإطار العام
    ============================================================ */
-function Screen({ children }) {
+function Screen({ children, maxWidth = 1180 }) {
   return (
     <div
       dir="rtl"
@@ -1258,7 +1331,7 @@ function Screen({ children }) {
       }}
     >
       <style>{keyframes}</style>
-      <div style={{ width: "100%", maxWidth: 1180, margin: "0 auto", display: "flex", flexDirection: "column", flex: 1 }}>
+      <div style={{ width: "100%", maxWidth, margin: "0 auto", display: "flex", flexDirection: "column", flex: 1 }}>
         {children}
       </div>
     </div>
@@ -1435,28 +1508,35 @@ export default function App() {
   }
 
   const done = profile.completed || [];
+  const isStoryStage = view === "story" && story;
 
   return (
-    <Screen>
-      <header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "12px 2px 14px", flexWrap: "wrap" }}>
-        <button
-          type="button"
-          onClick={() => { if (heldRef.current) { heldRef.current = false; return; } setView("home"); }}
-          {...logoHold}
-          style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0, background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "right", ...logoHold.style }}
-        >
-          <PlayerAvatar gender={profile.gender} size={44} />
-          <span style={{ minWidth: 0 }}>
-            <span style={{ display: "block", fontSize: 11.5, color: c.inkFaint, fontFamily: font.body }}>أَهْلًا بِكَ</span>
-            <span style={{ display: "block", fontFamily: font.display, fontWeight: 700, fontSize: 19, color: c.ink, lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-              {profile.name}
+    <Screen maxWidth={isStoryStage ? 1520 : 1180}>
+      {!isStoryStage && (
+        <header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "12px 2px 14px", flexWrap: "wrap" }}>
+          <button
+            type="button"
+            onClick={() => { if (heldRef.current) { heldRef.current = false; return; } setView("home"); }}
+            {...logoHold}
+            style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0, background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "right", ...logoHold.style }}
+          >
+            <PlayerAvatar gender={profile.gender} size={44} />
+            <span style={{ minWidth: 0 }}>
+              <span style={{ display: "block", fontSize: 11.5, color: c.inkFaint, fontFamily: font.body }}>أَهْلًا بِكَ</span>
+              <span style={{ display: "block", fontFamily: font.display, fontWeight: 700, fontSize: 19, color: c.ink, lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {profile.name}
+              </span>
             </span>
-          </span>
-        </button>
-        <ProgressPill done={done.length} total={stories.length} />
-      </header>
+          </button>
+          <ProgressPill done={done.length} total={stories.length} />
+        </header>
+      )}
 
-      {wide ? (
+      {isStoryStage ? (
+        /* مسرحٌ عريضٌ يشغل العرض الكامل — لا شريط جانبي هنا، لتبقى القصّة
+           سينمائيّةً حتَّى على الحاسوب والسبّورة التفاعليّة. */
+        <div style={{ flex: 1, width: "100%", display: "flex", flexDirection: "column", paddingTop: 6 }}>{content()}</div>
+      ) : wide ? (
         <div style={{ display: "grid", gridTemplateColumns: "352px minmax(0,1fr)", gap: 26, alignItems: "start", flex: 1 }}>
           <aside style={{ position: "sticky", top: 16 }}>
             <HomePanel profile={profile} go={setView} compact />
@@ -1478,7 +1558,7 @@ export default function App() {
         <div style={{ flex: 1, maxWidth: vp === "tablet" ? 640 : "none", width: "100%", margin: "0 auto" }}>{content()}</div>
       )}
 
-      <Footer />
+      {!isStoryStage && <Footer />}
       {teacher && <TeacherSheet onClose={() => setTeacher(false)} />}
       {loading && <Loading />}
     </Screen>

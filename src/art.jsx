@@ -960,10 +960,9 @@ const TURTLE_SCENES = {
    غَيْرُ المُدْرَجَةِ تَبْقَى عَلَى نِظَامِهَا القَدِيمِ (صُورَةٌ وَاحِدَةٌ أَوْ تَدَرُّجٌ عَامٌّ)
    حَتَّى يُعْمَّمَ عَلَيْهَا نَفْسُ الأُسْلُوبِ. */
 const STORY_SCENE_OVERRIDES = { turtle: TURTLE_SCENES };
-export const STORIES_WITH_SCENE_ART = new Set(Object.keys(STORY_SCENE_OVERRIDES));
 
-/* صورٌ سينمائيَّةٌ مولَّدة لكُلِّ مشهدٍ من قِصَّةِ سَلْمَى — تحلّ محلَّ الرَّسمِ
-   المتجهِّ حين تتوفَّر، وتتراجع تلقائيًّا إلى الرَّسمِ القديمِ إن تعذَّر تحميلُها. */
+/* صورٌ سينمائيَّةٌ مولَّدة لكُلِّ مشهدٍ — تحلّ محلَّ الرَّسمِ المتجهِّ حين
+   تتوفَّر، وتتراجع تلقائيًّا إلى الرَّسمِ القديمِ إن تعذَّر تحميلُها. */
 const TURTLE_SCENE_PHOTOS = {
   start: "assets/scenes/turtle/start.webp",
   lights_wrong: "assets/scenes/turtle/lights_wrong.webp",
@@ -975,7 +974,19 @@ const TURTLE_SCENE_PHOTOS = {
   tangled: "assets/scenes/turtle/tangled.webp",
   safe_swim: "assets/scenes/turtle/safe_swim.webp",
 };
-const STORY_SCENE_PHOTOS = { turtle: TURTLE_SCENE_PHOTOS };
+const FALAJ_SCENE_PHOTOS = {
+  start: "assets/scenes/falaj/start.webp",
+  ignore_wrong: "assets/scenes/falaj/ignore_wrong.webp",
+  ask_grandpa: "assets/scenes/falaj/ask_grandpa.webp",
+  see_problem: "assets/scenes/falaj/see_problem.webp",
+  half_fix_wrong: "assets/scenes/falaj/half_fix_wrong.webp",
+  organize_right: "assets/scenes/falaj/organize_right.webp",
+};
+const STORY_SCENE_PHOTOS = { turtle: TURTLE_SCENE_PHOTOS, falaj: FALAJ_SCENE_PHOTOS };
+export const STORIES_WITH_SCENE_ART = new Set([
+  ...Object.keys(STORY_SCENE_OVERRIDES),
+  ...Object.keys(STORY_SCENE_PHOTOS),
+]);
 
 function SceneBackdropSvg({ bg, storyId, sceneId }) {
   const warn = bg.startsWith("warning");
@@ -1728,6 +1739,7 @@ export const keyframes = `
   @keyframes blow { 0% { transform: translateY(0) scaleX(.6); opacity:0; } 35% { opacity:.95; } 100% { transform: translateY(16px) scaleX(1.5); opacity:0; } }
   @keyframes tvPlay { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
   @keyframes spinFan { to { transform: rotate(360deg); } }
+  @keyframes rotateHint { 0%,100% { transform: rotate(0deg); } 50% { transform: rotate(-90deg); } }
 
   .bob { display:inline-block; }
   .star { animation: twinkle 2.4s ease-in-out infinite; }
