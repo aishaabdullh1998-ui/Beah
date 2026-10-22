@@ -16,7 +16,7 @@ import { Glyph, IconChip, ImgFallback, Salim, SalimSays, OmanMap, StoryBadge, St
 import { WORD_SCENES, ActBtn, Hint } from "./scenes.jsx";
 import {
   PreviewCard,
-  OrderEvents, MainIdeaCard, WordCards, WordCheck, AchievementCard,
+  MainIdeaCard, WordCards, WordCheck, AchievementCard,
   ReadingText, ReadingInline, stopSpeaking, summarize,
 } from "./reading.jsx";
 import { GAMES as BASE_GAMES } from "./games.jsx";
@@ -516,7 +516,7 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
   /* ---- حالة طبقة القراءة — تبدأ القصّة مباشرةً، بلا سؤال توقّع قبلي ---- */
   const [phase, setPhase] = useState("scene");
   const [step, setStep] = useState("scene");                       // داخل المشهد
-  const [endStep, setEndStep] = useState("order");                 // بعد النهاية
+  const [endStep, setEndStep] = useState("mainIdea");               // بعد النهاية
   const [openWord, setOpenWord] = useState(null);
   const [beatAdvanced, setBeatAdvanced] = useState(false);          // في الوضع السينمائي: هل تجاوز القارئ نصّ المشهد؟
   const isPortraitPhone = usePortraitPhone();
@@ -546,7 +546,7 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
   const replay = () => {
     stopSpeaking();
     setOpenWord(null);
-    setEndStep("order");
+    setEndStep("mainIdea");
     startedAt.current = Date.now();
     metrics.current = {
       previewChoice: null, predictions: [], connectAnswer: null,
@@ -614,7 +614,7 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
       {cinematic && (
         <div aria-hidden="true" style={{
           position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none",
-          background: "linear-gradient(to top, rgba(12,9,5,.93) 0%, rgba(12,9,5,.88) 8%, rgba(12,9,5,.5) 34%, rgba(12,9,5,0) 62%)",
+          background: "linear-gradient(to top, rgba(12,9,5,.72) 0%, rgba(12,9,5,.6) 10%, rgba(12,9,5,.28) 30%, rgba(12,9,5,0) 46%, rgba(12,9,5,0) 66%, rgba(12,9,5,.22) 86%, rgba(12,9,5,.4) 100%)",
         }} />
       )}
       {!hasSceneArt && isNightBg(scene.bg) && (
@@ -655,8 +655,8 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
         key={phase === "preview" ? "preview" : currentId}
         className={dir === "fwd" ? "fwd" : "back"}
         style={{
-          padding: "0 16px 20px", display: "flex", flexDirection: "column", gap: 14, flex: 1, position: "relative", zIndex: 2,
-          justifyContent: cinematic ? "flex-end" : "flex-start",
+          padding: "16px 16px 20px", display: "flex", flexDirection: "column", gap: 14, flex: 1, position: "relative", zIndex: 2,
+          justifyContent: cinematic ? "space-between" : "flex-start",
         }}
       >
         {!cinematic && (
@@ -697,10 +697,10 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
         {phase !== "preview" && (
           <>
             <div style={cinematic ? {
-              position: "relative", marginTop: 16,
-              background: "rgba(255,250,236,.93)", backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)",
-              border: "1px solid rgba(255,255,255,.5)", borderRadius: 20,
-              padding: "20px 18px 16px", boxShadow: "0 16px 38px rgba(42,26,5,.22)",
+              position: "relative",
+              background: "rgba(255,250,236,.62)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
+              border: "1px solid rgba(255,255,255,.45)", borderRadius: 20,
+              padding: "20px 18px 16px", boxShadow: "0 16px 38px rgba(42,26,5,.18)",
             } : { background: warning ? "rgba(255,244,234,.96)" : "rgba(255,250,236,.97)", borderRadius: 18, padding: 16, boxShadow: shadow.lg }}>
               {cinematic && (
                 <span style={{
@@ -756,7 +756,7 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
             </div>
 
             {cinematic && !beatAdvanced ? (
-              <div style={{ display: "flex", justifyContent: "flex-end", marginTop: -10 }}>
+              <div style={{ display: "flex", justifyContent: "flex-end" }}>
                 <button
                   type="button" onClick={() => setBeatAdvanced(true)}
                   className="bob"
@@ -824,16 +824,6 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
             )}
 
             {/* ===== النهاية: التلخيص ثم الوسام ===== */}
-            {scene.isEnding && R && endStep === "order" && (
-              <OrderEvents
-                items={R.order} profile={profile} tone={accent}
-                onDone={(res) => {
-                  if (res && metrics.current.orderFirstTry === null) metrics.current.orderFirstTry = !!res.firstTry;
-                  if (!res) setEndStep("mainIdea");
-                }}
-              />
-            )}
-
             {scene.isEnding && R && endStep === "mainIdea" && (
               <MainIdeaCard
                 mainIdea={R.mainIdea} profile={profile} tone={accent}

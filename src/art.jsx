@@ -3,7 +3,7 @@
    ============================================================ */
 import React, { useState } from "react";
 import { c, env as envColor, shadow, font, ease } from "./theme.js";
-import { MAP_VIEWBOX, LAND, LAND_ORDER, LAND_BORDER, NEIGHBOURS, GRATICULE, project } from "./omanGeo.js";
+import { MAP_VIEWBOX, MAP_FRAME, LAND, LAND_ORDER, LAND_BORDER, NEIGHBOURS, NEIGHBOURS_WEST, GRATICULE, project } from "./omanGeo.js";
 
 /* ── أيقونات البيئات ───────────────────────────────────── */
 const SHAPES = {
@@ -1658,11 +1658,11 @@ export function BrandLogo({ size = 96, align = "center", variant = LOGO_VARIANT,
    ومواقع القصص إحداثيّات lat/lon في content.js تُسقَط هنا.
    ============================================================ */
 export function OmanMap({ stories, completed = [], onPick, activeId }) {
-  const { w: VW, h: VH } = MAP_VIEWBOX;
+  const { minX, minY, w: FW, h: FH } = MAP_FRAME;
   return (
-    <div style={{ width: "100%", maxHeight: "78vh", overflow: "auto", borderRadius: 16, margin: "0 auto" }}>
+    <div style={{ width: "100%", borderRadius: 16, margin: "0 auto" }}>
     <svg
-      viewBox={`0 0 ${VW} ${VH}`}
+      viewBox={`${minX} ${minY} ${FW} ${FH}`}
       role="img"
       aria-label="خريطة سلطنة عُمان، وعليها مواقع المغامرات"
       style={{ display: "block", width: "100%", height: "auto" }}
@@ -1679,7 +1679,7 @@ export function OmanMap({ stories, completed = [], onPick, activeId }) {
         </linearGradient>
       </defs>
 
-      <rect x="0" y="0" width={VW} height={VH} fill="url(#seaGrad)" />
+      <rect x={minX} y={minY} width={FW} height={FH} fill="url(#seaGrad)" />
 
       {/* خطوط الطول والعرض */}
       <g stroke="#9DC2CC" strokeWidth=".5" opacity=".65">
@@ -1687,8 +1687,9 @@ export function OmanMap({ stories, completed = [], onPick, activeId }) {
         {GRATICULE.lat.map((l) => <line key={`t${l.label}`} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} />)}
       </g>
 
-      {/* يابسة الجيران — باهتة، كي لا تبدو عُمان جزيرة */}
+      {/* يابسة الجيران — باهتة، كي لا تبدو عُمان جزيرة، بهامشٍ غربيٍّ أوسع */}
       <path d={NEIGHBOURS} fill="#E7E0D0" stroke="#D3C9B4" strokeWidth=".8" opacity=".9" />
+      <path d={NEIGHBOURS_WEST} fill="#E7E0D0" stroke="none" opacity=".9" />
 
       {/* اليابسة — ستّة مضلّعات حقيقيّة */}
       <g fill="url(#landGrad)" stroke="#C6B995" strokeWidth="1.6" strokeLinejoin="round">

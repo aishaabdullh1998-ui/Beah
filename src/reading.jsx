@@ -659,7 +659,6 @@ export function AchievementCard({ metrics, profile, tone, onDone }) {
   const m = summarize(metrics);
   const yes = R.achieveYes, no = R.achieveNo;
   const rows = [
-    { k: R.achieveOrder, v: m.orderFirstTry === null ? R.achieveNone : (m.orderFirstTry ? yes : no) },
     { k: R.achieveMainIdea, v: m.mainIdeaFirstTry === null ? R.achieveNone : (m.mainIdeaFirstTry ? yes : no) },
     { k: R.achieveWords, v: m.wordTotal ? `${toArabicDigits(m.wordScore)} / ${toArabicDigits(m.wordTotal)}` : R.achieveNone },
     { k: R.achieveTime, v: `${toArabicDigits(m.minutes)} ${R.achieveMinutes}` },
