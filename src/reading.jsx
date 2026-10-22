@@ -169,9 +169,9 @@ function Note({ text, tone = c.sageInk, soft }) {
 /* ============================================================
    نص المشهد مع إبراز الدليل وتحديد كلمات القصة
    ============================================================ */
-export function ReadingText({ text, words = [], evidence, onWord, tone = c.sageInk }) {
+export function ReadingText({ text, words = [], evidence, onWord, tone = c.sageInk, color = "#33301F", shadowCss = "none" }) {
   return (
-    <p style={{ margin: "8px 0 0", color: "#33301F", lineHeight: 2, fontSize: 14.5, fontFamily: font.body }}>
+    <p style={{ margin: "8px 0 0", color, textShadow: shadowCss, lineHeight: 2, fontSize: 14.5, fontFamily: font.body }}>
       <ReadingInline text={text} words={words} evidence={evidence} onWord={onWord} tone={tone} />
     </p>
   );

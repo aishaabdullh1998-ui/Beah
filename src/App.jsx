@@ -689,12 +689,13 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
                 ) : scene.title}
               </h2>
               {R ? (
-                <div style={{ color: cinematic ? "#E7D9BC" : "#33301F", textShadow: cinematic ? "0 2px 10px rgba(0,0,0,.6)" : "none" }}>
-                  <ReadingText
-                    text={scene.text} words={sceneWords} evidence={evidence}
-                    tone={cinematic ? "#FFD873" : accent} onWord={(w) => setOpenWord(openWord && openWord.word === w.word ? null : w)}
-                  />
-                </div>
+                <ReadingText
+                  text={scene.text} words={sceneWords} evidence={evidence}
+                  tone={cinematic ? "#FFD873" : accent}
+                  color={cinematic ? "#F5ECD8" : "#33301F"}
+                  shadowCss={cinematic ? "0 2px 10px rgba(0,0,0,.75)" : "none"}
+                  onWord={(w) => setOpenWord(openWord && openWord.word === w.word ? null : w)}
+                />
               ) : (
                 <p style={{ margin: "8px 0 0", color: cinematic ? "#E7D9BC" : "#33301F", textShadow: cinematic ? "0 2px 10px rgba(0,0,0,.6)" : "none", lineHeight: 2, fontSize: 14.5, fontFamily: font.body }}>{scene.text}</p>
               )}
