@@ -1287,7 +1287,7 @@ const SALIM_MOOD = {
   },
 };
 
-export function Salim({ mood = "smile", size = 96 }) {
+function SalimGlyph({ mood = "smile", size = 96 }) {
   const m = SALIM_MOOD[mood] || SALIM_MOOD.smile;
   return (
     <svg
@@ -1311,6 +1311,34 @@ export function Salim({ mood = "smile", size = 96 }) {
       {m.eyes}
       {m.mouth}
     </svg>
+  );
+}
+
+/* بورتريهات الجدّ سالم المُولَّدة — صورةٌ لكلّ حالةٍ نفسيّة، بنفس ترميز
+   SALIM_MOOD أعلاه، تحاول عرض صورةٍ مرسومةٍ (لم تُرفَع بعد)، وإلّا
+   الرسم اليدويّ (SalimGlyph) بدل ذلك دون أيّ كسرٍ بصريّ. */
+const SALIM_IMG = {
+  smile: "assets/img/salim/salim-smile.webp",
+  ask: "assets/img/salim/salim-ask.webp",
+  think: "assets/img/salim/salim-think.webp",
+  warn: "assets/img/salim/salim-warn.webp",
+  agree: "assets/img/salim/salim-agree.webp",
+};
+
+export function Salim({ mood = "smile", size = 96 }) {
+  const m = mood in SALIM_IMG ? mood : "smile";
+  return (
+    <div style={{ width: size, height: size, borderRadius: "50%", overflow: "hidden", flexShrink: 0, boxShadow: shadow.sm, border: "2px solid #FFF8EC" }}>
+      <ImgFallback
+        src={SALIM_IMG[m]} alt="" width={size} height={size}
+        style={{ width: size, height: size, objectFit: "cover" }}
+        fallback={
+          <div style={{ width: size, height: size, display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
+            <SalimGlyph mood={mood} size={Math.round(size / SALIM_FACE_RATIO)} />
+          </div>
+        }
+      />
+    </div>
   );
 }
 
