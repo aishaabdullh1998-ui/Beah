@@ -768,7 +768,7 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
                   onWord={(w) => setOpenWord(openWord && openWord.word === w.word ? null : w)}
                 />
               ) : (
-                <p style={{ margin: cinematic ? 0 : "8px 0 0", color: cinematic ? "#F5ECD8" : "#33301F", lineHeight: cinematic ? 1.85 : 2, fontSize: 14.5, fontFamily: font.body }}>{scene.text}</p>
+                <p style={{ margin: cinematic ? 0 : "8px 0 0", color: cinematic ? "#F5ECD8" : "#33301F", lineHeight: cinematic ? 1.85 : 2, fontSize: 18.5, fontFamily: font.body }}>{scene.text}</p>
               )}
               {openWord && (
                 <div style={{
