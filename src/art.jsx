@@ -998,11 +998,52 @@ const FRANKINCENSE_SCENE_PHOTOS = {
   wait_wrong2: "assets/scenes/frankincense/wait_wrong2.webp",
   plant_seedlings: "assets/scenes/frankincense/plant_seedlings.webp",
 };
+const MANGROVE_SCENE_PHOTOS = {
+  start: "assets/scenes/mangrove/start.webp",
+  eat_wrong: "assets/scenes/mangrove/eat_wrong.webp",
+  ask_fish: "assets/scenes/mangrove/ask_fish.webp",
+  how_clean: "assets/scenes/mangrove/how_clean.webp",
+  cleanup_right: "assets/scenes/mangrove/cleanup_right.webp",
+};
+const IBEX_SCENE_PHOTOS = {
+  start: "assets/scenes/ibex/start.webp",
+  sea_wrong: "assets/scenes/ibex/sea_wrong.webp",
+  follow_mom: "assets/scenes/ibex/follow_mom.webp",
+  spring_scene: "assets/scenes/ibex/spring_scene.webp",
+  fight_wrong: "assets/scenes/ibex/fight_wrong.webp",
+  wait_right: "assets/scenes/ibex/wait_right.webp",
+};
+const FALCON_SCENE_PHOTOS = {
+  start: "assets/scenes/falcon/start.webp",
+  fly_wrong: "assets/scenes/falcon/fly_wrong.webp",
+  stay_calm: "assets/scenes/falcon/stay_calm.webp",
+  grow_up: "assets/scenes/falcon/grow_up.webp",
+  far_wrong: "assets/scenes/falcon/far_wrong.webp",
+  practice_right: "assets/scenes/falcon/practice_right.webp",
+};
+const AIRQUALITY_SCENE_PHOTOS = {
+  start: "assets/scenes/airquality/start.webp",
+  ignore_wrong2: "assets/scenes/airquality/ignore_wrong2.webp",
+  ask_mom: "assets/scenes/airquality/ask_mom.webp",
+  plant_right: "assets/scenes/airquality/plant_right.webp",
+};
+const BAY_SCENE_PHOTOS = {
+  start: "assets/scenes/bay/start.webp",
+  stop_look: "assets/scenes/bay/stop_look.webp",
+  how_can_i_help: "assets/scenes/bay/how_can_i_help.webp",
+  alone_wrong: "assets/scenes/bay/alone_wrong.webp",
+  campaign_right: "assets/scenes/bay/campaign_right.webp",
+};
 const STORY_SCENE_PHOTOS = {
   turtle: TURTLE_SCENE_PHOTOS,
   falaj: FALAJ_SCENE_PHOTOS,
   oilspill: OILSPILL_SCENE_PHOTOS,
   frankincense: FRANKINCENSE_SCENE_PHOTOS,
+  mangrove: MANGROVE_SCENE_PHOTOS,
+  ibex: IBEX_SCENE_PHOTOS,
+  falcon: FALCON_SCENE_PHOTOS,
+  airquality: AIRQUALITY_SCENE_PHOTOS,
+  bay: BAY_SCENE_PHOTOS,
 };
 export const STORIES_WITH_SCENE_ART = new Set([
   ...Object.keys(STORY_SCENE_OVERRIDES),
