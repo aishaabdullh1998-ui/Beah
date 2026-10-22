@@ -965,15 +965,15 @@ export const STORIES_WITH_SCENE_ART = new Set(Object.keys(STORY_SCENE_OVERRIDES)
 /* صورٌ سينمائيَّةٌ مولَّدة لكُلِّ مشهدٍ من قِصَّةِ سَلْمَى — تحلّ محلَّ الرَّسمِ
    المتجهِّ حين تتوفَّر، وتتراجع تلقائيًّا إلى الرَّسمِ القديمِ إن تعذَّر تحميلُها. */
 const TURTLE_SCENE_PHOTOS = {
-  start: "assets/scenes/turtle/start.png",
-  lights_wrong: "assets/scenes/turtle/lights_wrong.png",
-  waves_right: "assets/scenes/turtle/waves_right.png",
-  plastic_scene: "assets/scenes/turtle/plastic_scene.png",
-  eat_plastic: "assets/scenes/turtle/eat_plastic.png",
-  avoid_plastic: "assets/scenes/turtle/avoid_plastic.png",
-  reach_sea: "assets/scenes/turtle/reach_sea.png",
-  tangled: "assets/scenes/turtle/tangled.png",
-  safe_swim: "assets/scenes/turtle/safe_swim.png",
+  start: "assets/scenes/turtle/start.webp",
+  lights_wrong: "assets/scenes/turtle/lights_wrong.webp",
+  waves_right: "assets/scenes/turtle/waves_right.webp",
+  plastic_scene: "assets/scenes/turtle/plastic_scene.webp",
+  eat_plastic: "assets/scenes/turtle/eat_plastic.webp",
+  avoid_plastic: "assets/scenes/turtle/avoid_plastic.webp",
+  reach_sea: "assets/scenes/turtle/reach_sea.webp",
+  tangled: "assets/scenes/turtle/tangled.webp",
+  safe_swim: "assets/scenes/turtle/safe_swim.webp",
 };
 const STORY_SCENE_PHOTOS = { turtle: TURTLE_SCENE_PHOTOS };
 
