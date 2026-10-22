@@ -1000,12 +1000,20 @@ export function SceneBackdrop({ bg, storyId, sceneId, isEnding }) {
   const photoSet = STORY_SCENE_PHOTOS[storyId];
   const photoSrc = photoSet && sceneId && photoSet[sceneId];
   if (photoSrc) {
+    const svgFallback = overrideSet && sceneId && overrideSet[sceneId] ? <SceneBackdropSvg bg={bg} storyId={storyId} sceneId={sceneId} /> : <SceneBackdropSvg bg={bg} />;
     return (
-      <div style={{ position: "absolute", inset: 0, overflow: "hidden" }} aria-hidden="true">
+      <div style={{ position: "absolute", inset: 0, overflow: "hidden", background: "#15110a" }} aria-hidden="true">
+        {/* طبقة ضبابيّة مكبَّرة من اللوحة نفسها تملأ الإطار، دون أن تُقصَّ اللوحة الأصليّة */}
         <ImgFallback
           src={photoSrc} alt=""
-          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
-          fallback={overrideSet && sceneId && overrideSet[sceneId] ? <SceneBackdropSvg bg={bg} storyId={storyId} sceneId={sceneId} /> : <SceneBackdropSvg bg={bg} />}
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", filter: "blur(32px) saturate(1.2) brightness(.85)", transform: "scale(1.18)" }}
+          fallback={svgFallback}
+        />
+        {/* اللوحة كاملةً دون أيّ قصّ */}
+        <ImgFallback
+          src={photoSrc} alt=""
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain" }}
+          fallback={null}
         />
         {warn && <div style={{ position: "absolute", inset: 0, background: "#5B4530", opacity: .3 }} />}
       </div>
@@ -1022,11 +1030,16 @@ export function SceneBackdrop({ bg, storyId, sceneId, isEnding }) {
   const src = pair && (isEnding && pair.after ? pair.after : pair.before);
   if (!src) return <SceneBackdropSvg bg={bg} />;
   return (
-    <div style={{ position: "absolute", inset: 0, overflow: "hidden" }} aria-hidden="true">
+    <div style={{ position: "absolute", inset: 0, overflow: "hidden", background: "#15110a" }} aria-hidden="true">
       <ImgFallback
         src={src} alt=""
-        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", filter: "blur(32px) saturate(1.2) brightness(.85)", transform: "scale(1.18)" }}
         fallback={<SceneBackdropSvg bg={bg} />}
+      />
+      <ImgFallback
+        src={src} alt=""
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain" }}
+        fallback={null}
       />
       {warn && <div style={{ position: "absolute", inset: 0, background: "#5B4530", opacity: .38 }} />}
     </div>

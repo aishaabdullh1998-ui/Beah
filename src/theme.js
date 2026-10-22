@@ -92,8 +92,8 @@ export const shadow = {
 
 /* ── الخطوط ────────────────────────────────────────────── */
 export const font = {
-  display: "'Changa', 'Baloo Bhaijaan 2', 'Segoe UI', sans-serif",
-  body: "'Changa', 'Manchette', 'Readex Pro', 'Segoe UI', Tahoma, sans-serif",
+  display: "'Noto Naskh Arabic', 'Baloo Bhaijaan 2', 'Segoe UI', sans-serif",
+  body: "'Noto Naskh Arabic', 'Readex Pro', 'Segoe UI', Tahoma, sans-serif",
 };
 
 /* ── الحركة ────────────────────────────────────────────── */
