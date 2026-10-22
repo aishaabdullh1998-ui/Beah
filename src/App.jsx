@@ -15,7 +15,7 @@ import {
 import { Glyph, IconChip, ImgFallback, Salim, SalimSays, OmanMap, StoryBadge, StoryIcon, StoryHero, SceneBackdrop, STORIES_WITH_SCENE_ART, CompletionBadge, PlayerAvatar, BrandLogo, DictIcon, keyframes } from "./art.jsx";
 import { WORD_SCENES, ActBtn, Hint } from "./scenes.jsx";
 import {
-  PreviewCard, ConnectCard, PredictCard, ReviewCard, InferenceCard,
+  PreviewCard,
   OrderEvents, MainIdeaCard, WordCards, WordCheck, AchievementCard,
   ReadingText, ReadingInline, stopSpeaking, summarize,
 } from "./reading.jsx";
@@ -392,27 +392,35 @@ function HomePanel({ profile, go, compact }) {
   const done = profile.completed || [];
   const gdone = profile.gamesDone || [];
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+    <div style={compact
+      ? { display: "flex", flexDirection: "row", flexWrap: "wrap", gap: 12 }
+      : { display: "flex", flexDirection: "column", gap: 12 }}>
       {!compact && <SalimSays mood="smile" text={pick(profile, salimText.welcome, salimText.welcomeF)} size={58} />}
-      <BigButton
-        title={sections.stories} sub={sections.storiesSub} icon="map"
-        image="assets/img/home/home-stories.webp" imageAlt="رسمة قصص بيئية"
-        bg={c.sageDeep} fg={c.onDark} badge={`${ed(done.length)}/${ed(stories.length)}`}
-        badgeIcon="assets/img/home/ui-medal.webp"
-        onClick={() => go("stories")}
-      />
-      <BigButton
-        title={sections.games} sub={sections.gamesSub} icon="house"
-        image="assets/img/home/home-games.webp" imageAlt="رسمة ألعاب بيئية"
-        bg={c.accent} fg={c.onDark} badge={`${ed(gdone.length)}/${ed(games.length)}`}
-        badgeIcon="assets/img/home/ui-trophy.webp"
-        onClick={() => go("games")}
-      />
-      <BigButton
-        title={sections.words} sub={sections.wordsSub} icon="book"
-        image="assets/img/home/home-dictionary.webp" imageAlt="رسمة المعجم البصري"
-        bg={c.dusty} fg="#233038" onClick={() => go("words")}
-      />
+      <div style={compact ? { flex: "1 1 220px", minWidth: 0 } : undefined}>
+        <BigButton
+          title={sections.stories} sub={sections.storiesSub} icon="map"
+          image="assets/img/home/home-stories.webp" imageAlt="رسمة قصص بيئية"
+          bg={c.sageDeep} fg={c.onDark} badge={`${ed(done.length)}/${ed(stories.length)}`}
+          badgeIcon="assets/img/home/ui-medal.webp"
+          onClick={() => go("stories")}
+        />
+      </div>
+      <div style={compact ? { flex: "1 1 220px", minWidth: 0 } : undefined}>
+        <BigButton
+          title={sections.games} sub={sections.gamesSub} icon="house"
+          image="assets/img/home/home-games.webp" imageAlt="رسمة ألعاب بيئية"
+          bg={c.accent} fg={c.onDark} badge={`${ed(gdone.length)}/${ed(games.length)}`}
+          badgeIcon="assets/img/home/ui-trophy.webp"
+          onClick={() => go("games")}
+        />
+      </div>
+      <div style={compact ? { flex: "1 1 220px", minWidth: 0 } : undefined}>
+        <BigButton
+          title={sections.words} sub={sections.wordsSub} icon="book"
+          image="assets/img/home/home-dictionary.webp" imageAlt="رسمة المعجم البصري"
+          bg={c.dusty} fg="#233038" onClick={() => go("words")}
+        />
+      </div>
     </div>
   );
 }
@@ -505,14 +513,10 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
   const accent = envColor[story.id] || c.sageDeep;
   const [msgIndex] = useState(() => Math.floor(Math.random() * encouragements.length));
 
-  /* ---- حالة طبقة القراءة ---- */
-  const [phase, setPhase] = useState(R ? "preview" : "scene");     // preview → scene → summary
+  /* ---- حالة طبقة القراءة — تبدأ القصّة مباشرةً، بلا سؤال توقّع قبلي ---- */
+  const [phase, setPhase] = useState("scene");
   const [step, setStep] = useState("scene");                       // داخل المشهد
   const [endStep, setEndStep] = useState("order");                 // بعد النهاية
-  const [pendingReview, setPendingReview] = useState(null);
-  const [doneConnect, setDoneConnect] = useState(false);
-  const [doneInference, setDoneInference] = useState(false);
-  const [donePredict, setDonePredict] = useState([]);              // معرّفات المشاهد
   const [openWord, setOpenWord] = useState(null);
   const [beatAdvanced, setBeatAdvanced] = useState(false);          // في الوضع السينمائي: هل تجاوز القارئ نصّ المشهد؟
   const isPortraitPhone = usePortraitPhone();
@@ -528,31 +532,7 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
   useEffect(() => { stopSpeaking(); }, [currentId, step, endStep, phase]);
   useEffect(() => { setBeatAdvanced(false); }, [currentId, phase]);
 
-  /* المحطة الفعّالة في المشهد الحالي */
-  const sceneStep = useMemo(() => {
-    if (!R) return "choices";
-    if (pendingReview) return "review";
-    if (R.connect && R.connect.after === currentId && !doneConnect) return "connect";
-    if (R.inference && R.inference.at === currentId && !doneInference) return "inference";
-    if (scene.predict && !donePredict.includes(currentId)) return "predict";
-    return "choices";
-  }, [R, pendingReview, currentId, doneConnect, doneInference, donePredict, scene]);
-
   const go = (next, back) => {
-    const pr = scene.predict;
-    const answered = pr && (metrics.current.predictions.find((x) => x.scene === currentId) || null);
-    if (pr && answered) {
-      const tested = next === pr.about;
-      setPendingReview({
-        predictText: answered.text,
-        outcome: answered.outcome,
-        tested,
-        happened: pr.happened,
-        untested: pr.untested,
-        untestedF: pr.untestedF,
-      });
-      answered.tested = tested;
-    }
     setDir(back ? "back" : "fwd");
     setCurrentId(next);
   };
@@ -565,10 +545,6 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
   /* إعادة القصة تبدأ دورة قراءة جديدة من أولها */
   const replay = () => {
     stopSpeaking();
-    setPendingReview(null);
-    setDoneConnect(false);
-    setDoneInference(false);
-    setDonePredict([]);
     setOpenWord(null);
     setEndStep("order");
     startedAt.current = Date.now();
@@ -579,12 +555,9 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
     };
     setDir("back");
     setCurrentId("start");
-    setPhase(R ? "preview" : "scene");
+    setPhase("scene");
   };
 
-  /* إبراز الدليل يظهر فقط أثناء سؤال الاستنتاج */
-  const evidence = R && R.inference && R.inference.at === currentId && sceneStep === "inference"
-    ? R.inference.evidence : null;
   const sceneWords = R ? (R.words || []).filter((w) => w.inScene === currentId) : [];
   const hasSceneArt = STORIES_WITH_SCENE_ART.has(story.id);
   const sceneIdForArt = phase === "preview" ? "start" : currentId;
@@ -725,17 +698,17 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
           <>
             <div style={cinematic ? {
               position: "relative", marginTop: 16,
-              background: "rgba(15,11,6,.74)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
-              border: "1px solid rgba(255,217,140,.26)", borderRadius: 20,
-              padding: "20px 18px 16px", boxShadow: "0 16px 38px rgba(0,0,0,.4)",
+              background: "rgba(255,250,236,.93)", backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)",
+              border: "1px solid rgba(255,255,255,.5)", borderRadius: 20,
+              padding: "20px 18px 16px", boxShadow: "0 16px 38px rgba(42,26,5,.22)",
             } : { background: warning ? "rgba(255,244,234,.96)" : "rgba(255,250,236,.97)", borderRadius: 18, padding: 16, boxShadow: shadow.lg }}>
               {cinematic && (
                 <span style={{
                   position: "absolute", top: -15, insetInlineStart: 18,
                   display: "inline-flex", alignItems: "center",
                   background: "#F2A41A", color: "#2A1A05", fontFamily: font.display, fontWeight: 700, fontSize: 12.5,
-                  padding: "6px 15px", borderRadius: 999, boxShadow: "0 5px 12px rgba(0,0,0,.32)",
-                  border: "1px solid rgba(255,255,255,.3)", maxWidth: "calc(100% - 36px)",
+                  padding: "6px 15px", borderRadius: 999, boxShadow: "0 5px 12px rgba(42,26,5,.22)",
+                  border: "1px solid rgba(255,255,255,.6)", maxWidth: "calc(100% - 36px)",
                   overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                 }}>
                   {R ? (
@@ -761,23 +734,23 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
               )}
               {R ? (
                 <ReadingText
-                  text={scene.text} words={sceneWords} evidence={evidence}
-                  tone={cinematic ? "#FFD873" : accent}
-                  color={cinematic ? "#F5ECD8" : "#33301F"}
+                  text={scene.text} words={sceneWords}
+                  tone={accent}
+                  color="#33301F"
                   shadowCss="none"
                   onWord={(w) => setOpenWord(openWord && openWord.word === w.word ? null : w)}
                 />
               ) : (
-                <p style={{ margin: cinematic ? 0 : "8px 0 0", color: cinematic ? "#F5ECD8" : "#33301F", lineHeight: cinematic ? 1.85 : 2, fontSize: 18.5, fontFamily: font.body }}>{scene.text}</p>
+                <p style={{ margin: cinematic ? 0 : "8px 0 0", color: "#33301F", lineHeight: cinematic ? 1.85 : 2, fontSize: 18.5, fontFamily: font.body }}>{scene.text}</p>
               )}
               {openWord && (
                 <div style={{
                   marginTop: 10, borderRadius: 12, padding: "10px 13px",
-                  background: cinematic ? "rgba(0,0,0,.28)" : `${accent}14`,
-                  border: cinematic ? "1px solid rgba(255,233,190,.22)" : "none",
+                  background: `${accent}14`,
+                  border: "none",
                 }}>
-                  <p style={{ margin: 0, fontFamily: font.display, fontWeight: 700, fontSize: 14, color: cinematic ? "#FFD873" : accent }}>{openWord.word}</p>
-                  <p style={{ margin: "4px 0 0", fontSize: 13.5, lineHeight: 1.9, color: cinematic ? "#FBF3E3" : c.ink, fontFamily: font.body }}>{openWord.meaning}</p>
+                  <p style={{ margin: 0, fontFamily: font.display, fontWeight: 700, fontSize: 14, color: accent }}>{openWord.word}</p>
+                  <p style={{ margin: "4px 0 0", fontSize: 13.5, lineHeight: 1.9, color: c.ink, fontFamily: font.body }}>{openWord.meaning}</p>
                 </div>
               )}
             </div>
@@ -789,11 +762,11 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
                   className="bob"
                   style={{
                     display: "inline-flex", alignItems: "center", gap: 8, cursor: "pointer",
-                    background: "rgba(15,11,6,.74)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
-                    border: "1px solid rgba(255,217,140,.4)",
-                    color: "#FFD873", fontFamily: font.display, fontWeight: 700,
+                    background: "rgba(255,250,236,.95)", backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)",
+                    border: "1px solid rgba(255,255,255,.6)",
+                    color: accent, fontFamily: font.display, fontWeight: 700,
                     fontSize: 14, padding: "11px 18px 11px 16px", borderRadius: 999,
-                    boxShadow: "0 10px 24px rgba(0,0,0,.4)",
+                    boxShadow: "0 10px 24px rgba(42,26,5,.22)",
                   }}
                 >
                   {labels.next || "التالي"}
@@ -804,48 +777,14 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
               </div>
             ) : (
               <>
-            {/* ===== داخل المشهد ===== */}
-            {!scene.isEnding && sceneStep === "review" && (
-              <ReviewCard
-                review={pendingReview} profile={profile} tone={accent}
-                onDone={() => setPendingReview(null)}
-              />
-            )}
-
-            {!scene.isEnding && sceneStep === "connect" && (
-              <ConnectCard
-                connect={R.connect} profile={profile} tone={accent}
-                onDone={(a) => { metrics.current.connectAnswer = a; setDoneConnect(true); }}
-              />
-            )}
-
-            {!scene.isEnding && sceneStep === "inference" && (
-              <InferenceCard
-                inference={R.inference} profile={profile} tone={accent}
-                onReveal={(firstTry) => {
-                  if (metrics.current.inferenceFirstTry === null) metrics.current.inferenceFirstTry = !!firstTry;
-                }}
-                onDone={() => setDoneInference(true)}
-              />
-            )}
-
-            {!scene.isEnding && sceneStep === "predict" && (
-              <PredictCard
-                predict={scene.predict} profile={profile} tone={accent}
-                onDone={(opt) => {
-                  metrics.current.predictions.push({ scene: currentId, outcome: opt.outcome, text: opt.text, tested: false });
-                  setDonePredict((d) => [...d, currentId]);
-                }}
-              />
-            )}
-
-            {!scene.isEnding && sceneStep === "choices" && (
+            {/* ===== داخل المشهد: القرار وحده، بلا اختبارات تقطع القصّة ===== */}
+            {!scene.isEnding && (
               <>
-                {scene.isRetry && <SalimSays mood="think" text={salimText.onRetry} size={48} tone="sand" />}
+                {scene.isRetry && <SalimSays mood="think" text={salimText.onRetry} size={cinematic ? 96 : 48} tone="sand" />}
                 {!scene.isRetry && scene.choices.length > 1 && (
-                  <SalimSays mood="ask" text={pick(profile, salimText.onChoice, salimText.onChoiceF)} size={48} tone="sand" />
+                  <SalimSays mood="ask" text={pick(profile, salimText.onChoice, salimText.onChoiceF)} size={cinematic ? 96 : 48} tone="sand" />
                 )}
-                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <div style={cinematic ? { display: "flex", flexWrap: "wrap", gap: 10 } : { display: "flex", flexDirection: "column", gap: 10 }}>
                   {scene.choices.map((ch) => {
                     const { text, icon, isGrandpa } = parseChoiceLabel(ch.label);
                     return (
@@ -854,12 +793,12 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
                         type="button"
                         onClick={() => go(ch.next, !!scene.isRetry)}
                         style={cinematic ? {
-                          width: "100%", textAlign: "right", borderRadius: 18, padding: "15px 16px", cursor: "pointer",
-                          border: "1px solid rgba(255,233,190,.28)",
-                          background: scene.isRetry ? "rgba(242,164,26,.82)" : "rgba(20,14,8,.46)",
+                          flex: scene.choices.length > 1 ? "1 1 240px" : "1 1 100%", textAlign: "right", borderRadius: 16, padding: "13px 15px", cursor: "pointer",
+                          border: "1px solid rgba(0,0,0,.08)",
+                          background: scene.isRetry ? "rgba(242,164,26,.92)" : "rgba(255,255,255,.92)",
                           backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)",
-                          color: "#FBF3E3", fontFamily: font.body, fontSize: 15, fontWeight: 600, lineHeight: 1.5,
-                          boxShadow: "0 8px 22px rgba(0,0,0,.3)", minHeight: 50,
+                          color: scene.isRetry ? "#2A1A05" : "#33301F", fontFamily: font.body, fontSize: 15, fontWeight: 600, lineHeight: 1.5,
+                          boxShadow: "0 8px 18px rgba(42,26,5,.14)", minHeight: 50,
                           transition: `transform .2s ${ease}`,
                           display: "flex", alignItems: "center", gap: 12,
                         } : {
@@ -884,15 +823,8 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
               </>
             )}
 
-            {/* ===== النهاية: مراجعة أخيرة ثم التلخيص ثم الوسام ===== */}
-            {scene.isEnding && pendingReview && (
-              <ReviewCard
-                review={pendingReview} profile={profile} tone={accent}
-                onDone={() => setPendingReview(null)}
-              />
-            )}
-
-            {scene.isEnding && !pendingReview && R && endStep === "order" && (
+            {/* ===== النهاية: التلخيص ثم الوسام ===== */}
+            {scene.isEnding && R && endStep === "order" && (
               <OrderEvents
                 items={R.order} profile={profile} tone={accent}
                 onDone={(res) => {
@@ -902,21 +834,21 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
               />
             )}
 
-            {scene.isEnding && !pendingReview && R && endStep === "mainIdea" && (
+            {scene.isEnding && R && endStep === "mainIdea" && (
               <MainIdeaCard
                 mainIdea={R.mainIdea} profile={profile} tone={accent}
                 onDone={(firstTry) => { metrics.current.mainIdeaFirstTry = !!firstTry; setEndStep("words"); }}
               />
             )}
 
-            {scene.isEnding && !pendingReview && R && endStep === "words" && (
+            {scene.isEnding && R && endStep === "words" && (
               <WordCards
                 words={R.words} story={story} profile={profile} tone={accent}
                 onDone={(seen) => { metrics.current.wordsOpened = seen; setEndStep("wordCheck"); }}
               />
             )}
 
-            {scene.isEnding && !pendingReview && R && endStep === "wordCheck" && (
+            {scene.isEnding && R && endStep === "wordCheck" && (
               <WordCheck
                 questions={R.wordCheck} profile={profile} tone={accent}
                 onDone={(res) => {
@@ -928,14 +860,14 @@ function StoryPlayer({ story, profile, onComplete, onExit, rounded, onReadingDon
               />
             )}
 
-            {scene.isEnding && !pendingReview && R && endStep === "achievement" && (
+            {scene.isEnding && R && endStep === "achievement" && (
               <AchievementCard
                 metrics={metrics.current} profile={profile} tone={accent}
                 onDone={() => setEndStep("badge")}
               />
             )}
 
-            {scene.isEnding && !pendingReview && (!R || endStep === "badge") && (
+            {scene.isEnding && (!R || endStep === "badge") && (
               <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
                 <div className="pop" style={{ background: "rgba(255,255,255,.95)", borderRadius: 18, padding: "16px 16px 18px", width: "100%", textAlign: "center", boxShadow: shadow.lg }}>
                   <div style={{ display: "flex", justifyContent: "center" }}>
@@ -1537,22 +1469,22 @@ export default function App() {
            سينمائيّةً حتَّى على الحاسوب والسبّورة التفاعليّة. */
         <div style={{ flex: 1, width: "100%", display: "flex", flexDirection: "column", paddingTop: 6 }}>{content()}</div>
       ) : wide ? (
-        <div style={{ display: "grid", gridTemplateColumns: "352px minmax(0,1fr)", gap: 26, alignItems: "start", flex: 1 }}>
-          <aside style={{ position: "sticky", top: 16 }}>
-            <HomePanel profile={profile} go={setView} compact />
-          </aside>
+        <div style={{ display: "flex", flexDirection: "column", gap: 20, flex: 1 }}>
           <section style={{ minWidth: 0 }}>
             {view === "home" ? (
               <Card pad={24}>
                 <SalimSays mood="smile" text={pick(profile, salimText.welcome, salimText.welcomeF)} size={74} />
                 <p style={{ margin: "16px 0 0", fontSize: 14, lineHeight: 2, color: c.inkSoft, fontFamily: font.body }}>
                   {isF(profile)
-                    ? "اخْتَارِي قِسْمًا مِنَ الجَانِبِ: قِصَصٌ تَقُودِينَهَا، وَأَلْعَابٌ تُجَرِّبِينَ فِيهَا قَرَارَاتِكِ، وَمُعْجَمًا بَصَرِيًّا تَسْتَكْشِفِينَهُ بِيَدَيْكِ."
-                    : "اخْتَرْ قِسْمًا مِنَ الجَانِبِ: قِصَصٌ تَقُودُهَا، وَأَلْعَابٌ تُجَرِّبُ فِيهَا قَرَارَاتِكَ، وَمُعْجَمًا بَصَرِيًّا تَسْتَكْشِفُهُ بِيَدَيْكَ."}
+                    ? "اخْتَارِي قِسْمًا مِمَّا يَأْتِي: قِصَصٌ تَقُودِينَهَا، وَأَلْعَابٌ تُجَرِّبِينَ فِيهَا قَرَارَاتِكِ، وَمُعْجَمًا بَصَرِيًّا تَسْتَكْشِفِينَهُ بِيَدَيْكِ."
+                    : "اخْتَرْ قِسْمًا مِمَّا يَأْتِي: قِصَصٌ تَقُودُهَا، وَأَلْعَابٌ تُجَرِّبُ فِيهَا قَرَارَاتِكَ، وَمُعْجَمًا بَصَرِيًّا تَسْتَكْشِفُهُ بِيَدَيْكَ."}
                 </p>
               </Card>
             ) : content()}
           </section>
+          <div style={{ position: "sticky", bottom: 16, zIndex: 5 }}>
+            <HomePanel profile={profile} go={setView} compact />
+          </div>
         </div>
       ) : (
         <div style={{ flex: 1, maxWidth: vp === "tablet" ? 640 : "none", width: "100%", margin: "0 auto" }}>{content()}</div>

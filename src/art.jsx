@@ -1660,11 +1660,12 @@ export function BrandLogo({ size = 96, align = "center", variant = LOGO_VARIANT,
 export function OmanMap({ stories, completed = [], onPick, activeId }) {
   const { w: VW, h: VH } = MAP_VIEWBOX;
   return (
+    <div style={{ width: "100%", maxHeight: "78vh", overflow: "auto", borderRadius: 16, margin: "0 auto" }}>
     <svg
       viewBox={`0 0 ${VW} ${VH}`}
       role="img"
       aria-label="خريطة سلطنة عُمان، وعليها مواقع المغامرات"
-      style={{ width: "auto", height: "min(56vh, 520px)", maxWidth: "100%", display: "block", margin: "0 auto" }}
+      style={{ display: "block", width: "100%", height: "auto" }}
     >
       <defs>
         <linearGradient id="seaGrad" x1="0" y1="0" x2="0" y2="1">
@@ -1753,6 +1754,7 @@ export function OmanMap({ stories, completed = [], onPick, activeId }) {
         );
       })}
     </svg>
+    </div>
   );
 }
 
